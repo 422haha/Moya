@@ -27,3 +27,21 @@ numpy로 행렬 연산을 쉽게 할 수 있다. 파이썬 라이브러리
 텐서에서 리스트나 넘파이어레이로 변경 가능
 
 
+
+텐서연산 디바이스 지정
+
+쿠다 또는 씨피유
+
+
+
+파이토치에서 텐서(데이터)를 gpu 연산에 사용하려면 
+
+텐서를 gpu에 올려야 한다
+
+
+
+파이토치 텐서 다루기
+
+- `torch.unsqueeze()`와 `torch.squeeze()`
+- `torch.view()`와 `torch.reshape()`
+- `torch.concat()`와 `torch.stack()`
