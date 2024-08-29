@@ -56,34 +56,20 @@ Basic Neural Network 구현
 
 cifar10으로 테스트
 
-
-
 시각화 함수로 데이터 시각화 구현
 
 - 시각화를 위해서 다시 정규화된 텐서에서 복원해야함
 
 - 이후에 화면에 띄우는 작업 `visualize()` 구현
 
-- 
+- 데이터셋 및 데이터 로더 불러와서 `visualize()` 함수 테스트 가능
 
+Model 구성
 
+- TwoLayerFC 모델, forward 연산 정의
 
+- Linear Layer로 이미지를 flatten 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-asdf
+- Fully Connected Layer 모듈
+  
+  - FC1: input data -> hidden feature
