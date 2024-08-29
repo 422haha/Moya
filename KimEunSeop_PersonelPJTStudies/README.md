@@ -146,7 +146,7 @@ validation set과 test set에 대하여 측정
 
     # 6) Accurcy를 계산함
 
-
+모델 학습 진행
 
 
 
