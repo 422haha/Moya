@@ -109,8 +109,22 @@ train() 함수 구현
 - 초기화, 데이터 불러오기, 모델의 예측값 획득, 정답값과 차이구하기(loss)
 
 - loss 를 backpropagation 하고 네트워크 가중치 업데이트
+  
+  -          # 1) Optimizer `optimizer`의 gradient 값을 초기화
+    
+            # 2) 배치 내 데이터를 불러오고 `device`로 데이터가 올라갈 디바이스를 지정함
+    
+            # 3) Forward pass를 통해 모델의 출력(예측값)을 생성함
+    
+            # 4) cross entropy loss를 계산함
+    
+            # 5) Loss를 backpropagation하여 gradient를 전달함
+    
+            # 6) optimizer로 네트워크 가중치를 업데이트함
+    
+            # 7) [Optional] 로깅 용으로 loss를 출력함                                                                      
 
-- 
+모델 테스트 과정 구현
 
 
 
@@ -166,20 +180,4 @@ train() 함수 구현
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+ㅁㄴㅇㄹ
