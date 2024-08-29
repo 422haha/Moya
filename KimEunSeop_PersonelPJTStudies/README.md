@@ -73,3 +73,5 @@ Model 구성
 - Fully Connected Layer 모듈
   
   - FC1: input data -> hidden feature
+  
+  - ReLU
