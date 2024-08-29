@@ -126,7 +126,9 @@ train() 함수 구현
 
 모델 테스트 과정 구현
 
+train모드 말고 eval 모드로 변경
 
+그래디언트 계산이 불필요하므로 막음 : `torch.no_grad()`나 `@torch.no_grad()`
 
 
 
