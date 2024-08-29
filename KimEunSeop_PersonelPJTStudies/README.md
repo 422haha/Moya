@@ -75,3 +75,7 @@ Model 구성
   - FC1: input data -> hidden feature
   
   - ReLU
+  
+  - FC2: hidden feature -> output(각 클래스 별 classification 점수)
+
+
