@@ -90,7 +90,15 @@ Model 구성
 
 - Optimizer를 초기화 하여 학습(조정) 하려는 모델 파라미터의 그래디언트를 리셋함
 
-- 
+- 학습  loop 내에서
+  
+  - 모델 파라미터의 그래디언트를 리셋 `optimizer.zero_grad()`
+  
+  - model output 및 loss 계산
+  
+  - backpropagation `loss.backward()`, 파이토치에서 자동적으로 각 파라미터의 그래디언트를 계산해 저장함
+  
+  - 
 
 
 
