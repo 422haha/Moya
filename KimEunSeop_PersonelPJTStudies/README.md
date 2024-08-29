@@ -77,5 +77,7 @@ Model 구성
   - ReLU
   
   - FC2: hidden feature -> output(각 클래스 별 classification 점수)
+  
+  - nn.Module 을 상속 받은 TwoLayerFC 모델의 _init_ 람수에 모델 레이어를 , forward 함수에 forward 연산을 정의하면 됨
 
 
