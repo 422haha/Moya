@@ -98,7 +98,9 @@ Model 구성
   
   - backpropagation `loss.backward()`, 파이토치에서 자동적으로 각 파라미터의 그래디언트를 계산해 저장함
   
-  - 
+  - 계산한 그래디언트를 이용해 파라미터를 업데이트함 `optimizer.step()`
+
+- train() 함수에서 학습 loop 의 내용 구현
 
 
 
