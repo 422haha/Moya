@@ -130,7 +130,21 @@ train모드 말고 eval 모드로 변경
 
 그래디언트 계산이 불필요하므로 막음 : `torch.no_grad()`나 `@torch.no_grad()`
 
+accuracy 계산하여 성능 측정
 
+validation set과 test set에 대하여 측정
+
+    # 1) 배치 내 데이터를 불러오고 `device`로 데이터가 올라갈 디바이스를 지정함
+
+    # 2) Forward pass를 통해 모델의 출력(예측값)을 생성함
+
+    # 3) `mode`가 validation(`val`)일 때는 loss 값을 계산함
+
+    # 4) 예측한 클래스를 추출함(top-1). 예측값이 각 클래스의 점수이므로, 값이 최대인 클래스를 찾음
+
+    # 5) 정답을 맞춘 개수를 누적합함
+
+    # 6) Accurcy를 계산함
 
 
 
