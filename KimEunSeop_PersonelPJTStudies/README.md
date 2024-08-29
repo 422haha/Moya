@@ -184,6 +184,16 @@ CNN 구현
   
           # 4) hidden feature를 클래스 별 분류 점수로 바꿀 FC layer 정의
 
+- init 에서 정의한 레이어 및 모듈을 활용하여 이미지가 각 클래스 별 점수로 나오는 연산 수행
+
+-         # 1) 입력 데이터를 Convolution layer 1, 2와 ReLU 레이어를 통과시키기
+  
+          # 2) hidden features를 [batch크기, 각 feature 크기] 형태로 바꾸기
+  
+          # 3) FC layer를 거쳐 최종 출력(각 클래스 별 classification 점수)인 리턴값을 구하기
+  
+  -                                         
+
 
 
 
