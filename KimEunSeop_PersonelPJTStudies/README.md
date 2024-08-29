@@ -148,6 +148,41 @@ validation set과 test set에 대하여 측정
 
 모델 학습 진행
 
+- 학습 설정값 불러오고
+
+- 데이터셋 및 데이터 로더 불러오고
+
+- 종합하여 실행
+
+- 1) 실행 디바이스 및 configuration 설정
+  2) 이미지 데이터의 transform 정의하기
+  3) 데이터로더 불러오기
+  4) 모델을 선언하기
+  5) 모델을 GPU에 올리기 (연산을 GPU로 하기 위함)
+  6) Optimizer 선언하기: SGD 사용
+  7) epoch만큼 반복하며 학습-평가를 수행하기: 한 epoch에서 학습 - 평가 순으로 수행하기
+
+CNN 구현
+
+- ThreeLayerConvNet 모델 구성 및 forward 연산 정의
+
+- Convolution layer 5x5 필터, 2픽셀의 zero padding 사용
+
+- ReLU 활성화함수
+
+- Convolution layer 3x3 필터, 1픽셀의 zero padding 사용
+
+- ReLU 활성화 함수
+
+- Fully connent layer: 각 클래스 별 classification  점수로 매핑할 레이어
+
+-         # 1) in_channel -> channel_1으로 가는 첫 번째 convolution layer 정의
+  
+          # 2) channel_1 -> channel_2으로 가는 두 번째 convolution layer 정의
+  
+          # 3) ReLU 활성화 함수 정의
+  
+          # 4) hidden feature를 클래스 별 분류 점수로 바꿀 FC layer 정의
 
 
 
@@ -196,4 +231,15 @@ validation set과 test set에 대하여 측정
 
 
 
-ㅁㄴㅇㄹ
+
+
+
+
+
+
+
+
+
+
+
+
