@@ -210,4 +210,16 @@ CNN 구현
 
 더 높은 정확도의 이미지 분류기 모델 만들기
 
+- 시도 가능한 것은?
 
+- 모델 구조 (레이어의 구성): Convolution layer의 개수와 입출력 채널 차원 크기, 커널 크기, 패딩 종류 및 크기, pooling layer의 종류와 크기, Fully connected layer의 입력 채널 차원 및 층 개수 등
+
+- 최적화 기법: Adam, AdamW, SGD, RMSprop 등
+
+- 하이퍼파라미터: 배치 크기, 학습률(learning rate) 등
+
+- 정규화 (normalization): 배치 정규화, 레이어 정규화, 그룹 정규화 등
+
+- 활성화함수: ReLU, LeakyReLU, GELU, Sigmoid 등
+
+- 데이터 증강 (augmentation): 뒤집기(flip), 랜덤 자르기(random crop) 등
