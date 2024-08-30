@@ -286,4 +286,17 @@ Multi-Head Self-Attention 구현하기
 - 1) Query 벡터와 Key 벡터의 전치를 곱하고, 벡터 차원의 제곱근으로 나눔 (=(Q x K^T) / sqrt(d_k))
   2) 위 값에 softmax를 취함. row-wise이기 때문에 dim은 -1 로 적용할 것.
   3) Value 벡터를 곱해 최종 attention value 계산
-  4) 
+
+Attention heads의 결과물 병합
+
+- 각 attention head의 결과물을 concatenate해 병합하고, head 별로 정해진 가중치로 linear projection하여 최종 출력을 결정합니다.
+  
+  이 linear projection은 서로 다른 의미로 focusing된 각 head의 self-attention 정보를 합치는 역할을 합니다.
+
+- 상세 과정
+
+- 1) Scaled dot-product 의 결과(attn_values)를 (B, L, num_heads, d_k) 형태로 축 변경
+  2) 각 head의 점수를 concatenate함
+  3) 각 head마다의 가중치를 부여할 linear layer 정의
+  4) 위 linear projection layer를 통과하여 최종 출력을 계산
+  5) 
