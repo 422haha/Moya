@@ -299,4 +299,13 @@ Attention heads의 결과물 병합
   2) 각 head의 점수를 concatenate함
   3) 각 head마다의 가중치를 부여할 linear layer 정의
   4) 위 linear projection layer를 통과하여 최종 출력을 계산
-  5) 
+
+Multi-Head Self-Attention의 모듈 클래스 구현
+
+앞선 <Req. 3-4> ~ <Req. 3-6>의 multi-head self-attention 구현 과정을 하나의 모듈 클래스로 만들어 처리를 손쉽게 구현하겠습니다.
+
+해당 클래스의 forward 연산에서는 임베딩 벡터를 입력으로 받아 multi-head self-attention 결과를 출력하도록 합니다.
+
+2) 임베딩 벡터를 Q, K, V 벡터로 변환할 레이어 정의
+
+3) 각 헤드의 결과에 가중치를 부여할 linear layer 정의
