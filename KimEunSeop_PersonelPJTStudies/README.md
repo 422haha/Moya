@@ -270,3 +270,7 @@ Multi-Head Self-Attention 구현하기
   임베딩 과정에서 입력 데이터를 임베딩 공간의 d_model 차원으로 projection합니다.
   해당 d_model 값은 어텐션 헤드의 개수(n_heads)로 나누어 떨어져야 합니다.
   각 헤드의 연산을 한 뒤에는 각 헤드별로 가중치를 곱해 최종 attention value를 구합니다
+
+- 상세과정
+
+- 
