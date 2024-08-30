@@ -309,3 +309,23 @@ Multi-Head Self-Attention의 모듈 클래스 구현
 2) 임베딩 벡터를 Q, K, V 벡터로 변환할 레이어 정의
 
 3) 각 헤드의 결과에 가중치를 부여할 linear layer 정의
+
+        # 1) Query 벡터와 Key 벡터의 전치를 곱하고, 벡터 차원의 제곱근으로 나눔 (=(Q x K^T) / sqrt(d_k))
+
+        # 2) 위 값에 softmax를 취함. row-wise이기 때문에 dim은 -1 로 적용할 것.
+
+        # 3) Value 벡터를 곱해 최종 attention value 계산
+
+---
+
+       # 1) 입력 데이터를 Q, K, V 벡터로 변환
+
+        # 2) 위 결과를 Head의 수로 분할함
+
+        # 3) 각 head가 (L, d_k)의 matrix를 담당하도록 만듦
+
+        # 4) Scaled dot-product self-attention 연산을 수행함
+
+        # 5) 각 attention head의 결과물을 concatenate해 병합함
+
+        # 6) head 별로 정해진 가중치로 linear projection하여 최종 출력을 결정함
