@@ -1,10 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <project version="4">
+  <component name="AutoImportSettings">
+    <option name="autoReloadType" value="SELECTIVE" />
+  </component>
   <component name="ChangeListManager">
     <list default="true" id="8fdf4fec-3a49-428c-902c-5236bd761a81" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/KimEunSeop_PersonelPJTStudies/attention.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KimEunSeop_PersonelPJTStudies/image_classification.ipynb" beforeDir="false" />
-      <change beforePath="$PROJECT_DIR$/KimEunSeop_PersonelPJTStudies/pytorch_tensors.ipynb" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -14,9 +15,9 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 8
-}]]></component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 8
+}</component>
   <component name="ProjectId" id="2lGzBLV1O7px9L1uDwKyzCS8l2D" />
   <component name="ProjectViewState">
     <option name="showLibraryContents" value="true" />
@@ -24,8 +25,12 @@
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "subway",
+    "git-widget-placeholder": "feature/kes-sub1",
     "kotlin-language-version-configured": "true",
+    "node.js.detected.package.eslint": "true",
+    "node.js.detected.package.tslint": "true",
+    "node.js.selected.package.eslint": "(autodetect)",
+    "node.js.selected.package.tslint": "(autodetect)",
     "nodejs_package_manager_path": "npm",
     "vue.rearranger.settings.migration": "true"
   }
@@ -47,7 +52,12 @@
       <option name="presentableId" value="Default" />
       <updated>1724821065586</updated>
       <workItem from="1724821068296" duration="4000" />
+      <workItem from="1724834115304" duration="5000" />
+      <workItem from="1724888171911" duration="598000" />
     </task>
     <servers />
+  </component>
+  <component name="TypeScriptGeneratedFilesManager">
+    <option name="version" value="3" />
   </component>
 </project>

@@ -223,3 +223,9 @@ CNN 구현
 - 활성화함수: ReLU, LeakyReLU, GELU, Sigmoid 등
 
 - 데이터 증강 (augmentation): 뒤집기(flip), 랜덤 자르기(random crop) 등
+
+
+
+## Attention
+
+데이터 전처리를 위한 가능의 데이터 생성
