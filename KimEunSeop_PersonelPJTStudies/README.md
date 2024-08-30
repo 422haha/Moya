@@ -273,4 +273,12 @@ Multi-Head Self-Attention 구현하기
 
 - 상세과정
 
-- 
+- 1) vocab_size 개수의 데이터 각각을 d_model 차원으로 표현할 임베딩을 할 레이어 정의
+  2) 임베딩 레이어를 사용하여 입력 데이터를 임베딩 벡터로 projection
+  3) d_model 차원의 Q, K, V 벡터를 만들 레이어 정의
+  4) 임베딩 벡터를 Q, K, V 벡터로 변환
+  5) d_k 차원 계산
+  6) Q, K, V 벡터를 각 헤드만큼 쪼갬 (각 헤드의 각 벡터 차원은 d_k)
+  7) Self-attention 연산을 위하여 각 헤드가 (L, d_k) 행렬을 갖도록 축을 transpose
+  
+  
