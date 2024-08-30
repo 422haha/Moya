@@ -280,5 +280,10 @@ Multi-Head Self-Attention 구현하기
   5) d_k 차원 계산
   6) Q, K, V 벡터를 각 헤드만큼 쪼갬 (각 헤드의 각 벡터 차원은 d_k)
   7) Self-attention 연산을 위하여 각 헤드가 (L, d_k) 행렬을 갖도록 축을 transpose
-  
-  
+
+- 상세과정
+
+- 1) Query 벡터와 Key 벡터의 전치를 곱하고, 벡터 차원의 제곱근으로 나눔 (=(Q x K^T) / sqrt(d_k))
+  2) 위 값에 softmax를 취함. row-wise이기 때문에 dim은 -1 로 적용할 것.
+  3) Value 벡터를 곱해 최종 attention value 계산
+  4) 
