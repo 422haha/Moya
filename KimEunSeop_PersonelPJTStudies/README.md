@@ -263,3 +263,10 @@ Single-head Self-Attention 구현
 
 
 Multi-Head Self-Attention 구현하기
+
+- Single-head 코드를 바탕으로 multi-head self-attention을 구현하겠습니다. 전체적으론 아래 내용이 변경 혹은 추가되어야 합니다.
+
+- Q, K, V를 (임베딩 벡터 차원) x (head 개수) 차원으로 projection한 뒤 각 head 개수로 쪼개 사용합니다.
+  임베딩 과정에서 입력 데이터를 임베딩 공간의 d_model 차원으로 projection합니다.
+  해당 d_model 값은 어텐션 헤드의 개수(n_heads)로 나누어 떨어져야 합니다.
+  각 헤드의 연산을 한 뒤에는 각 헤드별로 가중치를 곱해 최종 attention value를 구합니다
