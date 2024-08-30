@@ -247,11 +247,19 @@ Single-head Self-Attention 구현
   - 토큰화된 입력 데이터가 임베딩 과정을 거쳐 임베딩 공간의 d_k 차원으로 프로젝션 되어 임베딩 벡터를 각각 d_k 차원을 가지는 3개의 벡터로 만들어야함 파이토치의 nn.linear 모듈 이용
 
 - Scaled Dot-Product Self-Attention 구현
+  
+  - 각 head에서 진행하는 Q, K, V의 Self-attention을 구현하겠습니다.
+  
+  - 가장 먼저, 쿼리와 키(의 전치) 벡터를 곱한 뒤, 벡터 차원의 제곱근으로 나눕니다. 해당 과정은 같은 sequence 내에 서로 다른 token들에게 얼마나 가중치를 두고 attention을 해야하는가를 연산합니다.
+  
+  - 그 값에 softmax 함수를 취합니다.
+  
+  - 그 값에 밸류 벡터를 곱하여 최종 attention matrix를 얻습니다.
+  
+  - 1) Query 벡터와 Key 벡터의 전치를 곱하고, 벡터 차원의 제곱근으로 나눔 (=(Q x K^T) / sqrt(d_k))
+    2) 위 값에 softmax를 취함. row-wise이기 때문에 dim은 -1 로 적용할 것.
+    3) Value 벡터를 곱해 최종 attention value 계산
 
-- 각 head에서 진행하는 Q, K, V의 Self-attention을 구현하겠습니다.
 
-- 가장 먼저, 쿼리와 키(의 전치) 벡터를 곱한 뒤, 벡터 차원의 제곱근으로 나눕니다. 해당 과정은 같은 sequence 내에 서로 다른 token들에게 얼마나 가중치를 두고 attention을 해야하는가를 연산합니다.
 
-- 그 값에 softmax 함수를 취합니다.
-
-- 그 값에 밸류 벡터를 곱하여 최종 attention matrix를 얻습니다.
+Multi-Head Self-Attention 구현하기
