@@ -1,7 +1,7 @@
 HELP.md
 target/
 .env
-backend/src/main/resources/application.properties
+application.properties
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
