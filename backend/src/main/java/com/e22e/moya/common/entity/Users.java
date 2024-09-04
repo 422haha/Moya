@@ -11,7 +11,7 @@ public class Users {
     @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
     @GenericGenerator(name = "native", strategy = "native")
     @Column(name = "user_id", unique = true)
-    private int id;
+    private long id;
 
     @Column(unique = true, nullable = false)
     private String email;
@@ -22,20 +22,16 @@ public class Users {
     private String oauthProvider;
     private String oauthId;
 
-    @Column(length = 2000)
+    @Column(length = 512)
     private String profileImageUrl;
 
-    @Column(length = 2000)
+    @Column(length = 512)
     private String profileImageUrlSmall;
 
     private String locale;
 
-    public int getId() {
+    public long getId() {
         return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
     }
 
     public String getEmail() {
