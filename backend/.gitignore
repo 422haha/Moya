@@ -1,7 +1,6 @@
 HELP.md
 target/
 .env
-application.properties
 !.mvn/wrapper/maven-wrapper.jar
 !**/src/main/**/target/
 !**/src/test/**/target/
@@ -16,6 +15,7 @@ application.properties
 .sts4-cache
 
 ### IntelliJ IDEA ###
+application.properties
 .idea
 *.iws
 *.iml
