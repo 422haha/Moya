@@ -1,4 +1,4 @@
-package com.moji.moji;
+package com.e22e.moya;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
