@@ -1,6 +1,6 @@
 package com.e22e.moya.common.oauth2;
 
-import com.e22e.moya.user.UserService;
+import com.e22e.moya.user.service.UserServiceImpl;
 import java.util.Map;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -17,7 +17,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 public class CustomOauth2UserService {
 
-    private final UserService userService;
+    private final UserServiceImpl userService;
 
     @Bean
     public OAuth2UserService<OAuth2UserRequest, OAuth2User> oauth2UserService() {

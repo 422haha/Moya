@@ -1,7 +1,7 @@
 package com.e22e.moya.common.util;
 
 import com.e22e.moya.common.entity.Users;
-import com.e22e.moya.user.UserRepository;
+import com.e22e.moya.user.Repository.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

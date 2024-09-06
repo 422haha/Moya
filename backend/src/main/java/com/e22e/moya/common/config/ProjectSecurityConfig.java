@@ -4,12 +4,13 @@ import com.e22e.moya.common.filter.JWTTokenValidatorFilter;
 import com.e22e.moya.common.handler.CustomAuthenticationSuccessHandler;
 import com.e22e.moya.common.oauth2.CustomOauth2UserService;
 import com.e22e.moya.common.util.JwtUtil;
-import com.e22e.moya.user.UserRepository;
+import com.e22e.moya.user.Repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
+import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
@@ -34,6 +35,10 @@ public class ProjectSecurityConfig {
 
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+
+        http.sessionManagement(session -> session
+            .sessionCreationPolicy(SessionCreationPolicy.STATELESS));
+
         http
             .addFilterBefore(new JWTTokenValidatorFilter(jwtUtil, userRepository),
                 UsernamePasswordAuthenticationFilter.class)
