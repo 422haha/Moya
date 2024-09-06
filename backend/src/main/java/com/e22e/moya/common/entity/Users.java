@@ -25,9 +25,6 @@ public class Users {
     @Column(length = 512)
     private String profileImageUrl;
 
-    @Column(length = 512)
-    private String profileImageUrlSmall;
-
     private String locale;
 
     public long getId() {
@@ -82,11 +79,4 @@ public class Users {
         this.locale = locale;
     }
 
-    public String getProfileImageUrlSmall() {
-        return profileImageUrlSmall;
-    }
-
-    public void setProfileImageUrlSmall(String profileImageUrlSmall) {
-        this.profileImageUrlSmall = profileImageUrlSmall;
-    }
 }
