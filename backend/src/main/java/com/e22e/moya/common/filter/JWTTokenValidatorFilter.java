@@ -3,7 +3,7 @@ package com.e22e.moya.common.filter;
 import com.e22e.moya.common.constants.JWTConstants;
 import com.e22e.moya.common.entity.Users;
 import com.e22e.moya.common.util.JwtUtil;
-import com.e22e.moya.user.UserRepository;
+import com.e22e.moya.user.Repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
