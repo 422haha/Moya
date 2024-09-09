@@ -45,9 +45,6 @@ public class Exploration {
     private LineString route;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Chat> chats = new ArrayList<>();
-
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Discovery> discoveries = new ArrayList<>();
 
     //getter, setter
@@ -130,14 +127,6 @@ public class Exploration {
 
     public void setPark(Park park) {
         this.park = park;
-    }
-
-    public List<Chat> getChats() {
-        return chats;
-    }
-
-    public void setChats(List<Chat> chats) {
-        this.chats = chats;
     }
 
     public List<Discovery> getDiscoveries() {
