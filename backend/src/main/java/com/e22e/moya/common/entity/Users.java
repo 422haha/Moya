@@ -1,5 +1,6 @@
 package com.e22e.moya.common.entity;
 
+import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,6 +31,18 @@ public class Users {
     @OneToMany
     @JoinColumn(name = "user_id")
     private List<Exploration> explorations = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Discovery> discoveries = new ArrayList<>();
+
+    //getter, setter
+
+    public void setId(long id) {
+        this.id = id;
+    }
 
     public long getId() {
         return id;
@@ -91,4 +104,19 @@ public class Users {
         this.explorations = explorations;
     }
 
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
+    }
+
+    public List<Discovery> getDiscoveries() {
+        return discoveries;
+    }
+
+    public void setDiscoveries(List<Discovery> discoveries) {
+        this.discoveries = discoveries;
+    }
 }

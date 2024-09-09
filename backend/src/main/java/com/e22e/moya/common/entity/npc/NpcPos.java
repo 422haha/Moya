@@ -1,6 +1,9 @@
 package com.e22e.moya.common.entity.npc;
 
+import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 public class NpcPos {
@@ -18,6 +21,11 @@ public class NpcPos {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "npc_id")
     private Npc npc;
+
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
+
+    //getter, setter
 
     public long getId() {
         return id;
@@ -49,5 +57,13 @@ public class NpcPos {
 
     public void setNpc(Npc npc) {
         this.npc = npc;
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
     }
 }

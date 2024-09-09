@@ -1,8 +1,11 @@
 package com.e22e.moya.common.entity;
 
+import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
+import java.util.List;
 import org.locationtech.jts.geom.LineString;
 
 @Entity
@@ -40,6 +43,14 @@ public class Exploration {
 
     @Column(columnDefinition = "geography(LineString,4326)")
     private LineString route;
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Chat> chats = new ArrayList<>();
+
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Discovery> discoveries = new ArrayList<>();
+
+    //getter, setter
 
     public long getId() {
         return id;
@@ -119,5 +130,21 @@ public class Exploration {
 
     public void setPark(Park park) {
         this.park = park;
+    }
+
+    public List<Chat> getChats() {
+        return chats;
+    }
+
+    public void setChats(List<Chat> chats) {
+        this.chats = chats;
+    }
+
+    public List<Discovery> getDiscoveries() {
+        return discoveries;
+    }
+
+    public void setDiscoveries(List<Discovery> discoveries) {
+        this.discoveries = discoveries;
     }
 }

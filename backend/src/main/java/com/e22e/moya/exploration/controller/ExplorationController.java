@@ -48,4 +48,13 @@ public class ExplorationController {
         }
     }
 
+    //탐험 중 촬영한 사진 도감에 등록 컨트롤러
+    @PostMapping("/exploration/{explorationId}/camera")
+    public ResponseEntity<Map<String, String>> addDictionary(@RequestHeader("Authorization") String token){
+        Map<String, String> response = new HashMap<>();
+        response.put("message", "등록 완료");
+        response.put("data", null);
+        return ResponseEntity.ok().body(response);
+    }
+
 }
