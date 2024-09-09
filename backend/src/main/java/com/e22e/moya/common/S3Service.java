@@ -30,11 +30,6 @@ import software.amazon.awssdk.services.s3.presigner.model.PresignedGetObjectRequ
 
 @Slf4j
 @Service
-public class S3Service {
-
-    // S3 클라이언트
-    private final S3Client s3Client;
-
     // S3 버킷 이름
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
