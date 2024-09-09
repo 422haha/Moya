@@ -1,4 +1,4 @@
-package com.e22e.moya.user.Repository;
+package com.e22e.moya.user.repository;
 
 import com.e22e.moya.common.entity.Users;
 import java.util.Optional;
