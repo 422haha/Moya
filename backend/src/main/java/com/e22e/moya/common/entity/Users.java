@@ -1,15 +1,15 @@
 package com.e22e.moya.common.entity;
 
 import jakarta.persistence.*;
-import org.hibernate.annotations.GenericGenerator;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "Users")
 public class Users {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO, generator = "native")
-    @GenericGenerator(name = "native", strategy = "native")
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", unique = true)
     private long id;
 
@@ -26,6 +26,10 @@ public class Users {
     private String profileImageUrl;
 
     private String locale;
+
+    @OneToMany
+    @JoinColumn(name = "user_id")
+    private List<Exploration> explorations = new ArrayList<>();
 
     public long getId() {
         return id;
@@ -77,6 +81,14 @@ public class Users {
 
     public void setLocale(String locale) {
         this.locale = locale;
+    }
+
+    public List<Exploration> getExplorations() {
+        return explorations;
+    }
+
+    public void setExplorations(List<Exploration> explorations) {
+        this.explorations = explorations;
     }
 
 }
