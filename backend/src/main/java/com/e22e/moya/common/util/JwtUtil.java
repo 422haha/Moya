@@ -1,7 +1,7 @@
 package com.e22e.moya.common.util;
 
 import com.e22e.moya.common.entity.Users;
-import com.e22e.moya.user.Repository.UserRepository;
+import com.e22e.moya.user.repository.UserRepository;
 import io.github.cdimascio.dotenv.Dotenv;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;
@@ -83,6 +83,23 @@ public class JwtUtil {
                 new Date(System.currentTimeMillis() + refreshTokenExpiration))
             .signWith(key)
             .compact();
+    }
+
+    // 탐험 시작전 리프레시 토큰 갱신
+    public String refreshToken(String refreshToken) throws JwtException {
+        try {
+            Claims claims = validateToken(refreshToken);
+            String email = claims.get("email", String.class);
+
+            // 기존 리프레시 토큰 무효화
+            invalidateToken(email);
+
+            // 새 리프레시 토큰
+            return generateRefreshToken(email);
+        } catch (JwtException e) {
+            log.error("리프레시 토큰 갱신 실패: {}", e.getMessage());
+            throw e;
+        }
     }
 
     // 토큰 검증

@@ -146,6 +146,14 @@
       <version>0.12.3</version>
       <scope>runtime</scope>
     </dependency>
+
+    <!-- https://mvnrepository.com/artifact/org.locationtech.jts/jts-core -->
+    <dependency>
+      <groupId>org.locationtech.jts</groupId>
+      <artifactId>jts-core</artifactId>
+      <version>1.19.0</version>
+    </dependency>
+
   </dependencies>
 
   <build>

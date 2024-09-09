@@ -1,7 +1,7 @@
 package com.e22e.moya.user.service;
 
 import com.e22e.moya.common.entity.Users;
-import com.e22e.moya.user.Repository.UserRepository;
+import com.e22e.moya.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
 

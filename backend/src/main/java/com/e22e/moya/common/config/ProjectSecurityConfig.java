@@ -4,7 +4,7 @@ import com.e22e.moya.common.filter.JWTTokenValidatorFilter;
 import com.e22e.moya.common.handler.CustomAuthenticationSuccessHandler;
 import com.e22e.moya.common.oauth2.CustomOauth2UserService;
 import com.e22e.moya.common.util.JwtUtil;
-import com.e22e.moya.user.Repository.UserRepository;
+import com.e22e.moya.user.repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

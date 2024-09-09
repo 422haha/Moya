@@ -1,4 +1,4 @@
-package com.e22e.moya.user.Controller;
+package com.e22e.moya.user.controller;
 
 import com.e22e.moya.common.util.JwtUtil;
 import com.e22e.moya.user.service.UserService;
