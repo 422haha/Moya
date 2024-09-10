@@ -1,31 +1,24 @@
-package com.e22e.moya.common.entity.npc;
+package com.e22e.moya.common.entity.species;
 
-import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
-import java.util.ArrayList;
-import java.util.List;
 
+// 공원에 있는 동식물의 위치
 @Entity
-public class NpcPos {
+public class SpeciesPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-    @Column(nullable = false)
     private double latitude;
 
-    @Column(nullable = false)
     private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_id")
-    private Npc npc;
+    @JoinColumn(name = "species_id")
+    private Species species;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Chat> chats = new ArrayList<>();
-
-    //getter, setter
+    // getter, setter
 
     public long getId() {
         return id;
@@ -51,19 +44,11 @@ public class NpcPos {
         this.longitude = longitude;
     }
 
-    public Npc getNpc() {
-        return npc;
+    public Species getSpecies() {
+        return species;
     }
 
-    public void setNpc(Npc npc) {
-        this.npc = npc;
-    }
-
-    public List<Chat> getChats() {
-        return chats;
-    }
-
-    public void setChats(List<Chat> chats) {
-        this.chats = chats;
+    public void setSpecies(Species species) {
+        this.species = species;
     }
 }

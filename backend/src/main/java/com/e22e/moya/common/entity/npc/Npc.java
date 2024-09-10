@@ -27,6 +27,8 @@ public class Npc {
         position.setNpc(null);
     }
 
+    //getter, setter
+
     public long getId() {
         return id;
     }
