@@ -35,6 +35,9 @@ public class ExplorationController {
             // 리프레시 토큰 갱신
             String newRefreshToken = jwtUtil.refreshToken(refreshToken);
 
+            //
+
+
             Map<String, String> response = new HashMap<>();
             response.put("message", "탐험 시작");
             response.put("data", null);

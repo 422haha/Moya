@@ -1,31 +1,34 @@
-package com.e22e.moya.common.entity.species;
+package com.e22e.moya.common.entity.park;
 
 import jakarta.persistence.*;
 
-// 공원에 있는 동식물의 위치
 @Entity
-@Table(name = "species_pos")
-public class SpeciesPos {
+@Table(name = "park_pos")
+public class ParkPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
+    @Column(nullable = false)
     private double latitude;
 
+    @Column(nullable = false)
     private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "species_id")
-    private Species species;
+    @JoinColumn(name = "park_id")
+    private Park park;
 
-    // getter, setter
+    private String name;
 
-    public long getId() {
+    // Getter,  setter
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,11 +48,19 @@ public class SpeciesPos {
         this.longitude = longitude;
     }
 
-    public Species getSpecies() {
-        return species;
+    public Park getPark() {
+        return park;
     }
 
-    public void setSpecies(Species species) {
-        this.species = species;
+    public void setPark(Park park) {
+        this.park = park;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
     }
 }

@@ -7,6 +7,7 @@ import java.util.List;
 
 // 공원에 있는 동식물
 @Entity
+@Table(name = "species")
 public class Species {
 
     @Id
