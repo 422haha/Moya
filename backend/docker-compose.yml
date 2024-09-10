@@ -13,9 +13,6 @@ services:
       - REDIS_HOST=localhost
       - REDIS_PORT=6379
       - TZ=Asia/Seoul
-    depends_on:
-      - postgres
-      - redis
     restart: unless-stopped
     networks:
       - app-network
