@@ -22,7 +22,7 @@ public class NpcPos {
     @JoinColumn(name = "npc_id")
     private Npc npc;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
 
     //getter, setter
