@@ -1,11 +1,13 @@
 package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
+import com.e22e.moya.common.entity.quest.Quest;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "npc_pos")
 public class NpcPos {
 
     @Id
@@ -24,6 +26,11 @@ public class NpcPos {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
+
+    @ElementCollection
+    @CollectionTable(name = "npc_pos_quests", joinColumns = @JoinColumn(name = "npc_pos_id"))
+    @Column(name = "quest_id")
+    private List<Long> questIds = new ArrayList<>();
 
     //getter, setter
 

@@ -6,6 +6,7 @@ import java.time.LocalDateTime;
 
 // 사용자가 수집한 동식물
 @Entity
+@Table(name = "discovery")
 public class Discovery {
 
     @Id

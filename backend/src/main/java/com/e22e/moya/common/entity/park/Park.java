@@ -1,11 +1,13 @@
-package com.e22e.moya.common.entity;
+package com.e22e.moya.common.entity.park;
 
+import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.npc.Npc;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
+@Table(name = "park")
 public class Park {
 
     @Id
@@ -17,12 +19,6 @@ public class Park {
 
     private String description;
 
-    @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
-
     @Column(name = "image_url")
     private String imageUrl;
 
@@ -32,6 +28,9 @@ public class Park {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @JoinColumn(name = "park_id")
     private List<Npc> npcs = new ArrayList<>();
+
+    @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkPos> entrances = new ArrayList<>();
 
     public void addExploration(Exploration exploration) {
         explorations.add(exploration);
@@ -50,6 +49,8 @@ public class Park {
     public void removeNpc(Npc npc) {
         npcs.remove(npc);
     }
+
+    //getter, setter
 
     public long getId() {
         return id;
@@ -75,22 +76,6 @@ public class Park {
         this.description = description;
     }
 
-    public double getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
     public String getImageUrl() {
         return imageUrl;
     }
@@ -114,4 +99,13 @@ public class Park {
     public void setNpcs(List<Npc> npcs) {
         this.npcs = npcs;
     }
+
+    public List<ParkPos> getEntrances() {
+        return entrances;
+    }
+
+    public void setEntrances(List<ParkPos> entrances) {
+        this.entrances = entrances;
+    }
+
 }

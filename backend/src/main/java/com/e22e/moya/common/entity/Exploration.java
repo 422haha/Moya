@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity;
 
-import com.e22e.moya.common.entity.chatting.Chat;
+import com.e22e.moya.common.entity.park.Park;
+import com.e22e.moya.common.entity.quest.QuestCompleted;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,7 +10,7 @@ import java.util.List;
 import org.locationtech.jts.geom.LineString;
 
 @Entity
-@Table(name = "Exploration")
+@Table(name = "exploration")
 public class Exploration {
 
     @Id
@@ -46,6 +47,9 @@ public class Exploration {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Discovery> discoveries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "exploration", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestCompleted> questCompleted = new ArrayList<>();
 
     //getter, setter
 
@@ -135,5 +139,14 @@ public class Exploration {
 
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
+    }
+
+    public List<QuestCompleted> getQuestCompleted() {
+        return questCompleted;
+    }
+
+    public void setQuestCompleted(
+        List<QuestCompleted> questCompleted) {
+        this.questCompleted = questCompleted;
     }
 }
