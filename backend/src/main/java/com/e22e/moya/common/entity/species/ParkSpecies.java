@@ -1,7 +1,9 @@
-package com.e22e.moya.common.entity.park;
+package com.e22e.moya.common.entity.species;
 
-import com.e22e.moya.common.entity.species.Species;
+import com.e22e.moya.common.entity.park.Park;
 import jakarta.persistence.*;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "park_species")
@@ -18,6 +20,9 @@ public class ParkSpecies {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "species_id")
     private Species species;
+
+    @OneToMany(mappedBy = "parkSpecies", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<SpeciesPos> positions = new ArrayList<>();
 
     // getter, setter
 
@@ -43,5 +48,13 @@ public class ParkSpecies {
 
     public void setSpecies(Species species) {
         this.species = species;
+    }
+
+    public List<SpeciesPos> getPositions() {
+        return positions;
+    }
+
+    public void setPositions(List<SpeciesPos> positions) {
+        this.positions = positions;
     }
 }

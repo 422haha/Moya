@@ -1,7 +1,6 @@
 package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
-import com.e22e.moya.common.entity.quest.Quest;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -21,8 +20,8 @@ public class NpcPos {
     private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_id")
-    private Npc npc;
+    @JoinColumn(name = "park_npc_id")
+    private ParkNpcs parkNpc;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
@@ -58,12 +57,13 @@ public class NpcPos {
         this.longitude = longitude;
     }
 
-    public Npc getNpc() {
-        return npc;
+
+    public ParkNpcs getParkNpc() {
+        return parkNpc;
     }
 
-    public void setNpc(Npc npc) {
-        this.npc = npc;
+    public void setParkNpc(ParkNpcs parkNpc) {
+        this.parkNpc = parkNpc;
     }
 
     public List<Chat> getChats() {
@@ -73,4 +73,13 @@ public class NpcPos {
     public void setChats(List<Chat> chats) {
         this.chats = chats;
     }
+
+    public List<Long> getQuestIds() {
+        return questIds;
+    }
+
+    public void setQuestIds(List<Long> questIds) {
+        this.questIds = questIds;
+    }
+
 }
