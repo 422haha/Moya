@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.species;
 
 import com.e22e.moya.common.entity.Discovery;
+import com.e22e.moya.common.entity.park.ParkSpecies;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -27,6 +28,9 @@ public class Species {
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Discovery> discoveries = new ArrayList<>();
+
+    @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
     //getter, setter
 

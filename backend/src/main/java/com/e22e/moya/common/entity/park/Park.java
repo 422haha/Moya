@@ -32,6 +32,9 @@ public class Park {
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParkPos> entrances = new ArrayList<>();
 
+    @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<ParkSpecies> parkSpecies = new ArrayList<>();
+
     public void addExploration(Exploration exploration) {
         explorations.add(exploration);
         exploration.setPark(this);

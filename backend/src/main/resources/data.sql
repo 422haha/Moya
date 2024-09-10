@@ -46,10 +46,27 @@ VALUES (37.5446, 127.0375, 1),
        (37.5203, 127.1215, 2),
        (37.5682, 126.8975, 3);
 
+-- Species 데이터 삽입
 INSERT INTO species (name, scientific_name, description, image_url)
 VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 'https://example.com/squirrel.jpg'),
        ('왕벚나무', 'Prunus yedoensis', '봄에 아름다운 꽃을 피우는 나무', 'https://example.com/cherry-tree.jpg'),
-       ('잉어', 'Cyprinus carpio', '연못에서 흔히 볼 수 있는 물고기', 'https://example.com/carp.jpg');
+       ('잉어', 'Cyprinus carpio', '연못에서 흔히 볼 수 있는 물고기', 'https://example.com/carp.jpg'),
+       ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://example.com/sparrow.jpg'),
+       ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://example.com/maple.jpg'),
+       ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://example.com/frog.jpg');
+
+-- Park Species 관계 데이터 삽입
+INSERT INTO park_species (park_id, species_id)
+VALUES (1, 1), -- 싸피 뒷뜰 - 청설모
+       (1, 2), -- 싸피 뒷뜰 - 왕벚나무
+       (1, 4), -- 싸피 뒷뜰 - 참새
+       (2, 2), -- 동락공원 - 왕벚나무
+       (2, 3), -- 동락공원 - 잉어
+       (2, 5), -- 동락공원 - 단풍나무
+       (3, 1), -- 환경 연수원 - 청설모
+       (3, 5), -- 환경 연수원 - 단풍나무
+       (3, 6); -- 환경 연수원 - 개구리
+
 
 INSERT INTO species_pos (latitude, longitude, species_id)
 VALUES (37.5447, 127.0376, 1),
@@ -59,4 +76,5 @@ VALUES (37.5447, 127.0376, 1),
 
 INSERT INTO quest (id)
 VALUES (1),
-       (2);
+       (2),
+       (3);
