@@ -23,4 +23,5 @@ android {
 
 dependencies {
     implementation(libs.bundles.network)
+    implementation(project(":core:datastore"))
 }
