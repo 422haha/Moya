@@ -20,11 +20,9 @@ public class Message {
     @Column(nullable = false)
     private boolean isUserMessage;
 
-<<<<<<< HEAD
-    //getter, setter
 
-=======
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
+    //getter, setter
+    
     public long getId() {
         return id;
     }

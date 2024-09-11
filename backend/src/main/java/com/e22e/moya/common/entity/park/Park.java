@@ -1,12 +1,8 @@
 package com.e22e.moya.common.entity.park;
 
 import com.e22e.moya.common.entity.Exploration;
-import com.e22e.moya.common.entity.npc.Npc;
-<<<<<<< HEAD
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.species.ParkSpecies;
-=======
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -30,7 +26,6 @@ public class Park {
     @OneToMany(mappedBy = "park")
     private List<Exploration> explorations = new ArrayList<>();
 
-<<<<<<< HEAD
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParkPos> entrances = new ArrayList<>();
 
@@ -40,15 +35,6 @@ public class Park {
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
-=======
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "park_id")
-    private List<Npc> npcs = new ArrayList<>();
-
-    @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<ParkPos> entrances = new ArrayList<>();
-
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
     public void addExploration(Exploration exploration) {
         explorations.add(exploration);
         exploration.setPark(this);
@@ -59,17 +45,6 @@ public class Park {
         exploration.setPark(null);
     }
 
-<<<<<<< HEAD
-=======
-    public void addNpc(Npc npc) {
-        npcs.add(npc);
-    }
-
-    public void removeNpc(Npc npc) {
-        npcs.remove(npc);
-    }
-
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
     //getter, setter
 
     public long getId() {
@@ -112,21 +87,12 @@ public class Park {
         this.explorations = explorations;
     }
 
-<<<<<<< HEAD
     public List<ParkNpcs> getParkNpcs() {
         return parkNpcs;
     }
 
     public void setParkNpcs(List<ParkNpcs> parkNpcs) {
         this.parkNpcs = parkNpcs;
-=======
-    public List<Npc> getNpcs() {
-        return npcs;
-    }
-
-    public void setNpcs(List<Npc> npcs) {
-        this.npcs = npcs;
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
     }
 
     public List<ParkPos> getEntrances() {
@@ -137,7 +103,6 @@ public class Park {
         this.entrances = entrances;
     }
 
-<<<<<<< HEAD
     public List<ParkSpecies> getParkSpecies() {
         return parkSpecies;
     }
@@ -145,6 +110,4 @@ public class Park {
     public void setParkSpecies(List<ParkSpecies> parkSpecies) {
         this.parkSpecies = parkSpecies;
     }
-=======
->>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 }
