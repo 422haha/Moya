@@ -23,10 +23,10 @@ public class Species {
     private String imageUrl;
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SpeciesPos> positions = new ArrayList<>();
+    private List<Discovery> discoveries = new ArrayList<>();
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Discovery> discoveries = new ArrayList<>();
+    private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
     //getter, setter
 
@@ -70,19 +70,19 @@ public class Species {
         this.imageUrl = imageUrl;
     }
 
-    public List<SpeciesPos> getPositions() {
-        return positions;
-    }
-
-    public void setPositions(List<SpeciesPos> positions) {
-        this.positions = positions;
-    }
-
     public List<Discovery> getDiscoveries() {
         return discoveries;
     }
 
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
+    }
+
+    public List<ParkSpecies> getParkSpecies() {
+        return parkSpecies;
+    }
+
+    public void setParkSpecies(List<ParkSpecies> parkSpecies) {
+        this.parkSpecies = parkSpecies;
     }
 }
