@@ -1,6 +1,10 @@
 package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
+<<<<<<< HEAD
+=======
+import com.e22e.moya.common.entity.quest.Quest;
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,8 +24,13 @@ public class NpcPos {
     private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
+<<<<<<< HEAD
     @JoinColumn(name = "park_npc_id")
     private ParkNpcs parkNpc;
+=======
+    @JoinColumn(name = "npc_id")
+    private Npc npc;
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
@@ -57,6 +66,7 @@ public class NpcPos {
         this.longitude = longitude;
     }
 
+<<<<<<< HEAD
 
     public ParkNpcs getParkNpc() {
         return parkNpc;
@@ -64,6 +74,14 @@ public class NpcPos {
 
     public void setParkNpc(ParkNpcs parkNpc) {
         this.parkNpc = parkNpc;
+=======
+    public Npc getNpc() {
+        return npc;
+    }
+
+    public void setNpc(Npc npc) {
+        this.npc = npc;
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
     }
 
     public List<Chat> getChats() {
@@ -73,6 +91,7 @@ public class NpcPos {
     public void setChats(List<Chat> chats) {
         this.chats = chats;
     }
+<<<<<<< HEAD
 
     public List<Long> getQuestIds() {
         return questIds;
@@ -82,4 +101,6 @@ public class NpcPos {
         this.questIds = questIds;
     }
 
+=======
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 }

@@ -16,7 +16,21 @@ public class Npc {
     private String name;
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+<<<<<<< HEAD
     private List<ParkNpcs> parkNpcs = new ArrayList<>();
+=======
+    private List<NpcPos> positions = new ArrayList<>();
+
+    public void addPosition(NpcPos position) {
+        positions.add(position);
+        position.setNpc(this);
+    }
+
+    public void removePosition(NpcPos position) {
+        positions.remove(position);
+        position.setNpc(null);
+    }
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 
     //getter, setter
 
@@ -36,6 +50,7 @@ public class Npc {
         this.name = name;
     }
 
+<<<<<<< HEAD
     public List<ParkNpcs> getParkNpcs() {
         return parkNpcs;
     }
@@ -43,4 +58,14 @@ public class Npc {
     public void setParkNpcs(List<ParkNpcs> parkNpcs) {
         this.parkNpcs = parkNpcs;
     }
+=======
+    public List<NpcPos> getPositions() {
+        return positions;
+    }
+
+    public void setPositions(List<NpcPos> positions) {
+        this.positions = positions;
+    }
+
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 }

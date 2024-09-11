@@ -16,8 +16,13 @@ public class SpeciesPos {
     private double longitude;
 
     @ManyToOne(fetch = FetchType.LAZY)
+<<<<<<< HEAD
     @JoinColumn(name = "park_species_id")
     private ParkSpecies parkSpecies;
+=======
+    @JoinColumn(name = "species_id")
+    private Species species;
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 
     // getter, setter
 
@@ -45,6 +50,7 @@ public class SpeciesPos {
         this.longitude = longitude;
     }
 
+<<<<<<< HEAD
     public ParkSpecies getParkSpecies() {
         return parkSpecies;
     }
@@ -53,4 +59,13 @@ public class SpeciesPos {
         this.parkSpecies = parkSpecies;
     }
 
+=======
+    public Species getSpecies() {
+        return species;
+    }
+
+    public void setSpecies(Species species) {
+        this.species = species;
+    }
+>>>>>>> 3c2a0e63c7b9f199925d1933d62250ec919940f3
 }
