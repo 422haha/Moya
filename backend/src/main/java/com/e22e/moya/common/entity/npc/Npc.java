@@ -11,7 +11,7 @@ public class Npc {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "npc_id", unique = true)
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -20,11 +20,11 @@ public class Npc {
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
