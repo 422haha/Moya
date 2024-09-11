@@ -7,11 +7,12 @@ import java.util.List;
 
 // 공원에 있는 동식물
 @Entity
+@Table(name = "species")
 public class Species {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     private String name;
 
@@ -22,18 +23,18 @@ public class Species {
     private String imageUrl;
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<SpeciesPos> positions = new ArrayList<>();
+    private List<Discovery> discoveries = new ArrayList<>();
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Discovery> discoveries = new ArrayList<>();
+    private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -69,19 +70,19 @@ public class Species {
         this.imageUrl = imageUrl;
     }
 
-    public List<SpeciesPos> getPositions() {
-        return positions;
-    }
-
-    public void setPositions(List<SpeciesPos> positions) {
-        this.positions = positions;
-    }
-
     public List<Discovery> getDiscoveries() {
         return discoveries;
     }
 
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
+    }
+
+    public List<ParkSpecies> getParkSpecies() {
+        return parkSpecies;
+    }
+
+    public void setParkSpecies(List<ParkSpecies> parkSpecies) {
+        this.parkSpecies = parkSpecies;
     }
 }

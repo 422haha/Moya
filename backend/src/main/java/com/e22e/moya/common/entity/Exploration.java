@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity;
 
-import com.e22e.moya.common.entity.chatting.Chat;
+import com.e22e.moya.common.entity.park.Park;
+import com.e22e.moya.common.entity.quest.QuestCompleted;
 import jakarta.persistence.*;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -9,16 +10,16 @@ import java.util.List;
 import org.locationtech.jts.geom.LineString;
 
 @Entity
-@Table(name = "Exploration")
+@Table(name = "exploration")
 public class Exploration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "exploration_id", unique = true)
-    private long id;
+    private Long id;
 
     @Column(name = "user_id")
-    private long userId;
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
@@ -47,21 +48,24 @@ public class Exploration {
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Discovery> discoveries = new ArrayList<>();
 
+    @OneToMany(mappedBy = "exploration", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<QuestCompleted> questCompleted = new ArrayList<>();
+
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -135,5 +139,14 @@ public class Exploration {
 
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
+    }
+
+    public List<QuestCompleted> getQuestCompleted() {
+        return questCompleted;
+    }
+
+    public void setQuestCompleted(
+        List<QuestCompleted> questCompleted) {
+        this.questCompleted = questCompleted;
     }
 }
