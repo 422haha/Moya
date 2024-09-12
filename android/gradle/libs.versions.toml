@@ -32,6 +32,9 @@ hilt-compose = "1.2.0"
 appcompat = "1.7.0"
 material = "1.12.0"
 
+# timber
+timber = "5.0.1"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -75,6 +78,8 @@ hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hi
 androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
 material = { group = "com.google.android.material", name = "material", version.ref = "material" }
 
+# timber
+timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson","kotlinx-serialization-json","kotlinx-serialization-converter","kotlinx-serialization-core"]
