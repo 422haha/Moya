@@ -3,6 +3,7 @@ package com.e22e.moya.common.entity;
 import com.e22e.moya.common.entity.species.Species;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import org.locationtech.jts.geom.Point;
 
 // 사용자가 수집한 동식물
 @Entity
@@ -13,9 +14,8 @@ public class Discovery {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double latitude;
-
-    private double longitude;
+    @Column(nullable = false)
+    private Point pos;
 
     private LocalDateTime discoverytTime;
 
@@ -35,20 +35,12 @@ public class Discovery {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setPos(Point pos) {
+        this.pos = pos;
     }
 
     public LocalDateTime getDiscoverytTime() {

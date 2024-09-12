@@ -2,6 +2,7 @@ package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -14,10 +15,7 @@ public class NpcPos {
     private Long id;
 
     @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
+    private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_npc_id")
@@ -41,22 +39,13 @@ public class NpcPos {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
+    public void setPos(Point pos) {
+        this.pos = pos;
     }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
 
     public ParkNpcs getParkNpc() {
         return parkNpc;

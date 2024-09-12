@@ -1,4 +1,4 @@
-version: '3'
+version: '3.8'
 services:
   springboot-app:
     build:
@@ -10,7 +10,7 @@ services:
       - SPRING_DATASOURCE_URL=${DB_URL}
       - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
       - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
-      - REDIS_HOST=localhost
+      - REDIS_HOST=redis
       - REDIS_PORT=6379
       - TZ=Asia/Seoul
     restart: unless-stopped
