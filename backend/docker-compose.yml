@@ -6,13 +6,15 @@ services:
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
+    env_file:
+      - .env
     environment:
-      - SPRING_DATASOURCE_URL=${DB_URL}
-      - SPRING_DATASOURCE_USERNAME=${DB_USERNAME}
-      - SPRING_DATASOURCE_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - TZ=Asia/Seoul
+    volumes:
+      - ./application.properties:/app/application.properties
+      - ./application-oauth-kakao.properties:/app/application-oauth-kakao.properties
     restart: unless-stopped
     networks:
       - app-network
