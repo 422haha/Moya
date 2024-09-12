@@ -1,7 +1,7 @@
 package com.ssafy.ui.component
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,70 +31,73 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.compose.ui.window.Dialog
 import com.ssafy.ui.R
 import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
+import com.ssafy.ui.theme.customTypography
 
 @Composable
-fun ChallengeDialog(onDismiss: () -> Unit) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth(),
-            shape = RoundedCornerShape(16.dp),
-            color = SecondaryColor
+fun ChallengeDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
+
+    Surface(
+        modifier = Modifier
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(16.dp),
+        color = SecondaryColor
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Column(
-                modifier = Modifier.padding(16.dp),
-                horizontalAlignment = Alignment.CenterHorizontally
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Box(
-                    modifier = Modifier.fillMaxWidth()
+                Text(
+                    text = "도전과제",
+                    color = SecondarySurfaceColor,
+                    textAlign = TextAlign.Center,
+                    modifier = Modifier.align(Alignment.Center),
+                    style = customTypography.displayLarge,
+                    fontSize = 32.sp
+                )
+                IconButton(
+                    onClick = { onDismiss() },
+                    modifier = Modifier.align(Alignment.TopEnd)
                 ) {
-                    Text(
-                        text = "도전과제",
-                        color = SecondarySurfaceColor,
-                        textAlign = TextAlign.Center,
-                        modifier = Modifier.align(Alignment.Center)
+                    Icon(
+                        imageVector = Icons.Default.Close,
+                        contentDescription = "Close",
+                        tint = SecondarySurfaceColor,
+                        modifier = Modifier.size(32.dp)
                     )
-                    IconButton(
-                        onClick = { onDismiss() },
-                        modifier = Modifier.align(Alignment.TopEnd)
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Close,
-                            contentDescription = "Close",
-                            tint = SecondarySurfaceColor,
-                        )
-                    }
                 }
-
-                Spacer(modifier = Modifier.height(16.dp))
-
-                ChallengeItem(
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    text = "솔방울 선물하기"
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                ChallengeItem(
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    text = "은행잎 선물하기"
-                )
-                Spacer(modifier = Modifier.height(12.dp))
-                ChallengeItem(
-                    iconRes = R.drawable.ic_launcher_foreground,
-                    text = "단풍잎 선물하기"
-                )
             }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            ChallengeItem(
+                text = "솔방울 선물하기",
+                onConfirm = onConfirm
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ChallengeItem(
+                text = "은행잎 선물하기",
+                onConfirm = onConfirm
+            )
+            Spacer(modifier = Modifier.height(12.dp))
+            ChallengeItem(
+                text = "단풍잎 선물하기",
+                onConfirm = onConfirm
+            )
         }
     }
 }
 
 @Composable
-fun ChallengeItem(iconRes: Int, text: String) {
+fun ChallengeItem(text: String, onConfirm: () -> Unit) {
     Box(
         modifier = Modifier
+            .clickable { onConfirm() }
             .fillMaxWidth()
             .clip(RoundedCornerShape(8.dp))
             .background(SecondarySurfaceColor)
@@ -106,15 +109,16 @@ fun ChallengeItem(iconRes: Int, text: String) {
             modifier = Modifier.fillMaxWidth()
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                Image(
-                    painter = painterResource(id = iconRes),
+                Icon(
+                    //TODO 이거 성공했으면 star가 보이도록
+                    painter = painterResource(id = R.drawable.baseline_star_border_24),
                     contentDescription = "별 모양",
                     modifier = Modifier.size(24.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = text, color = SecondaryColor, fontSize = 16.sp)
             }
-            IconButton(onClick = { /* TODO*/ }) {
+            IconButton(onClick = onConfirm) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Back",

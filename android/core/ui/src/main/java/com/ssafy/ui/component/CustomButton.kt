@@ -1,13 +1,13 @@
-package com.example.uiexample.ui
+package com.ssafy.ui.component
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -20,15 +20,15 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.uiexample.R
-import com.example.uiexample.ui.theme.OnPrimaryColor
-import com.example.uiexample.ui.theme.PrimaryColor
-import com.example.uiexample.ui.theme.SecondarySurfaceColor
+import com.ssafy.ui.R
+import com.ssafy.ui.theme.LightBackgroundColor
+import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SecondaryColor
+import com.ssafy.ui.theme.jua
 
 @Composable
 fun CustomOutlinedButton(
@@ -48,7 +48,7 @@ fun CustomOutlinedButton(
             disabledContainerColor = Color.Gray
         )
     ) {
-        Text(text = text)
+        Text(text = text, fontFamily = jua)
     }
 }
 
@@ -65,7 +65,7 @@ fun CustomFilledButton(
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
         modifier = modifier
     ) {
-        Text(text = text, color = Color.White)
+        Text(text = text, color = Color.White, fontFamily = jua)
     }
 }
 
@@ -74,8 +74,9 @@ fun CustomButtonWithImage(
     text: String?,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    buttonColor: Color = Color(0xFF9C6644),
-    imagePainter: Painter? = null
+    buttonColor: Color = SecondaryColor,
+    textColor: Color = LightBackgroundColor,
+    imagePainter: Int? = null
 ) {
     Button(
         onClick = onClick,
@@ -83,7 +84,7 @@ fun CustomButtonWithImage(
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
         modifier = modifier
             .height(40.dp)
-            .width(150.dp),
+            .width(140.dp),
         contentPadding = PaddingValues(0.dp)
     ) {
         Row(
@@ -94,23 +95,40 @@ fun CustomButtonWithImage(
         ) {
             if (imagePainter != null) {
                 Image(
-                    painter = imagePainter,
+                    painter = painterResource(id = imagePainter),
                     contentDescription = "Button Image",
                     modifier = Modifier
                         .size(32.dp)
+                        .padding(4.dp)
                 )
             }
-
-            Spacer(modifier = Modifier.width(4.dp))
 
             if (text != null) {
                 Text(
                     text = text,
-                    fontSize = 14.sp,
-                    color = SecondarySurfaceColor
+                    fontSize = 20.sp,
+                    color = textColor,
+                    fontFamily = jua,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(8.dp)
+                        .align(Alignment.CenterVertically)
                 )
             }
         }
+    }
+}
+
+@Composable
+fun FindButton(text: String, onClick: () -> Unit) {
+    Button(
+        onClick = onClick,
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
+    ) {
+        Text(text = text, color = LightBackgroundColor, fontFamily = jua)
     }
 }
 
@@ -129,10 +147,9 @@ fun PreviewFilledButton() {
 @Preview(showBackground = true)
 @Composable
 fun CustomButtonWithImagePreview() {
-    val imagePainter = painterResource(id = R.drawable.ic_launcher_foreground)
     CustomButtonWithImage(
         text = "도감",
         onClick = {},
-        imagePainter = imagePainter
+        imagePainter = R.drawable.ic_launcher_foreground
     )
 }

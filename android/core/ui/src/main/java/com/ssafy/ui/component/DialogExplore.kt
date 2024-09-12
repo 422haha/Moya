@@ -1,5 +1,6 @@
 package com.ssafy.ui.component
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -15,15 +16,26 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ssafy.ui.R
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.customTypography
 
 //TODO 여기 사진이랑 힌트도 받도록 수정해서 분기처리하기
 @Composable
-fun ExploreDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
+fun ExploreDialog(
+    title: String,
+    onConfirm: () -> Unit = {},
+    onDismiss: () -> Unit = {},
+    image: Painter? = null,
+    hint: String? = null
+) {
     Surface(
         modifier = Modifier
             .wrapContentHeight()
@@ -35,8 +47,27 @@ fun ExploreDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
             modifier = Modifier.padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Text(text = "탐험을 끝마칠까요?", color = PrimaryColor, style = customTypography.displayLarge)
+            Text(text = title, color = PrimaryColor, style = customTypography.displayLarge)
             Spacer(modifier = Modifier.height(40.dp))
+
+            image?.let {
+                Image(
+                    painter = it,
+                    contentDescription = "",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp)
+                        .padding(horizontal = 16.dp)
+                        .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            hint?.let {
+                Text(text = it)
+                Spacer(modifier = Modifier.height(16.dp))
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween
@@ -60,5 +91,15 @@ fun ExploreDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
 @Preview(showBackground = true)
 @Composable
 fun ExploreDialogPreview() {
-    ExploreDialog()
+    ExploreDialog("탐험을 끝마칠까요?")
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ExploreDialogWithImagePreview() {
+    ExploreDialog(
+        "찾으러 가볼까요?",
+        image = painterResource(id = R.drawable.ic_launcher_background),
+        hint = "나는 빨간색 꽃에 가시를 갖고 있어요"
+    )
 }
