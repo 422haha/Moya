@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.park;
 
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "park_pos")
@@ -11,10 +12,7 @@ public class ParkPos {
     private Long id;
 
     @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
+    private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
@@ -32,20 +30,12 @@ public class ParkPos {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setPos(Point pos) {
+        this.pos = pos;
     }
 
     public Park getPark() {
