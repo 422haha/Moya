@@ -1,6 +1,6 @@
-package com.example.uiexample.ui
+package com.ssafy.ui.screen
 
-import androidx.compose.foundation.background
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -13,28 +13,43 @@ import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uiexample.R
-import com.example.uiexample.ui.theme.PrimaryColor
-import com.example.uiexample.ui.theme.SurfaceColor
+import com.ssafy.ui.R
+import com.ssafy.ui.component.BoxWithImage
+import com.ssafy.ui.component.DateOrLocation
+import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun ParkListScreen() {
+fun ParkListScreen(
+    onItemClicked: (Int) -> Unit = {},
+    onPop: () -> Unit = {}
+) {
+    var clickable by remember { mutableStateOf(true) }
+
+    BackHandler {
+        clickable = false
+        onPop()
+    }
+
     Scaffold(
         topBar = {
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TopBar(text = "공워", PrimaryColor)
+                TopBar(text = "공원", PrimaryColor, onPop)
                 IconButton(
-                    onClick = { /* TODO */ },
+                    onClick = { /* TODO 검색기능 */ },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     Icon(
@@ -51,50 +66,24 @@ fun ParkListScreen() {
                     .padding(paddingValues)
                     .fillMaxWidth()
             ) {
-                DateOrLocation(SurfaceColor, PrimaryColor)
+                DateOrLocation(SurfaceColor, PrimaryColor, R.drawable.baseline_my_location_24)
                 LazyColumn(
                     modifier = Modifier.fillMaxWidth()
                 ) {
-                    items(4) {
+                    items(4) { index ->
                         Spacer(modifier = Modifier.height(12.dp))
                         BoxWithImage(
                             borderWidth = 4.dp,
                             color = SurfaceColor,
-                            textColor = PrimaryColor
+                            textColor = PrimaryColor,
+                            painterResource = R.drawable.baseline_location_on_24,
+                            onClick = { if (clickable) onItemClicked(index) }
                         )
                     }
                 }
             }
         }
     )
-}
-
-//TODO 여기에 color랑 이미지리소스 값 줘서 보여주면 될 듯
-@Composable
-fun DateOrLocation(color: Color, textColor: Color) {
-    Box(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(32.dp)
-            .background(color)
-    ) {
-        Text(
-            text = "현재 내 위치예요",
-            modifier = Modifier
-                .align(alignment = Alignment.CenterStart)
-                .padding(start = 8.dp),
-            color = textColor
-        )
-        IconButton(
-            onClick = { /*TODO*/ },
-            modifier = Modifier.align(alignment = Alignment.CenterEnd)
-        ) {
-            Icon(
-                painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "동기화 모양"
-            )
-        }
-    }
 }
 
 @Preview(showBackground = true)
