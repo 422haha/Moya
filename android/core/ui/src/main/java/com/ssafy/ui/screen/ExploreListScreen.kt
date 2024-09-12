@@ -1,5 +1,6 @@
-package com.example.uiexample.ui
+package com.ssafy.ui.screen
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -12,26 +13,43 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uiexample.ui.theme.LightBackgroundColor
-import com.example.uiexample.ui.theme.SecondaryColor
-import com.example.uiexample.ui.theme.SecondarySurfaceColor
+import com.ssafy.ui.R
+import com.ssafy.ui.component.BoxWithImage
+import com.ssafy.ui.component.DateOrLocation
+import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.theme.LightBackgroundColor
+import com.ssafy.ui.theme.SecondaryColor
+import com.ssafy.ui.theme.SecondarySurfaceColor
 
-//TODO 이거랑 똑같이 공원 목록 만들면 될듯?
 @Composable
-fun ExploreListScreen() {
+fun ExploreListScreen(
+    onItemClicked: (Int) -> Unit = {},
+    onPop: () -> Unit = {}
+) {
+
+    var clickable by remember { mutableStateOf(true) }
+
+    BackHandler {
+        clickable = false
+        onPop()
+    }
+
     Scaffold(
         topBar = {
             Box(
                 modifier = Modifier.fillMaxWidth()
             ) {
-                TopBar(text = "나의 모험", SecondaryColor)
+                TopBar(text = "나의 모험", SecondaryColor, onPop)
                 IconButton(
-                    onClick = { /* TODO */ },
+                    onClick = { /* TODO 검색 기능 */ },
                     modifier = Modifier.align(Alignment.CenterEnd)
                 ) {
                     Icon(
@@ -48,13 +66,18 @@ fun ExploreListScreen() {
                     .padding(paddingValues)
                     .fillMaxWidth()
             ) {
-                items(4) {
-                    DateOrLocation(SecondarySurfaceColor, SecondaryColor) // 날짜에 따라 보여줄 데이터 처리
+                items(4) { index ->
+                    DateOrLocation(
+                        SecondarySurfaceColor,
+                        SecondaryColor
+                    ) // 날짜에 따라 보여줄 데이터 처리
                     Spacer(modifier = Modifier.height(12.dp))
                     BoxWithImage(
                         borderWidth = 4.dp,
                         color = SecondarySurfaceColor,
-                        textColor = SecondaryColor
+                        textColor = SecondaryColor,
+                        painterResource = R.drawable.baseline_calendar_month_24,
+                        onClick = { if (clickable) onItemClicked(index) }
                     )
                     Spacer(modifier = Modifier.height(12.dp))
                 }
@@ -66,5 +89,5 @@ fun ExploreListScreen() {
 @Preview(showBackground = true)
 @Composable
 fun ExploreListScreenPreview() {
-    ExploreListScreen()
+    ExploreListScreen(onItemClicked = {})
 }
