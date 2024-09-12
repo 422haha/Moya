@@ -1,4 +1,4 @@
-package com.example.uiexample.ui
+package com.ssafy.ui.screen
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -13,17 +13,15 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
-import androidx.compose.foundation.layout.wrapContentWidth
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,15 +37,29 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.example.uiexample.R
-import com.example.uiexample.ui.theme.LightBackgroundColor
-import com.example.uiexample.ui.theme.PrimaryColor
+import com.ssafy.ui.R
+import com.ssafy.ui.component.FindButton
+import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.theme.LightBackgroundColor
+import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.jua
 
 @Composable
-fun EncycDetailScreen() {
+fun EncycDetailScreen(
+    onPop: () -> Unit = {},
+    onTTSClicked: (String) -> Unit = {},
+    onTTSShutDown: () -> Unit = {}
+) {
+
+    DisposableEffect(Unit) {
+        onDispose {
+            onTTSShutDown()
+        }
+    }
+
     Scaffold(
         topBar = {
-            TopBar(text = "능소화", PrimaryColor)
+            TopBar(text = "능소화", PrimaryColor, onPop)
         },
         content = { paddingValues ->
             Column(
@@ -57,19 +69,23 @@ fun EncycDetailScreen() {
             ) {
                 Box {
                     ImageSection()
+                    //TODO 이미지 버튼 누르면 텍스트가 도감사진보기 <-> 내 사진 보기로 바뀌고 이미지도 바뀜
                     ButtonSection(modifier = Modifier.align(Alignment.BottomCenter))
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
-                TitleAndDividerSection()
-                DescriptionSection()
+                TitleAndDividerSection("소개")
+                //TODO 나중에 수정
+                val fullText =
+                    "능소화는 중국이 원산인 덩굴나무로 다른 물체에 붙어 올라가 10m까지도 자란다. 추위에 약하여 우리나라에서는 남부지방에서 주로 심어 기르고 있다. 능소화(凌霄花)는 ‘하늘을 능가하는 꽃’이란 뜻이다. 오래 전에 중국에서 들여온 식물로 우리나라에서는 양반들이 이 나무를 아주 좋아해서 ‘양반꽃’이라고도 했으며, 평민들은 이 나무를 함부로 심지 못하게 했다고 한다. 지금은 남부지방을 중심으로 사찰 담장이나 가정집 정원에서 많이 볼 수 있는 관상수가 되었다."
+                DescriptionSection(fullText)
                 Spacer(modifier = Modifier.height(16.dp))
-
-                TTSButton()
+                //TODO TTS기능 구현하여 클릭하면 TTS가능하게
+                TTSButton(fullText, onTTSClicked = { onTTSClicked(fullText) })
             }
         },
         bottomBar = {
-            FindButton("찾으러 가기")
+            FindButton("찾으러 가기", {})
         }
     )
 }
@@ -120,7 +136,7 @@ fun ButtonSection(modifier: Modifier = Modifier) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "도감 사진 보기",
-                tint = Color.White,
+                tint = LightBackgroundColor,
                 modifier = Modifier.size(20.dp)
             )
 
@@ -128,21 +144,21 @@ fun ButtonSection(modifier: Modifier = Modifier) {
 
             Text(
                 text = "도감 사진 보기",
-                color = Color.White
+                color = LightBackgroundColor
             )
         }
     }
 }
 
 @Composable
-fun TitleAndDividerSection() {
+fun TitleAndDividerSection(title: String) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
         Text(
-            text = "소개",
+            text = title,
             fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
             color = PrimaryColor,
             modifier = Modifier.padding(bottom = 8.dp)
@@ -158,7 +174,7 @@ fun TitleAndDividerSection() {
 }
 
 @Composable
-fun DescriptionSection() {
+fun DescriptionSection(fullText: String) {
     var expanded by remember { mutableStateOf(false) }
 
     Column(
@@ -166,48 +182,46 @@ fun DescriptionSection() {
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
-        Box(
-            modifier = Modifier.fillMaxWidth()
-        ) {
-            if (expanded) {
-                Text(
-                    text = "중국 원산의 갈잎 덩굴성 목본식물이다. 단절이름으로... (전체 텍스트가 여기에 들어갑니다)",
-                    color = Color.Gray,
-                    modifier = Modifier.align(alignment = Alignment.CenterStart)
-                )
-            } else {
-                Text(
-                    text = "중국 원산의 갈잎 덩굴성 목본식물이다. 단절이름으로...",
-                    maxLines = 3,
-                    overflow = TextOverflow.Ellipsis,
-                    color = Color.Gray,
-                    modifier = Modifier.align(alignment = Alignment.CenterStart)
-                )
-            }
 
-            ClickableText(
-                text = AnnotatedString(if (expanded) "접기" else "더보기"),
-                onClick = { expanded = !expanded },
-                modifier = Modifier
-                    .align(Alignment.CenterEnd)
-                    .padding(top = 4.dp),
-                style = TextStyle(color = PrimaryColor)
+        if (expanded) {
+            Text(
+                text = fullText,
+                color = Color.Gray,
+                modifier = Modifier.align(alignment = Alignment.Start)
+            )
+        } else {
+            Text(
+                text = fullText,
+                maxLines = 3,
+                overflow = TextOverflow.Ellipsis,
+                color = Color.Gray,
+                modifier = Modifier.align(alignment = Alignment.Start)
             )
         }
+
+        ClickableText(
+            text = AnnotatedString(if (expanded) "접기" else "더보기"),
+            onClick = { expanded = !expanded },
+            modifier = Modifier
+                .align(Alignment.End)
+                .padding(top = 4.dp),
+            style = TextStyle(color = PrimaryColor, fontFamily = jua),
+        )
+
 
         Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
 @Composable
-fun TTSButton() {
+fun TTSButton(textToRead: String, onTTSClicked: (String) -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
         IconButton(
-            onClick = { /* TODO */ },
+            onClick = { onTTSClicked(textToRead) },
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .size(48.dp)
