@@ -1,17 +1,13 @@
-package com.example.uiexample.ui
+package com.ssafy.ui.screen
 
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -29,32 +25,46 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
-import com.example.uiexample.R
-import com.example.uiexample.ui.theme.LightBackgroundColor
-import com.example.uiexample.ui.theme.PrimaryColor
-import com.example.uiexample.ui.theme.SecondaryColor
-import com.example.uiexample.ui.theme.SecondarySurfaceColor
-import com.example.uiexample.ui.theme.SurfaceColor
+import com.ssafy.ui.R
+import com.ssafy.ui.component.BoxWithImage
+import com.ssafy.ui.theme.LightBackgroundColor
+import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SecondaryColor
+import com.ssafy.ui.theme.SecondarySurfaceColor
+import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(
+    onNavigateToParkList: () -> Unit = {},
+    onNavigateToExploreList: () -> Unit = {}
+) {
     Scaffold(
         content = { paddingValues ->
             Column(
                 modifier = Modifier
                     .padding(paddingValues)
-                    .padding(8.dp)
                     .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceBetween
+                verticalArrangement = Arrangement.SpaceEvenly,
             ) {
                 UserInfo()
-                HomeBox(text = "나의 모험", SecondaryColor, SecondarySurfaceColor)
-                HomeBox(text = "모험을 떠나요", PrimaryColor, SurfaceColor)
+                HomeBox(
+                    text = "나의 모험",
+                    SecondaryColor,
+                    SecondarySurfaceColor,
+                    onNavigateToExploreList,
+                    R.drawable.baseline_calendar_month_24
+                )
+                HomeBox(
+                    text = "모험을 떠나요",
+                    PrimaryColor,
+                    SurfaceColor,
+                    onNavigateToParkList,
+                    R.drawable.baseline_location_on_24
+                )
             }
         }
     )
@@ -70,23 +80,34 @@ fun UserInfo() {
                 contentDescription = "유저 이름",
                 modifier = Modifier
                     .clip(CircleShape)
+                    .background(Color.Gray)
                     .size(50.dp)
             )
             Spacer(modifier = Modifier.width(12.dp))
-            Text(text = "유저이름", modifier = Modifier.align(Alignment.CenterVertically))
+            Text(
+                text = "유저이름",
+                modifier = Modifier.align(Alignment.CenterVertically),
+                fontWeight = FontWeight.Bold
+            )
         }
     }
 }
 
 @Composable
-fun HomeBox(text: String, outBoxColor: Color, inBoxColor: Color) {
+fun HomeBox(
+    text: String,
+    outBoxColor: Color,
+    inBoxColor: Color,
+    onClick: () -> Unit = {},
+    painterResource: Int
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(8.dp)
-            .padding(bottom = 12.dp),
+            .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
-        color = outBoxColor
+        color = outBoxColor,
+        onClick = onClick
     ) {
         Column {
             Row(
@@ -103,17 +124,23 @@ fun HomeBox(text: String, outBoxColor: Color, inBoxColor: Color) {
                     color = LightBackgroundColor
                 )
                 IconButton(
-                    onClick = { /* TODO */ },
+                    onClick = onClick,
                 ) {
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "Go",
-                        tint = LightBackgroundColor
+                        tint = LightBackgroundColor,
+                        modifier = Modifier.size(32.dp)
                     )
                 }
             }
 
-            BoxWithImage(color = inBoxColor, textColor = outBoxColor)
+            BoxWithImage(
+                color = inBoxColor,
+                textColor = outBoxColor,
+                onClick = onClick,
+                painterResource = painterResource
+            )
         }
     }
 }
@@ -121,17 +148,27 @@ fun HomeBox(text: String, outBoxColor: Color, inBoxColor: Color) {
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen()
+    HomeScreen(onNavigateToExploreList = {}, onNavigateToParkList = {})
 }
 
 @Preview(showBackground = true)
 @Composable
 fun BoxWithImagePreview() {
-    BoxWithImage(borderWidth = 2.dp, color = SecondarySurfaceColor, textColor = SecondaryColor)
+    BoxWithImage(
+        borderWidth = 4.dp,
+        color = SecondarySurfaceColor,
+        textColor = SecondaryColor,
+        painterResource = R.drawable.baseline_location_on_24
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun HomeBoxPreview() {
-    HomeBox(text = "헬로", SecondaryColor, SecondarySurfaceColor)
+    HomeBox(
+        text = "헬로",
+        SecondaryColor,
+        SecondarySurfaceColor,
+        painterResource = R.drawable.baseline_calendar_month_24
+    )
 }
