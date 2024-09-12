@@ -1,6 +1,6 @@
 package com.e22e.moya.exploration.service;
 
-import com.e22e.moya.exploration.dto.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.initInfo.ExplorationStartDto;
 
 public interface ExplorationService {
 

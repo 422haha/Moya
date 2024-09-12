@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto;
+package com.e22e.moya.exploration.dto.initInfo;
 
 import java.util.List;
 import lombok.Getter;
