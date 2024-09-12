@@ -7,9 +7,13 @@ import jakarta.persistence.*;
 public class Quest {
 
     @Id
-    private long id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-    // Getters and setters
+    @Column(nullable = false)
+    private int type;
+
+    // getter, setter
 
     public Long getId() {
         return id;
@@ -19,4 +23,11 @@ public class Quest {
         this.id = id;
     }
 
+    public int getType() {
+        return type;
+    }
+
+    public void setType(int type) {
+        this.type = type;
+    }
 }

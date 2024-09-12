@@ -15,11 +15,21 @@ public class QuestCompleted {
     @JoinColumn(name = "exploration_id")
     private Exploration exploration;
 
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quest_id")
-    private long questId;
+    private Quest quest;
 
-    @Column(nullable = false)
     private LocalDateTime completedAt;
+
+    @Column(name = "species_id")
+    private Long speciesId;
+
+    @Column(name = "npc_id")
+    private Long npcId;
+
+    private boolean completed;
+
+    // getter, setter
 
     public Long getId() {
         return id;
@@ -37,12 +47,12 @@ public class QuestCompleted {
         this.exploration = exploration;
     }
 
-    public long getQuestId() {
-        return questId;
+    public Quest getQuest() {
+        return quest;
     }
 
-    public void setQuestId(long questId) {
-        this.questId = questId;
+    public void setQuest(Quest quest) {
+        this.quest = quest;
     }
 
     public LocalDateTime getCompletedAt() {
@@ -51,5 +61,29 @@ public class QuestCompleted {
 
     public void setCompletedAt(LocalDateTime completedAt) {
         this.completedAt = completedAt;
+    }
+
+    public Long getSpeciesId() {
+        return speciesId;
+    }
+
+    public void setSpeciesId(Long speciesId) {
+        this.speciesId = speciesId;
+    }
+
+    public Long getNpcId() {
+        return npcId;
+    }
+
+    public void setNpcId(Long npcId) {
+        this.npcId = npcId;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

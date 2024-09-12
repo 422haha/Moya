@@ -17,6 +17,9 @@ ksp = "1.9.22-1.0.16"
 # test
 turbine = "1.1.0"
 
+# datastore
+androidxDataStore = "1.1.1"
+
 # network
 gson = "2.8.8"
 retrofit = "2.9.0"
@@ -51,6 +54,9 @@ androidx-lifecycle-viewmodel = { group = "androidx.lifecycle", name = "lifecycle
 androidx-navigation-compose = { group = "androidx.navigation", name = "navigation-compose", version.ref = "navigation-compose" }
 
 kotlinx-serialization-core = { module = "org.jetbrains.kotlinx:kotlinx-serialization-core", version.ref = "kotlinxSerializationCore" }
+
+# datastore
+datastore-preferences = { group = "androidx.datastore", name = "datastore-preferences", version.ref = "androidxDataStore" }
 
 # network
 retrofit = { module = "com.squareup.retrofit2:retrofit", name = "retrofit", version.ref = "retrofit" }

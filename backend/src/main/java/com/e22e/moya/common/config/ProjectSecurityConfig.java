@@ -46,7 +46,7 @@ public class ProjectSecurityConfig {
             .authorizeRequests(authorize -> authorize
                 .requestMatchers("/", "/login", "/oauth2/**", "/auth/**0", "/error")
                 .permitAll()
-                .anyRequest().authenticated()
+                .anyRequest().permitAll()
             )
             .oauth2Login(oauth2 -> oauth2
                 .userInfoEndpoint(userInfo -> userInfo

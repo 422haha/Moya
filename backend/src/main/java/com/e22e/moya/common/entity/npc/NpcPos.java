@@ -1,8 +1,8 @@
 package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
-import com.e22e.moya.common.entity.quest.Quest;
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -12,17 +12,14 @@ public class NpcPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
+    private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_id")
-    private Npc npc;
+    @JoinColumn(name = "park_npc_id")
+    private ParkNpcs parkNpc;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Chat> chats = new ArrayList<>();
@@ -34,36 +31,28 @@ public class NpcPos {
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
+    public void setPos(Point pos) {
+        this.pos = pos;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public ParkNpcs getParkNpc() {
+        return parkNpc;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Npc getNpc() {
-        return npc;
-    }
-
-    public void setNpc(Npc npc) {
-        this.npc = npc;
+    public void setParkNpc(ParkNpcs parkNpc) {
+        this.parkNpc = parkNpc;
     }
 
     public List<Chat> getChats() {
@@ -73,4 +62,13 @@ public class NpcPos {
     public void setChats(List<Chat> chats) {
         this.chats = chats;
     }
+
+    public List<Long> getQuestIds() {
+        return questIds;
+    }
+
+    public void setQuestIds(List<Long> questIds) {
+        this.questIds = questIds;
+    }
+
 }
