@@ -8,11 +8,10 @@ import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.species.ParkSpecies;
 import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.common.entity.species.SpeciesPos;
-import com.e22e.moya.exploration.dto.ExplorationStartDto;
-import com.e22e.moya.exploration.dto.NpcDto;
-import com.e22e.moya.exploration.dto.PositionDto;
-import com.e22e.moya.exploration.dto.QuestDto;
-import com.e22e.moya.exploration.dto.SpeciesDto;
+import com.e22e.moya.exploration.dto.initInfo.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.initInfo.NpcDto;
+import com.e22e.moya.exploration.dto.initInfo.PositionDto;
+import com.e22e.moya.exploration.dto.initInfo.SpeciesDto;
 import com.e22e.moya.exploration.repository.ExplorationRepository;
 import com.e22e.moya.exploration.repository.ParkRepository;
 import java.time.LocalDate;
@@ -73,8 +72,7 @@ public class ExplorationServiceImpl implements ExplorationService {
             log.info("종: {}, 위치: {}", species.getName(), species.getPositions().size());
         }
 
-        List<QuestDto> quests = questService.generateNewQuests(exploration);
-        explorationStartDto.setQuests(quests);
+        questService.generateNewQuests(exploration);
 
         return explorationStartDto;
     }
