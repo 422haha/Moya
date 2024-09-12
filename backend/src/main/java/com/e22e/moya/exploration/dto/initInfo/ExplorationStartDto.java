@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto;
+package com.e22e.moya.exploration.dto.initInfo;
 
 import java.util.List;
 
@@ -6,7 +6,6 @@ public class ExplorationStartDto {
 
     private List<SpeciesDto> species;
     private List<NpcDto> npcs;
-    private List<QuestDto> quests;
 
     public List<SpeciesDto> getSpecies() {
         return species;
@@ -24,11 +23,4 @@ public class ExplorationStartDto {
         this.npcs = npcs;
     }
 
-    public List<QuestDto> getQuests() {
-        return quests;
-    }
-
-    public void setQuests(List<QuestDto> quests) {
-        this.quests = quests;
-    }
 }

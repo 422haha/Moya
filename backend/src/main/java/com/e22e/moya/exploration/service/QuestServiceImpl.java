@@ -39,7 +39,7 @@ public class QuestServiceImpl implements QuestService {
 
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public List<QuestDto> generateNewQuests(Exploration exploration) {
+    public void generateNewQuests(Exploration exploration) {
         Long parkId = exploration.getPark().getId();
         List<ParkSpecies> parkSpecies = parkRepository.findSpeciesInPark(parkId);
         List<ParkNpcs> parkNpcs = parkRepository.findNpcsInPark(parkId);
@@ -53,7 +53,6 @@ public class QuestServiceImpl implements QuestService {
             }
         }
 
-        return newQuests;
     }
 
     /**

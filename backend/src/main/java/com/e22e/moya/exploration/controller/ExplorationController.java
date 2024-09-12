@@ -1,8 +1,7 @@
 package com.e22e.moya.exploration.controller;
 
-import com.e22e.moya.common.constants.JWTConstants;
 import com.e22e.moya.common.util.JwtUtil;
-import com.e22e.moya.exploration.dto.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.initInfo.ExplorationStartDto;
 import com.e22e.moya.exploration.service.ExplorationService;
 import io.jsonwebtoken.JwtException;
 import java.util.HashMap;
