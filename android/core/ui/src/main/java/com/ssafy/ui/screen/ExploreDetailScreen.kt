@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
+import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -26,13 +27,13 @@ import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
-import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
 
 @Composable
-fun ExploreScreen(onItemClicked: (Int) -> Unit = {}, onPop: () -> Unit = {}) {
+fun ExploreDetailScreen(onItemClicked: (Int) -> Unit = {}, onPop: () -> Unit = {}) {
     Scaffold(
-        topBar = { TopBar(text = "동락공원", PrimaryColor, onPop) },
+        topBar = { TopBar(text = "동락공원", SecondaryColor, onPop) },
         content = { paddingValue ->
             Column(
                 modifier = Modifier
@@ -65,19 +66,23 @@ fun ExploreInfo() {
             modifier = Modifier.padding(8.dp)
         ) {
             Row(
-                modifier = Modifier.fillMaxWidth(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(4.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                Image(
-                    painterResource(id = R.drawable.ic_launcher_foreground),
+                Icon(
+                    painterResource(id = R.drawable.baseline_calendar_month_24),
                     contentDescription = "캘린더",
                     modifier = Modifier
-                        .size(36.dp)
-                        .padding(end = 12.dp)
+                        .size(32.dp),
+                    tint = SecondaryColor
                 )
                 Text(
                     text = "2024.09.02", fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold
+                    fontWeight = FontWeight.Bold,
+                    color = SecondaryColor,
+                    modifier = Modifier.padding(horizontal = 8.dp)
                 )
             }
 
@@ -139,5 +144,5 @@ fun HorizontalEncyc(onItemClicked: (Int) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun ExploreScreenPreview() {
-    ExploreScreen()
+    ExploreDetailScreen()
 }
