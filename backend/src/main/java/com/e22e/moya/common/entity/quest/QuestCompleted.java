@@ -19,7 +19,6 @@ public class QuestCompleted {
     @JoinColumn(name = "quest_id")
     private Quest quest;
 
-    @Column(nullable = false)
     private LocalDateTime completedAt;
 
     @Column(name = "species_id")

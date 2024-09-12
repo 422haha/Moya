@@ -1,10 +1,10 @@
 package com.e22e.moya.exploration.repository;
 
-import com.e22e.moya.common.entity.species.Species;
+import com.e22e.moya.common.entity.Exploration;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface SpeciesRepository extends JpaRepository<Species, Long> {
+public interface ExplorationRepository extends JpaRepository<Exploration, Long> {
 
 }

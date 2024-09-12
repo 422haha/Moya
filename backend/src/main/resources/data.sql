@@ -1,6 +1,10 @@
 CREATE
 EXTENSION IF NOT EXISTS postgis;
 
+-- 기본 사용자 추가
+INSERT INTO users (user_id, email, name, oauth_provider, oauth_id, profile_image_url, locale)
+VALUES (1, 'seojang0510@naver.com', '테스트사용자', 'oauth_provider', 'oauth_id', 'profile_image_url', 'ko-KR');
+
 -- Parksp
 INSERT INTO park (name, description, image_url)
 VALUES ('싸피 뒷뜰', '싸피 구미 캠퍼스 기숙사에 위치한 공원으로 봄이 되면 예쁜 꽃들이 핀답니다. 가을이 되면 감도 딸 수 있어요',
