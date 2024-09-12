@@ -17,7 +17,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.client.HttpServerErrorException.InternalServerError;
 
 @Slf4j
 @RestController
@@ -35,28 +34,35 @@ public class ExplorationController {
     //탐험 시작 컨트롤러
     @GetMapping("/start/{parkId}")
     public ResponseEntity<Map<String, Object>> startExploration(
-        @RequestHeader("Authorization") String token,
-        @RequestHeader("Refresh-Token") String refreshToken,
+//        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Refresh-Token") String refreshToken,
         @PathVariable("parkId") Long parkId) {
 
         Map<String, Object> response = new HashMap<>();
         HttpHeaders headers = new HttpHeaders(); // HttpHeader
 
         try {
-            long userId = jwtUtil.getUserIdFromToken(token);
+//            long userId = jwtUtil.getUserIdFromToken(token);
+//
+//            // 리프레시 토큰 갱신
+//            String newRefreshToken = jwtUtil.refreshToken(refreshToken);
+//            headers.add(JWTConstants.REFRESH_TOKEN_HEADER, newRefreshToken); // 새 리프레시 토큰을 헤더에 추가
 
-            // 리프레시 토큰 갱신
-            String newRefreshToken = jwtUtil.refreshToken(refreshToken);
-            headers.add(JWTConstants.REFRESH_TOKEN_HEADER, newRefreshToken); // 새 리프레시 토큰을 헤더에 추가
+            long userId = 1;
 
             // 탐험 시작시 필요한 정보 조회
-            ExplorationStartDto explorationStartDto = explorationService.getInitInfo(parkId, userId);
+            ExplorationStartDto explorationStartDto = explorationService.getInitInfo(parkId,
+                userId);
 
             log.info("탐험에 필요한 정보 불러오기 성공 : {}", parkId);
 
             response.put("message", "탐험 시작");
             response.put("data", explorationStartDto);
-            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
+            return ResponseEntity.status(HttpStatus.OK).body(response);
+
+//            response.put("message", "탐험 시작");
+//            response.put("data", explorationStartDto);
+//            return ResponseEntity.status(HttpStatus.OK).headers(headers).body(response);
 
         } catch (JwtException e) {
             log.error("리프레시 토큰 재발급 불가 : {}", e.getMessage());

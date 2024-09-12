@@ -5,7 +5,6 @@ import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
-import com.e22e.moya.common.entity.quest.QuestCompleted;
 import com.e22e.moya.common.entity.species.ParkSpecies;
 import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.common.entity.species.SpeciesPos;
@@ -14,14 +13,16 @@ import com.e22e.moya.exploration.dto.NpcDto;
 import com.e22e.moya.exploration.dto.PositionDto;
 import com.e22e.moya.exploration.dto.QuestDto;
 import com.e22e.moya.exploration.dto.SpeciesDto;
+import com.e22e.moya.exploration.repository.ExplorationRepository;
 import com.e22e.moya.exploration.repository.ParkRepository;
-import com.e22e.moya.exploration.repository.SpeciesRepository;
+import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
@@ -30,13 +31,13 @@ public class ExplorationServiceImpl implements ExplorationService {
 
     private final ParkRepository parkRepository;
     private final QuestService questService;
-    private final SpeciesRepository speciesRepository;
+    private final ExplorationRepository explorationRepository;
 
     public ExplorationServiceImpl(ParkRepository parkRepository, QuestService questService,
-        SpeciesRepository speciesRepository) {
+        ExplorationRepository explorationRepository) {
         this.parkRepository = parkRepository;
         this.questService = questService;
-        this.speciesRepository = speciesRepository;
+        this.explorationRepository = explorationRepository;
     }
 
     /**
@@ -46,7 +47,7 @@ public class ExplorationServiceImpl implements ExplorationService {
      * @param userId 사용자 id
      *
      */
-    @Transactional(readOnly = true)
+    @Transactional(isolation = Isolation.READ_COMMITTED)
     public ExplorationStartDto getInitInfo(Long parkId, Long userId) {
         ExplorationStartDto explorationStartDto = new ExplorationStartDto();
 
@@ -59,15 +60,21 @@ public class ExplorationServiceImpl implements ExplorationService {
         explorationStartDto.setSpecies(speciesDtos);
         explorationStartDto.setNpcs(npcDtos);
 
-        // 새로운 탐험 생성, 저장
+        // 새로운 탐험 생성 및 저장
         Exploration exploration = new Exploration();
         exploration.setPark(park);
         exploration.setUserId(userId);
+        exploration.setStartDate(LocalDate.now());
+        exploration.setStartTime(LocalDateTime.now());
+        exploration = explorationRepository.save(exploration);
 
         log.info(" {} 종의 동식물 발견. 공원 id: {}", speciesDtos.size(), parkId);
         for (SpeciesDto species : speciesDtos) {
             log.info("종: {}, 위치: {}", species.getName(), species.getPositions().size());
         }
+
+        List<QuestDto> quests = questService.generateNewQuests(exploration);
+        explorationStartDto.setQuests(quests);
 
         return explorationStartDto;
     }
@@ -156,20 +163,6 @@ public class ExplorationServiceImpl implements ExplorationService {
             positionDtoList.add(positionDto);
         }
         return positionDtoList;
-    }
-
-    private QuestDto convertToQuestDto(QuestCompleted questCompleted) {
-        QuestDto questDto = new QuestDto();
-        questDto.setId(questCompleted.getQuest().getId());
-        questDto.setType(questCompleted.getQuest().getType());
-        Optional<Species> speciesOptional = speciesRepository.findById(questCompleted.getSpeciesId());
-        if (speciesOptional.isPresent()) {
-            questDto.setSpeciesName(speciesOptional.get().getName());
-        } else {
-            questDto.setSpeciesName("종을 찾을 수 없음");
-        }
-        questDto.setNpcId(questCompleted.getNpcId());
-        return questDto;
     }
 
 }
