@@ -33,6 +33,9 @@ class AndroidApplicationComposeConventionPlugin : Plugin<Project> {
                 add("implementation", libs.findLibrary("junit").get())
                 add("implementation", libs.findLibrary("androidx.junit").get())
                 add("implementation", libs.findLibrary("androidx.espresso.core").get())
+
+                // timber logger
+                add("implementation", libs.findLibrary("timber").get())
             }
 
             configureAndroidCompose(extensions.getByType<ApplicationExtension>())
