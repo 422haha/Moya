@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.module.android.application.compose)
     alias(libs.plugins.module.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val properties = Properties()
@@ -60,6 +61,15 @@ dependencies {
     implementation(libs.androidx.lifecycle.runtime.ktx)
     implementation(libs.androidx.activity.compose)
     implementation(platform(libs.androidx.compose.bom))
+
+    //compose-navigation
+    implementation(libs.androidx.navigation.compose)
+
+    //serialization
+    implementation(libs.kotlinx.serialization.core)
+
+    implementation(project(":core:ui"))
+
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)

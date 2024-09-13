@@ -12,6 +12,7 @@ public class Species {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "species_id", unique = true)
     private Long id;
 
     private String name;

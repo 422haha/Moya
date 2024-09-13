@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.species;
 
 import jakarta.persistence.*;
+import org.locationtech.jts.geom.Point;
 
 // 공원에 있는 동식물의 위치
 @Entity
@@ -11,14 +12,12 @@ public class SpeciesPos {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private double latitude;
-
-    private double longitude;
+    @Column(nullable = false)
+    private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_species_id")
     private ParkSpecies parkSpecies;
-
 
     // getter, setter
 
@@ -30,20 +29,12 @@ public class SpeciesPos {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
-    }
-
-    public double getLongitude() {
-        return longitude;
-    }
-
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
+    public void setPos(Point pos) {
+        this.pos = pos;
     }
 
     public ParkSpecies getParkSpecies() {
