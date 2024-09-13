@@ -1,4 +1,4 @@
-package com.ssafy.moya.ui.theme
+package com.ssafy.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
@@ -8,8 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
 
-// Set of Material typography styles to start with
-private val jua = FontFamily(Font(R.font.jua_ttf))
+val jua = FontFamily(Font(R.font.jua_ttf))
 
 // Set of Material typography styles to start with
 val Typography = Typography(
