@@ -11,15 +11,16 @@ import androidx.compose.ui.tooling.preview.Preview
 import com.ssafy.moya.ui.theme.MoyaTheme
 import com.ssafy.ui.screen.HomeScreen
 import dagger.hilt.android.AndroidEntryPoint
+import javax.inject.Inject
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
 
+    @Inject
     lateinit var ttsHelper: TTSHelper
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ttsHelper = TTSHelper(this)
         setContent {
             MoyaTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {

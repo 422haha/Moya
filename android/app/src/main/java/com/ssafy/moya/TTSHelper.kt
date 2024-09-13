@@ -3,9 +3,13 @@ package com.ssafy.moya
 import android.content.Context
 import android.speech.tts.TextToSpeech
 import android.widget.Toast
+import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class TTSHelper(private val context: Context) : TextToSpeech.OnInitListener {
+@Singleton
+class TTSHelper @Inject constructor(@ApplicationContext private val context: Context) : TextToSpeech.OnInitListener {
     private var tts: TextToSpeech = TextToSpeech(context, this)
     private var isInitialized = false
 

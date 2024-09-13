@@ -25,3 +25,10 @@ data class EncycDetail(val itemId: Int)
 
 @Serializable
 object ExploreStart
+
+//TODO 나중에 dataclass로 수정하고 userId 전송하도록
+@Serializable
+object UserProfileEdit
+
+@Serializable
+object Login
