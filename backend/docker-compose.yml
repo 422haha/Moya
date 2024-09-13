@@ -15,7 +15,7 @@ services:
       - REDIS_PORT=6379
       - TZ=Asia/Seoul
     volumes:
-      - /var/jenkins_home/workspace/test/backend/.env:/app/.env
+      - .env:/app/.env
     restart: unless-stopped
     networks:
       - app-network
