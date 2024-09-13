@@ -14,8 +14,6 @@ services:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
       - TZ=Asia/Seoul
-    volumes:
-      - .env:/app/.env
     restart: unless-stopped
     networks:
       - app-network
