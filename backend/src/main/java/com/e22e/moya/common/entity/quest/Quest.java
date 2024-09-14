@@ -1,9 +1,11 @@
 package com.e22e.moya.common.entity.quest;
 
 import jakarta.persistence.*;
+import lombok.ToString;
 
 @Entity
 @Table(name = "quest")
+@ToString
 public class Quest {
 
     @Id
@@ -30,4 +32,5 @@ public class Quest {
     public void setType(int type) {
         this.type = type;
     }
+
 }

@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.service;
+package com.e22e.moya.exploration.service.quest;
 
 import com.e22e.moya.common.entity.Exploration;
 

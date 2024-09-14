@@ -1,29 +1,37 @@
 package com.e22e.moya.common.entity;
 
 import com.e22e.moya.common.entity.species.Species;
+import com.e22e.moya.common.entity.species.SpeciesPos;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
-import org.locationtech.jts.geom.Point;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 // 사용자가 수집한 동식물
 @Entity
 @Table(name = "discovery")
+@ToString
 public class Discovery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private Point pos;
+    private Long userId;
 
-    private LocalDateTime discoverytTime;
+    private LocalDateTime discoveryTime;
 
     private String imageUrl;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "species_id")
+    @Exclude
     private Species species;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "species_pos_id")
+    @Exclude
+    private SpeciesPos speciesPos;
 
     // getter, setter
 
@@ -35,20 +43,20 @@ public class Discovery {
         this.id = id;
     }
 
-    public Point getPos() {
-        return pos;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setPos(Point pos) {
-        this.pos = pos;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public LocalDateTime getDiscoverytTime() {
-        return discoverytTime;
+    public LocalDateTime getDiscoveryTime() {
+        return discoveryTime;
     }
 
-    public void setDiscoverytTime(LocalDateTime discoverytTime) {
-        this.discoverytTime = discoverytTime;
+    public void setDiscoveryTime(LocalDateTime discoveryTime) {
+        this.discoveryTime = discoveryTime;
     }
 
     public String getImageUrl() {
@@ -66,4 +74,13 @@ public class Discovery {
     public void setSpecies(Species species) {
         this.species = species;
     }
+
+    public SpeciesPos getSpeciesPos() {
+        return speciesPos;
+    }
+
+    public void setSpeciesPos(SpeciesPos speciesPos) {
+        this.speciesPos = speciesPos;
+    }
+
 }

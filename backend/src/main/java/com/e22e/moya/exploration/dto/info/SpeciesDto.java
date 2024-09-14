@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto.initInfo;
+package com.e22e.moya.exploration.dto.info;
 
 import java.util.List;
 import lombok.Getter;
@@ -6,7 +6,6 @@ import lombok.Setter;
 
 @Getter
 @Setter
-
 public class SpeciesDto {
 
     private Long id;

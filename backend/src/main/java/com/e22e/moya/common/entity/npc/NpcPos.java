@@ -2,26 +2,31 @@ package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.locationtech.jts.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Table(name = "npc_pos")
+@ToString
 public class NpcPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    private Long id; // 사실상 npc id
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
     private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_npc_id")
+    @Exclude
     private ParkNpcs parkNpc;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Chat> chats = new ArrayList<>();
 
     @ElementCollection
