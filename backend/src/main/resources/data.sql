@@ -98,8 +98,9 @@ VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
        (2, 5), -- 6 동락공원 - 단풍나무
        (3, 1), -- 7 환경 연수원 - 청설모
        (3, 5), -- 8 환경 연수원 - 단풍나무
-       (3, 6);
+       (3, 6)
 -- 9 환경 연수원 - 개구리
+ON CONFLICT (park_id, species_id) DO NOTHING;
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES

@@ -21,7 +21,7 @@ import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 
-class ExplorationServiceImplTest {
+class ExplorationServiceImplTest_addOnDictionary {
 
     @InjectMocks
     private ExplorationServiceImpl explorationService;

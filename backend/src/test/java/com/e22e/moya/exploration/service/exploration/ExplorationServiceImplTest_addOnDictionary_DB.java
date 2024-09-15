@@ -1,7 +1,5 @@
 package com.e22e.moya.exploration.service.exploration;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 import com.e22e.moya.common.entity.*;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.species.*;
@@ -23,7 +21,7 @@ import java.time.LocalDateTime;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-class ExplorationServiceImplTest_DB {
+class ExplorationServiceImplTest_addOnDictionary_DB {
 
     @Autowired
     private ExplorationService explorationService;
@@ -75,12 +73,8 @@ class ExplorationServiceImplTest_DB {
         printAllEntities("기존 종, 기존 위치 추가 전 엔티티");
 
         // When
-        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(), requestDto);
-
-        // Then
-//        assertNotNull(responseDto);
-//        assertEquals(speciesId, responseDto.getSpeciesId());
-//        assertEquals("청설모", responseDto.getSpeciesName());
+        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(),
+            requestDto);
 
         printAllEntities("기존 종, 기존 위치 추가 이후 엔티티");
     }
@@ -103,12 +97,8 @@ class ExplorationServiceImplTest_DB {
         printAllEntities("새로운 위치 추가하기 전 엔티티");
 
         // When
-        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(), requestDto);
-
-        // Then
-//        assertNotNull(responseDto);
-//        assertEquals(speciesId, responseDto.getSpeciesId());
-//        assertEquals("청설모", responseDto.getSpeciesName());
+        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(),
+            requestDto);
 
         printAllEntities("!! == 새로운 위치 추가한 이후 엔티티");
     }
@@ -132,12 +122,8 @@ class ExplorationServiceImplTest_DB {
         printAllEntities("새로운 종 추가하기 전 엔티티");
 
         // When
-        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(), requestDto);
-
-        // Then
-//        assertNotNull(responseDto);
-//        assertEquals(newSpeciesId, responseDto.getSpeciesId());
-//        assertEquals("딱따구리", responseDto.getSpeciesName());
+        AddResponseDto responseDto = explorationService.addOnDictionary(userId, exploration.getId(),
+            requestDto);
 
         printAllEntities("!! == 새로운 종 추가한 이후 엔티티");
     }
