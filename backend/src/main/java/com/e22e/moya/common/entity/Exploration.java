@@ -35,8 +35,7 @@ public class Exploration {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(precision = 10, scale = 2)
-    private int distance;
+    private double distance;
 
     private Integer steps;
 
@@ -46,7 +45,7 @@ public class Exploration {
     @Column(name = "image_url", length = 512)
     private String imageUrl;
 
-    @Column(columnDefinition = "geography(LineString,4326)")
+    @Column(columnDefinition = "geometry(LineString,4326)")
     private LineString route;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -93,11 +92,11 @@ public class Exploration {
         this.endTime = endTime;
     }
 
-    public int getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 

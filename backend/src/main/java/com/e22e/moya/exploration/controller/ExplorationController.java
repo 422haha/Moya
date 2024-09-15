@@ -3,6 +3,8 @@ package com.e22e.moya.exploration.controller;
 import com.e22e.moya.common.util.JwtUtil;
 import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
+import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
+import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
 import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
 import com.e22e.moya.exploration.service.exploration.ExplorationService;
 import com.e22e.moya.exploration.service.info.InfoService;
@@ -95,13 +97,14 @@ public class ExplorationController {
 
         try {
             long userId = jwtUtil.getUserIdFromToken(token);
-            AddResponseDto addResponseDto = explorationService.addOnDictionary(userId, explorationId, addRequestDto);
+            AddResponseDto addResponseDto = explorationService.addOnDictionary(userId,
+                explorationId, addRequestDto);
 
             response.put("message", "등록 완료");
             response.put("data", addResponseDto);
             return ResponseEntity.ok().body(response);
 
-        }catch (Exception e) {
+        } catch (Exception e) {
 
             log.error("도감에 저장 실패 : {}", e.getMessage());
             response.put("message", "탐험에 필요한 정보 불러올 수 없음");
@@ -112,4 +115,31 @@ public class ExplorationController {
 
     }
 
+    //탐험 종료 및 기록 저장 컨트롤러
+    @PostMapping("/{explorationId}/end")
+    public ResponseEntity<Map<String, Object>> endExploration(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long explorationId,
+        @RequestBody EndRequestDto endRequestDto) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            long userId = jwtUtil.getUserIdFromToken(token);
+            EndResponseDto endResponseDto = explorationService.endExploration(userId, explorationId,
+                endRequestDto);
+
+            response.put("message", "탐험 기록 저장 완료");
+            response.put("data", endResponseDto);
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
+
+            log.error("탐험 기록 저장 실패 : {}", e.getMessage());
+            response.put("message", "탐험 기록 저장 실패");
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        }
+
+    }
 }
