@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.service;
+package com.e22e.moya.exploration.service.quest;
 
 import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.npc.Npc;
@@ -8,7 +8,7 @@ import com.e22e.moya.common.entity.quest.Quest;
 import com.e22e.moya.common.entity.quest.QuestCompleted;
 import com.e22e.moya.common.entity.species.ParkSpecies;
 import com.e22e.moya.common.entity.species.Species;
-import com.e22e.moya.exploration.dto.QuestDto;
+import com.e22e.moya.exploration.dto.quest.QuestDto;
 import com.e22e.moya.exploration.repository.ParkRepository;
 import com.e22e.moya.exploration.repository.QuestCompletedRepository;
 import com.e22e.moya.exploration.repository.QuestRepository;

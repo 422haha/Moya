@@ -4,9 +4,12 @@ import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "users")
+@ToString
 public class Users {
 
     @Id
@@ -14,7 +17,7 @@ public class Users {
     @Column(name = "user_id", unique = true)
     private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -30,12 +33,15 @@ public class Users {
 
     @OneToMany
     @JoinColumn(name = "user_id")
+    @Exclude
     private List<Exploration> explorations = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Chat> chats = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
     //getter, setter
@@ -119,4 +125,5 @@ public class Users {
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
     }
+
 }

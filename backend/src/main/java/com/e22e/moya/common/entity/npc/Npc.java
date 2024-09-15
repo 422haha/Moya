@@ -3,9 +3,12 @@ package com.e22e.moya.common.entity.npc;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "npc")
+@ToString
 public class Npc {
 
     @Id
@@ -16,6 +19,7 @@ public class Npc {
     private String name;
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<ParkNpcs> parkNpcs = new ArrayList<>();
 
     //getter, setter
@@ -43,4 +47,5 @@ public class Npc {
     public void setParkNpcs(List<ParkNpcs> parkNpcs) {
         this.parkNpcs = parkNpcs;
     }
+
 }

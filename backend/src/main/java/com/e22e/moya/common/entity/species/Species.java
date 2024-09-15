@@ -4,10 +4,13 @@ import com.e22e.moya.common.entity.Discovery;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 // 공원에 있는 동식물
 @Entity
 @Table(name = "species")
+@ToString
 public class Species {
 
     @Id
@@ -17,16 +20,18 @@ public class Species {
 
     private String name;
 
-    private String scientific_name;
+    private String scientificName;
 
     private String description;
 
     private String imageUrl;
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
     //getter, setter
@@ -47,12 +52,12 @@ public class Species {
         this.name = name;
     }
 
-    public String getScientific_name() {
-        return scientific_name;
+    public String getScientificName() {
+        return scientificName;
     }
 
-    public void setScientific_name(String scientific_name) {
-        this.scientific_name = scientific_name;
+    public void setScientificName(String scientificName) {
+        this.scientificName = scientificName;
     }
 
     public String getDescription() {
@@ -86,4 +91,5 @@ public class Species {
     public void setParkSpecies(List<ParkSpecies> parkSpecies) {
         this.parkSpecies = parkSpecies;
     }
+
 }

@@ -6,9 +6,12 @@ import com.e22e.moya.common.entity.species.ParkSpecies;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "park")
+@ToString
 public class Park {
 
     @Id
@@ -24,15 +27,19 @@ public class Park {
     private String imageUrl;
 
     @OneToMany(mappedBy = "park")
+    @Exclude
     private List<Exploration> explorations = new ArrayList<>();
 
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<ParkPos> entrances = new ArrayList<>();
 
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<ParkNpcs> parkNpcs = new ArrayList<>();
 
     @OneToMany(mappedBy = "park", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<ParkSpecies> parkSpecies = new ArrayList<>();
 
     public void addExploration(Exploration exploration) {
@@ -110,4 +117,5 @@ public class Park {
     public void setParkSpecies(List<ParkSpecies> parkSpecies) {
         this.parkSpecies = parkSpecies;
     }
+
 }

@@ -1,8 +1,11 @@
 package com.e22e.moya.exploration.controller;
 
 import com.e22e.moya.common.util.JwtUtil;
-import com.e22e.moya.exploration.dto.initInfo.ExplorationStartDto;
-import com.e22e.moya.exploration.service.ExplorationService;
+import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
+import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
+import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
+import com.e22e.moya.exploration.service.exploration.ExplorationService;
+import com.e22e.moya.exploration.service.info.InfoService;
 import io.jsonwebtoken.JwtException;
 import java.util.HashMap;
 import java.util.Map;
@@ -13,8 +16,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 @Slf4j
@@ -23,11 +28,14 @@ import org.springframework.web.bind.annotation.RestController;
 public class ExplorationController {
 
     private final JwtUtil jwtUtil;
+    private final InfoService infoService;
     private final ExplorationService explorationService;
 
-    public ExplorationController(JwtUtil jwtUtil, ExplorationService explorationService) {
+    public ExplorationController(JwtUtil jwtUtil, InfoService explorationService,
+        ExplorationService explorationService1) {
         this.jwtUtil = jwtUtil;
-        this.explorationService = explorationService;
+        this.infoService = explorationService;
+        this.explorationService = explorationService1;
     }
 
     //탐험 시작 컨트롤러
@@ -50,7 +58,7 @@ public class ExplorationController {
             long userId = 1;
 
             // 탐험 시작시 필요한 정보 조회
-            ExplorationStartDto explorationStartDto = explorationService.getInitInfo(parkId,
+            ExplorationStartDto explorationStartDto = infoService.getInitInfo(parkId,
                 userId);
 
             log.info("탐험에 필요한 정보 불러오기 성공 : {}", parkId);
@@ -78,13 +86,30 @@ public class ExplorationController {
     }
 
     //탐험 중 촬영한 사진 도감에 등록 컨트롤러
-    @PostMapping("/exploration/{explorationId}/camera")
-    public ResponseEntity<Map<String, String>> addDictionary(
-        @RequestHeader("Authorization") String token) {
-        Map<String, String> response = new HashMap<>();
-        response.put("message", "등록 완료");
-        response.put("data", null);
-        return ResponseEntity.ok().body(response);
+    @PostMapping("/{explorationId}/camera")
+    public ResponseEntity<Map<String, Object>> addDictionary(
+        @RequestHeader("Authorization") String token,
+        @RequestParam Long explorationId,
+        @RequestBody AddRequestDto addRequestDto) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            long userId = jwtUtil.getUserIdFromToken(token);
+            AddResponseDto addResponseDto = explorationService.addOnDictionary(userId, explorationId, addRequestDto);
+
+            response.put("message", "등록 완료");
+            response.put("data", addResponseDto);
+            return ResponseEntity.ok().body(response);
+
+        }catch (Exception e) {
+
+            log.error("도감에 저장 실패 : {}", e.getMessage());
+            response.put("message", "탐험에 필요한 정보 불러올 수 없음");
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        }
+
     }
 
 }
