@@ -1,7 +1,6 @@
 package com.e22e.moya.exploration.service.quest;
 
 import com.e22e.moya.common.entity.Exploration;
-import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.quest.Quest;
@@ -9,12 +8,17 @@ import com.e22e.moya.common.entity.quest.QuestCompleted;
 import com.e22e.moya.common.entity.species.ParkSpecies;
 import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.exploration.dto.quest.QuestDto;
+import com.e22e.moya.exploration.dto.quest.QuestListResponseDto;
 import com.e22e.moya.exploration.repository.ParkRepository;
 import com.e22e.moya.exploration.repository.QuestCompletedRepository;
 import com.e22e.moya.exploration.repository.QuestRepository;
+import com.e22e.moya.exploration.repository.SpeciesRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Point;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
@@ -28,13 +32,16 @@ public class QuestServiceImpl implements QuestService {
     private final QuestRepository questRepository;
     private final QuestCompletedRepository questCompletedRepository;
     private final ParkRepository parkRepository;
+    private final SpeciesRepository speciesRepository;
     private final Random random = new Random();
 
     public QuestServiceImpl(QuestRepository questRepository,
-        QuestCompletedRepository questCompletedRepository, ParkRepository parkRepository) {
+        QuestCompletedRepository questCompletedRepository, ParkRepository parkRepository,
+        SpeciesRepository speciesRepository) {
         this.questRepository = questRepository;
         this.questCompletedRepository = questCompletedRepository;
         this.parkRepository = parkRepository;
+        this.speciesRepository = speciesRepository;
     }
 
     @Override
@@ -44,16 +51,14 @@ public class QuestServiceImpl implements QuestService {
         List<ParkSpecies> parkSpecies = parkRepository.findSpeciesInPark(parkId);
         List<ParkNpcs> parkNpcs = parkRepository.findNpcsInPark(parkId);
 
-        List<QuestDto> newQuests = new ArrayList<>();
+        int questSize = Math.min(parkSpecies.size(), 3); // 공원의 npc가 3개 이하면 npc의 개수만큼 퀘스트 생성
 
-        for (int i = 0; i < 3; i++) {
-            QuestDto questDto = createQuest(parkSpecies, parkNpcs, exploration);
-            if (questDto != null) {
-                newQuests.add(questDto);
-            }
+        for (int i = 0; i < questSize; i++) {
+            createQuest(parkSpecies, parkNpcs, exploration);
         }
 
     }
+
 
     /**
      * 퀘스트 생성
@@ -62,7 +67,7 @@ public class QuestServiceImpl implements QuestService {
      * @param parkNpcs    공원에 있는 npc들
      * @param exploration 탐험
      */
-    private QuestDto createQuest(List<ParkSpecies> species, List<ParkNpcs> parkNpcs,
+    private void createQuest(List<ParkSpecies> species, List<ParkNpcs> parkNpcs,
         Exploration exploration) {
 
         Quest quest = new Quest();
@@ -72,33 +77,64 @@ public class QuestServiceImpl implements QuestService {
         ParkSpecies randomParkSpecies = species.get(random.nextInt(species.size()));
         ParkNpcs randomParkNpcs = parkNpcs.get(random.nextInt(parkNpcs.size()));
         Species randomSpecies = randomParkSpecies.getSpecies();
-        Npc randomNpcs = randomParkNpcs.getNpc();
+
+        // NPC의 위치 선택
+        List<NpcPos> npcPositions = randomParkNpcs.getPositions();
+        NpcPos randomNpcPos = npcPositions.get(random.nextInt(npcPositions.size()));
 
         QuestCompleted questCompleted = new QuestCompleted();
         questCompleted.setQuest(quest);
         questCompleted.setExploration(exploration);
         questCompleted.setSpeciesId(randomSpecies.getId());
-        questCompleted.setNpcId(randomNpcs.getId());
+        questCompleted.setNpcPos(randomNpcPos);
         questCompleted.setCompleted(false);
         questCompletedRepository.save(questCompleted);
 
-        QuestDto questDto = new QuestDto();
-        questDto.setId(quest.getId());
-        questDto.setQuestType(quest.getType());
-        questDto.setNpcId(randomNpcs.getId());
-        questDto.setNpcName(randomNpcs.getName());
-        questDto.setSpeciesName(randomSpecies.getName());
+        log.info("퀘스트 생성: 퀘스트 타입: {}, 동식물 이름: {}, NPC 위치: {}",
+            quest.getType(), randomSpecies.getName(), randomNpcPos.toString());
 
-        // NPC의 위치 정보 설정
-        if (!randomParkNpcs.getPositions().isEmpty()) {
-            NpcPos npcPos = randomParkNpcs.getPositions().get(0);
-            questDto.setLatitude(npcPos.getPos().getY());
-            questDto.setLongitude(npcPos.getPos().getX());
+    }
+
+    /**
+     * 퀘스트 반환
+     *
+     * @param userId        사용자 id
+     * @param explorationId 탐험 id
+     */
+    @Override
+    @Transactional(readOnly = true)
+    public QuestListResponseDto getQuestList(long userId, Long explorationId) {
+
+        List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationUserIdAndExplorationId(userId, explorationId);
+
+        List<QuestDto> questDTOList = new ArrayList<>();
+
+        for (QuestCompleted questList : explorationQuestList) {
+            QuestDto questDTO = new QuestDto();
+            questDTO.setQuestId(questList.getQuest().getId());
+
+            // npc 정보 조회
+            NpcPos npcPos = questList.getNpcPos();
+            questDTO.setNpcId(npcPos.getParkNpc().getNpc().getId());
+            questDTO.setNpcName(npcPos.getParkNpc().getNpc().getName());
+
+            // npc 위치 정보 조회
+            Point<G2D> point = npcPos.getPos();
+            questDTO.setLongitude(point.getPosition().getLon());
+            questDTO.setLatitude(point.getPosition().getLat());
+
+            questDTO.setQuestType(questList.getQuest().getType());
+            questDTO.setSpeciesId(questList.getSpeciesId());
+
+            // Species 정보 조회
+            Species species = speciesRepository.findById(questList.getSpeciesId()).orElseThrow(() -> new EntityNotFoundException("Species not found"));
+            questDTO.setSpeciesName(species.getName());
+
+            questDTO.setCompleted(questList.isCompleted());
+
+            questDTOList.add(questDTO);
         }
 
-        log.info("퀘스트 생성: 퀘스트 타입: {}, 동식물 이름: {}, NPC 이름: {}",
-            quest.getType(), randomSpecies.getName(), randomNpcs.getName());
-
-        return questDto;
+        return new QuestListResponseDto(questDTOList);
     }
 }

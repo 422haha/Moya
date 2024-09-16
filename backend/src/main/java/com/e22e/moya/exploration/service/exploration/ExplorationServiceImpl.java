@@ -21,7 +21,11 @@ import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.*;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.LineString;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.builder.DSL;
+import org.geolatte.geom.crs.CoordinateReferenceSystems;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -42,7 +46,6 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final ExplorationRepository explorationRepository;
     private final ParkSpeciesRepository parkSpeciesRepository;
     private final SpeciesPosRepository speciesPosRepository;
-    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     public ExplorationServiceImpl(UserRepository userRepository,
         SpeciesRepository speciesRepository, DiscoveryRepository discoveryRepository,
@@ -78,8 +81,8 @@ public class ExplorationServiceImpl implements ExplorationService {
 
         Park park = exploration.getPark();
 
-        Point point = geometryFactory.createPoint(
-            new Coordinate(addRequestDto.getLongitude(), addRequestDto.getLatitude()));
+        Point<G2D> point = DSL.point(CoordinateReferenceSystems.WGS84,
+            DSL.g(addRequestDto.getLongitude(), addRequestDto.getLatitude()));
 
         // 공원에 있는 종인지 확인
         ParkSpecies parkSpecies = parkSpeciesRepository.findByParkAndSpecies(park, species)
@@ -146,21 +149,21 @@ public class ExplorationServiceImpl implements ExplorationService {
         }
 
         // route를 lineString으로
-        List<Coordinate> coordinateList = new ArrayList<>();
+        List<G2D> positionList = new ArrayList<>();
         for (EndRequestDto.Points point : endRequestDto.getRoute()) {
             if (point.isValid()) {
-                coordinateList.add(new Coordinate(point.getLongitude(), point.getLatitude()));
+                G2D position = DSL.g(point.getLongitude(), point.getLatitude());
+                positionList.add(position);
             }
         }
-        Coordinate[] coordinates = coordinateList.toArray(
-            new Coordinate[0]); // Coordinate 객체들 리스트를 배열로
-        LineString lineString = geometryFactory.createLineString(
-            coordinates); // Coordinate 배열로 LineString 객체 생성
+        G2D[] positions = positionList.toArray(new G2D[0]);
+
+        LineString<G2D> lineString = DSL.linestring(CoordinateReferenceSystems.WGS84, positions);
 
         exploration.setRoute(lineString);
         exploration.setSteps(endRequestDto.getSteps());
         exploration.setEndTime(LocalDateTime.now());
-        explorationRepository.save(exploration); // 기존 정보 저장
+        explorationRepository.save(exploration); // 기존 정보 저장e
 
         // 저장된 linestring을 바탕으로 PostGIS 사용하여 거리 계산 및 저장
         Double distance = explorationRepository.calculateDistance(exploration.getId());

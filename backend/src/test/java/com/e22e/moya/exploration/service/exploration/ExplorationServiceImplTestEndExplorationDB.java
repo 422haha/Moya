@@ -4,28 +4,14 @@ import static org.junit.jupiter.api.Assertions.*;
 
 import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.park.Park;
-import com.e22e.moya.common.entity.species.Species;
-import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
-import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
-import com.e22e.moya.exploration.dto.exploration.EndRequestDto.Points;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
-import com.e22e.moya.exploration.repository.DiscoveryRepository;
 import com.e22e.moya.exploration.repository.ExplorationRepository;
 import com.e22e.moya.exploration.repository.ParkRepository;
-import com.e22e.moya.exploration.repository.ParkSpeciesRepository;
-import com.e22e.moya.exploration.repository.SpeciesPosRepository;
-import com.e22e.moya.exploration.repository.SpeciesRepository;
-import com.e22e.moya.user.repository.UserRepository;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
@@ -36,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 @Transactional
 @ActiveProfiles("test")
 @Sql(scripts = "/data.sql", executionPhase = Sql.ExecutionPhase.BEFORE_TEST_METHOD)
-class ExplorationServiceImplTest_endExploration_DB {
+class ExplorationServiceImplTestEndExplorationDB {
 
     @Autowired
     private ExplorationService explorationService;

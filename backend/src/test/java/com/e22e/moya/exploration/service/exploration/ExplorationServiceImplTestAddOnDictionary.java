@@ -12,16 +12,17 @@ import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.repository.*;
 import com.e22e.moya.user.repository.UserRepository;
 import java.util.Optional;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Point;
+import org.geolatte.geom.builder.DSL;
+import org.geolatte.geom.crs.CoordinateReferenceSystems;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.locationtech.jts.geom.Coordinate;
-import org.locationtech.jts.geom.GeometryFactory;
-import org.locationtech.jts.geom.Point;
 
-class ExplorationServiceImplTest_addOnDictionary {
+class ExplorationServiceImplTestAddOnDictionary {
 
     @InjectMocks
     private ExplorationServiceImpl explorationService;
@@ -38,8 +39,6 @@ class ExplorationServiceImplTest_addOnDictionary {
     private ParkSpeciesRepository parkSpeciesRepository;
     @Mock
     private SpeciesPosRepository speciesPosRepository;
-
-    private GeometryFactory geometryFactory = new GeometryFactory();
 
     @BeforeEach
     void setUp() {
@@ -77,8 +76,7 @@ class ExplorationServiceImplTest_addOnDictionary {
         parkSpecies.setPark(park);
         parkSpecies.setSpecies(species);
 
-        Point location = geometryFactory.createPoint(new Coordinate(requestDto.getLongitude(), requestDto.getLatitude()));
-
+        Point<G2D> location = DSL.point(CoordinateReferenceSystems.WGS84, DSL.g(requestDto.getLongitude(), requestDto.getLatitude()));
         SpeciesPos speciesPos = new SpeciesPos();
         speciesPos.setId(1L);
         speciesPos.setParkSpecies(parkSpecies);
@@ -146,8 +144,7 @@ class ExplorationServiceImplTest_addOnDictionary {
         parkSpecies.setPark(park);
         parkSpecies.setSpecies(species);
 
-        Point location = geometryFactory.createPoint(new Coordinate(requestDto.getLongitude(), requestDto.getLatitude()));
-
+        Point<G2D> location = DSL.point(CoordinateReferenceSystems.WGS84, DSL.g(requestDto.getLongitude(), requestDto.getLatitude()));
         SpeciesPos newSpeciesPos = new SpeciesPos();
         newSpeciesPos.setId(2L);
         newSpeciesPos.setParkSpecies(parkSpecies);
@@ -215,8 +212,7 @@ class ExplorationServiceImplTest_addOnDictionary {
         newParkSpecies.setPark(park);
         newParkSpecies.setSpecies(species);
 
-        Point location = geometryFactory.createPoint(new Coordinate(requestDto.getLongitude(), requestDto.getLatitude()));
-
+        Point<G2D> location = DSL.point(CoordinateReferenceSystems.WGS84, DSL.g(requestDto.getLongitude(), requestDto.getLatitude()));
         SpeciesPos newSpeciesPos = new SpeciesPos();
         newSpeciesPos.setId(3L);
         newSpeciesPos.setParkSpecies(newParkSpecies);

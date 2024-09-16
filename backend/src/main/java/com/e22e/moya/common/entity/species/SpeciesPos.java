@@ -3,7 +3,9 @@ package com.e22e.moya.common.entity.species;
 import jakarta.persistence.*;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.locationtech.jts.geom.Point;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Point;
+
 
 // 공원에 있는 동식물의 위치
 @Entity
@@ -16,7 +18,7 @@ public class SpeciesPos {
     private Long id;
 
     @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
-    private Point pos;
+    private Point<G2D> pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_species_id")
@@ -33,11 +35,11 @@ public class SpeciesPos {
         this.id = id;
     }
 
-    public Point getPos() {
+    public Point<G2D> getPos() {
         return pos;
     }
 
-    public void setPos(Point pos) {
+    public void setPos(Point<G2D> pos) {
         this.pos = pos;
     }
 
