@@ -165,8 +165,8 @@ public class ExplorationController {
 
         } catch (Exception e) {
 
-            log.error("탐험 기록 저장 실패 : {}", e.getMessage());
-            response.put("message", "탐험 기록 저장 실패");
+            log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
+            response.put("message", "도전과제 목록 조회 실패");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
