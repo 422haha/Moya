@@ -4,9 +4,10 @@ import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.locationtech.jts.geom.Point;
 import java.util.ArrayList;
 import java.util.List;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Point;
 
 @Entity
 @Table(name = "npc_pos")
@@ -18,7 +19,7 @@ public class NpcPos {
     private Long id; // 사실상 npc id
 
     @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
-    private Point pos;
+    private Point<G2D> pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_npc_id")
@@ -44,11 +45,11 @@ public class NpcPos {
         this.id = id;
     }
 
-    public Point getPos() {
+    public Point<G2D> getPos() {
         return pos;
     }
 
-    public void setPos(Point pos) {
+    public void setPos(Point<G2D> pos) {
         this.pos = pos;
     }
 

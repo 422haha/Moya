@@ -9,7 +9,9 @@ import java.util.ArrayList;
 import java.util.List;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import org.locationtech.jts.geom.LineString;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.LineString;
+
 
 @Entity
 @Table(name = "exploration")
@@ -46,7 +48,7 @@ public class Exploration {
     private String imageUrl;
 
     @Column(columnDefinition = "geometry(LineString,4326)")
-    private LineString route;
+    private LineString<G2D> route;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
@@ -124,11 +126,11 @@ public class Exploration {
         this.imageUrl = imageUrl;
     }
 
-    public LineString getRoute() {
+    public LineString<G2D> getRoute() {
         return route;
     }
 
-    public void setRoute(LineString route) {
+    public void setRoute(LineString<G2D> route) {
         this.route = route;
     }
 

@@ -4,9 +4,18 @@ import java.util.List;
 
 public class ExplorationStartDto {
 
+    private Long explorationId;
     private List<SpeciesDto> myDiscoveredSpecies; // 내가 찾은 species들
     private List<SpeciesDto> species; // 내가 찾지 못한 species들
     private List<NpcDto> npcs; // npc들
+
+    public Long getExplorationId() {
+        return explorationId;
+    }
+
+    public void setExplorationId(Long explorationId) {
+        this.explorationId = explorationId;
+    }
 
     public List<SpeciesDto> getMyDiscoveredSpecies() {
         return myDiscoveredSpecies;

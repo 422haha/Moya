@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.quest;
 
 import com.e22e.moya.common.entity.Exploration;
+import com.e22e.moya.common.entity.npc.NpcPos;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.ToString;
@@ -30,8 +31,10 @@ public class QuestCompleted {
     @Column(name = "species_id")
     private Long speciesId;
 
-    @Column(name = "npc_id")
-    private Long npcId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "npc_pos_id")
+    @Exclude
+    private NpcPos npcPos;
 
     private boolean completed;
 
@@ -77,12 +80,12 @@ public class QuestCompleted {
         this.speciesId = speciesId;
     }
 
-    public Long getNpcId() {
-        return npcId;
+    public NpcPos getNpcPos() {
+        return npcPos;
     }
 
-    public void setNpcId(Long npcId) {
-        this.npcId = npcId;
+    public void setNpcPos(NpcPos npcPos) {
+        this.npcPos = npcPos;
     }
 
     public boolean isCompleted() {
