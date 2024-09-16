@@ -1,21 +1,25 @@
 package com.e22e.moya.common.entity.park;
 
 import jakarta.persistence.*;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.locationtech.jts.geom.Point;
 
 @Entity
 @Table(name = "park_pos")
+@ToString
 public class ParkPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
     private Point pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
+    @Exclude
     private Park park;
 
     private String name;
@@ -53,4 +57,5 @@ public class ParkPos {
     public void setName(String name) {
         this.name = name;
     }
+
 }

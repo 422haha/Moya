@@ -7,10 +7,13 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import org.locationtech.jts.geom.LineString;
 
 @Entity
 @Table(name = "exploration")
+@ToString
 public class Exploration {
 
     @Id
@@ -23,6 +26,7 @@ public class Exploration {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
+    @Exclude
     private Park park;
 
     @Column(name = "start_time", nullable = false)
@@ -31,8 +35,7 @@ public class Exploration {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(precision = 10, scale = 2)
-    private int distance;
+    private double distance;
 
     private Integer steps;
 
@@ -42,14 +45,18 @@ public class Exploration {
     @Column(name = "image_url", length = 512)
     private String imageUrl;
 
-    @Column(columnDefinition = "geography(LineString,4326)")
+    @Column(columnDefinition = "geometry(LineString,4326)")
     private LineString route;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
     @OneToMany(mappedBy = "exploration", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<QuestCompleted> questCompleted = new ArrayList<>();
+
+    // boolean completed = false;
 
     //getter, setter
 
@@ -85,11 +92,11 @@ public class Exploration {
         this.endTime = endTime;
     }
 
-    public int getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 
@@ -149,4 +156,5 @@ public class Exploration {
         List<QuestCompleted> questCompleted) {
         this.questCompleted = questCompleted;
     }
+
 }

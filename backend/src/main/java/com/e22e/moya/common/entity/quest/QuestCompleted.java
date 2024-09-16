@@ -3,20 +3,26 @@ package com.e22e.moya.common.entity.quest;
 import com.e22e.moya.common.entity.Exploration;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "quest_completed")
+@ToString
 public class QuestCompleted {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "exploration_id")
+    @Exclude
     private Exploration exploration;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "quest_id")
+    @Exclude
     private Quest quest;
 
     private LocalDateTime completedAt;
@@ -86,4 +92,5 @@ public class QuestCompleted {
     public void setCompleted(boolean completed) {
         this.completed = completed;
     }
+
 }

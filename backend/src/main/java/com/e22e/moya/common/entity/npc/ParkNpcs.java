@@ -4,9 +4,12 @@ import com.e22e.moya.common.entity.park.Park;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "park_npc")
+@ToString
 public class ParkNpcs {
 
     @Id
@@ -15,13 +18,16 @@ public class ParkNpcs {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
+    @Exclude
     private Park park;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "npc_id")
+    @Exclude
     private Npc npc;
 
     @OneToMany(mappedBy = "parkNpc", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<NpcPos> positions = new ArrayList<>();
 
     public void addPosition(NpcPos position) {
@@ -67,4 +73,5 @@ public class ParkNpcs {
     public void setPositions(List<NpcPos> positions) {
         this.positions = positions;
     }
+
 }

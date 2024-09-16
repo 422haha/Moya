@@ -11,14 +11,17 @@ import com.ssafy.ui.screen.ExploreDetailScreen
 import com.ssafy.ui.screen.ExploreListScreen
 import com.ssafy.ui.screen.ExploreStartScreen
 import com.ssafy.ui.screen.HomeScreen
+import com.ssafy.ui.screen.LoginScreen
 import com.ssafy.ui.screen.ParkDetailScreen
 import com.ssafy.ui.screen.ParkListScreen
+import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper
 ) {
+    //TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
             HomeScreen(
@@ -82,11 +85,17 @@ fun MainNavigation(
             ExploreStartScreen(onExitExplore = {
                 navController.navigate(Home) {
                     //TODO 추후에 탐험기록 화면으로 이동하도록 수정
-                    popUpTo(navController.graph.startDestinationId) { inclusive = true }
+                    popUpTo(navController.navigate(Home)) { inclusive = true }
                 }
             }, onEnterEncyc = {
                 navController.navigate(Encyc)
             })
+        }
+        composable<Login> {
+            LoginScreen()
+        }
+        composable<UserProfileEdit> {
+            UserProfileEditScreen()
         }
     }
 }

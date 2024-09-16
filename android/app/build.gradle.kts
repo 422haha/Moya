@@ -1,8 +1,13 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.module.android.application.compose)
     alias(libs.plugins.module.hilt)
     alias(libs.plugins.kotlin.serialization)
 }
+
+val properties = Properties()
+properties.load(rootProject.file("local.properties").inputStream())
 
 android {
     namespace = "com.ssafy.moya"
@@ -16,6 +21,8 @@ android {
         vectorDrawables {
             useSupportLibrary = true
         }
+
+        buildConfigField("Boolean", "DEBUG", properties["DEBUG"] as String)
     }
 
     buildTypes {
@@ -36,6 +43,7 @@ android {
     }
     buildFeatures {
         compose = true
+        buildConfig = true
     }
     composeOptions {
         kotlinCompilerExtensionVersion = "1.5.1"
