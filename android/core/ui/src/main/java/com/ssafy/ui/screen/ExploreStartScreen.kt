@@ -27,12 +27,16 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.naver.maps.geometry.LatLng
 import com.naver.maps.map.compose.ExperimentalNaverMapApi
 import com.naver.maps.map.compose.LocationTrackingMode
 import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
 import com.naver.maps.map.compose.NaverMap
 import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.naver.maps.map.overlay.OverlayImage
 import com.ssafy.ui.R
 import com.ssafy.ui.component.ChallengeDialog
 import com.ssafy.ui.component.CustomButtonWithImage
@@ -50,6 +54,7 @@ fun ExploreStartScreen(onExitExplore: () -> Unit = {}, onEnterEncyc: () -> Unit 
 
     val fusedLocationClient = rememberFusedLocationSource()
     val cameraPositionState = rememberCameraPositionState()
+    val markerPosition = LatLng(37.532600, 127.024612)
 
     Scaffold(
         content = { paddingValues ->
@@ -63,7 +68,12 @@ fun ExploreStartScreen(onExitExplore: () -> Unit = {}, onEnterEncyc: () -> Unit 
                         locationTrackingMode = LocationTrackingMode.Follow
                     ),
                     cameraPositionState = cameraPositionState
-                )
+                ) {
+                    Marker(
+                        state = MarkerState(position = markerPosition),
+                        icon = OverlayImage.fromResource(R.drawable.ic_launcher_background),
+                    )
+                }
 
                 Column(
                     horizontalAlignment = Alignment.End,
