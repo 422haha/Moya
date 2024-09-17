@@ -171,7 +171,7 @@ public class QuestServiceImpl implements QuestService {
         int nOfCompletedQuests = questCompletedRepository.countCompletedQuestsByExplorationId(
             explorationId);
 
-        return new QuestCompleteResponseDto(LocalDateTime.now(), nOfCompletedQuests);
+        return new QuestCompleteResponseDto(questCompleted.getCompletedAt(), nOfCompletedQuests);
 
     }
 

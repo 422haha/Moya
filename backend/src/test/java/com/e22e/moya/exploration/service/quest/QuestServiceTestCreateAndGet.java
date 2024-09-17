@@ -68,9 +68,9 @@ public class QuestServiceTestCreateAndGet {
 
         // Then
         assertNotNull(questListResponseDto, "퀘스트 목록 응답이 null.");
-        assertEquals(generatedQuests.size(), questListResponseDto.getQuests().size(), "생성된 퀘스트 수와 조회된 퀘스트 수가 불일치함");
+        assertEquals(generatedQuests.size(), questListResponseDto.getQuest().size(), "생성된 퀘스트 수와 조회된 퀘스트 수가 불일치함");
 
-        questListResponseDto.getQuests().forEach(questDto -> {
+        questListResponseDto.getQuest().forEach(questDto -> {
             assertNotNull(questDto.getQuestId(), "퀘스트 Id가 nul.");
             assertNotNull(questDto.getNpcId(), "NPC Id가 null.");
             assertNotNull(questDto.getNpcName(), "NPC 이름이 null.");
