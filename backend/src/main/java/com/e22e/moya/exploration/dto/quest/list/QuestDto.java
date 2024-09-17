@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto.quest;
+package com.e22e.moya.exploration.dto.quest.list;
 
 import lombok.Getter;
 import lombok.Setter;
