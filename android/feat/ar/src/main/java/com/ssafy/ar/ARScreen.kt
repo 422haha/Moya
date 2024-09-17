@@ -1,6 +1,5 @@
 package com.ssafy.ar
 
-import android.graphics.BitmapFactory
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
@@ -25,7 +24,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.google.android.filament.Engine
-import com.google.android.filament.android.TextureHelper.setBitmap
 import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
@@ -65,6 +63,7 @@ import java.util.UUID
 private const val kMaxModelInstances = 1
 
 private const val TAG = "ArScreen"
+
 @Composable
 fun ARSceneComposable(viewModel: ARViewModel) {
     // AR Basic
@@ -82,11 +81,11 @@ fun ARSceneComposable(viewModel: ARViewModel) {
         mutableStateOf<TrackingFailureReason?>(null)
     }
     var frame by remember { mutableStateOf<Frame?>(null) }
-    
+
     // AR Quest State
     val coroutineScope = rememberCoroutineScope()
     val anchorNodes by viewModel.anchorNodes.collectAsState()
-    
+
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
@@ -118,45 +117,48 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                 trackingFailureReason = it
             },
             onSessionUpdated = { session, updatedFrame ->
-                frame = updatedFrame
+                coroutineScope.launch {
+                    withContext(Dispatchers.Main) {
+                        frame = updatedFrame
+                        if (childNodes.isEmpty()) {
+                            updatedFrame.getUpdatedPlanes()
+                                .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
+                                ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
+                                    planeRenderer = false
+                                    val anchorNode = createAnchorNode(
+                                        scriptNode[0],
+                                        engine,
+                                        modelLoader,
+                                        materialLoader,
+                                        modelInstances,
+                                        anchor,
+                                    ).apply {
+                                        val uuid = UUID.randomUUID().toString()
 
-                if (childNodes.isEmpty()) {
-                    updatedFrame.getUpdatedPlanes()
-                        .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
-                        ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                            planeRenderer = false
-                            val anchorNode = createAnchorNode(
-                                scriptNode[0],
-                                engine,
-                                modelLoader,
-                                materialLoader,
-                                modelInstances,
-                                anchor,
-                            ).apply {
-                                val uuid = UUID.randomUUID().toString()
+                                        name = uuid
 
-                                name = uuid
+                                        viewModel.addAnchorNode(uuid, WAIT_QUEST)
+                                    }
 
-                                viewModel.addAnchorNode(uuid, WAIT_QUEST)
-                            }
-
-                            childNodes.add(anchorNode)
+                                    childNodes.add(anchorNode)
+                                }
                         }
+                    }
                 }
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
 
                     Log.d(TAG, "ARSceneComposable: $node")
-                    
+
                     val anchorId = node?.parent?.name
 
-                    if(anchorId != null) {
+                    if (anchorId != null) {
                         val nodeId = node.name?.toInt()
 
-                        if(nodeId != null && node is ModelNode) {
+                        if (nodeId != null && node is ModelNode) {
                             val quest = scriptNode[nodeId]
-                            when(val state = anchorNodes[anchorId]) {
+                            when (val state = anchorNodes[anchorId]) {
                                 // 퀘스트 진행전
                                 WAIT_QUEST -> {
                                     viewModel.showQuestDialog(
@@ -189,14 +191,16 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                     ) { accepted ->
                                         if (accepted) { // 완료
                                             // TODO 온디바이스 AI로 검사
-                                            viewModel.updateAnchorNode(anchorId, COMPLETE_QUEST).apply {
-                                                node.childNodes.filterIsInstance<ImageNode>().firstOrNull()
-                                                    ?.setBitmap("picture/complete.png")
+                                            viewModel.updateAnchorNode(anchorId, COMPLETE_QUEST)
+                                                .apply {
+                                                    node.childNodes.filterIsInstance<ImageNode>()
+                                                        .firstOrNull()
+                                                        ?.setBitmap("picture/complete.png")
 
-                                                coroutineScope.launch {
-                                                    snackbarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                    coroutineScope.launch {
+                                                        snackbarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                    }
                                                 }
-                                            }
                                         }
                                     }
                                 }
@@ -209,11 +213,13 @@ fun ARSceneComposable(viewModel: ARViewModel) {
         )
         ArStatusText(
             trackingFailureReason = trackingFailureReason,
-            childNodesEmpty = childNodes.isEmpty())
+            childNodesEmpty = childNodes.isEmpty()
+        )
 
         SnackbarHost(
             hostState = snackbarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)) { snackbarData ->
+            modifier = Modifier.align(Alignment.BottomCenter)
+        ) { snackbarData ->
             Snackbar(snackbarData = snackbarData)
         }
     }
@@ -242,7 +248,10 @@ fun ArStatusText(
         fontSize = 28.sp,
         color = Color.White,
         text = (when (trackingFailureReason) {
-            TrackingFailureReason.NONE -> { "위치를 찾고 있어" }
+            TrackingFailureReason.NONE -> {
+                "위치를 찾고 있어"
+            }
+
             TrackingFailureReason.BAD_STATE -> "지금 내부 상태가\n불안정해"
             TrackingFailureReason.INSUFFICIENT_LIGHT -> "주변이 어두워서\n찾을 수 없어"
             TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"
@@ -291,8 +300,6 @@ private suspend fun updateAnchorNode(
             center = Position(0f, 0.67f, 0f)
         )
 
-        Log.d(TAG, "updateAnchorNode2: ${imageNode}")
-
         newModelNode.addChildNode(imageNode)
 
         parentAnchor.addChildNode(newModelNode)
@@ -300,14 +307,14 @@ private suspend fun updateAnchorNode(
 }
 
 // 특정 위치에 3D 모델을 배치
-private fun createAnchorNode(
+private suspend fun createAnchorNode(
     node: QuestData,
     engine: Engine,
     modelLoader: ModelLoader,
     materialLoader: MaterialLoader,
     modelInstances: MutableMap<String, ModelInstance>,
     anchor: Anchor
-) : AnchorNode {
+): AnchorNode {
     val idx = (1..3).random()
 
     val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
@@ -344,8 +351,6 @@ private fun createAnchorNode(
 
     return anchorNode
 }
-
-// 노드 위에 말풍선
 
 // 지금 childNode에 1개만 할 수 있음
 // 앵커를 효율적으로 여러개 배치해야함
