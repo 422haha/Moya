@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto.quest;
+package com.e22e.moya.exploration.dto.quest.list;
 
 import java.util.List;
 import lombok.AllArgsConstructor;
@@ -11,6 +11,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class QuestListResponseDto {
-    private List<QuestDto> quests;
+    private List<QuestDto> quest;
 
 }

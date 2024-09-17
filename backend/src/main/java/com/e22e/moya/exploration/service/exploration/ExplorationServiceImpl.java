@@ -17,6 +17,7 @@ import com.e22e.moya.exploration.repository.ParkSpeciesRepository;
 import com.e22e.moya.exploration.repository.SpeciesPosRepository;
 import com.e22e.moya.exploration.repository.SpeciesRepository;
 import com.e22e.moya.user.repository.UserRepository;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,13 +72,13 @@ public class ExplorationServiceImpl implements ExplorationService {
     public AddResponseDto addOnDictionary(long userId, Long explorationId,
         AddRequestDto addRequestDto) {
         Users user = userRepository.findById(userId)
-            .orElseThrow(() -> new RuntimeException("사용자를 찾을 수 없습니다"));
+            .orElseThrow(() -> new EntityNotFoundException("사용자를 찾을 수 없습니다"));
 
         Species species = speciesRepository.findById(addRequestDto.getSpeciesId())
-            .orElseThrow(() -> new RuntimeException("Species를 찾을 수 없습니다"));
+            .orElseThrow(() -> new EntityNotFoundException("Species를 찾을 수 없습니다"));
 
         Exploration exploration = explorationRepository.findById(explorationId)
-            .orElseThrow(() -> new RuntimeException("탐험을 찾을 수 없습니다"));
+            .orElseThrow(() -> new EntityNotFoundException("탐험을 찾을 수 없습니다"));
 
         Park park = exploration.getPark();
 
@@ -141,11 +142,11 @@ public class ExplorationServiceImpl implements ExplorationService {
     public EndResponseDto endExploration(long userId, Long explorationId,
         EndRequestDto endRequestDto) {
         Exploration exploration = explorationRepository.findById(explorationId)
-            .orElseThrow(() -> new RuntimeException("탐험을 찾을 수 없습니다"));
+            .orElseThrow(() -> new EntityNotFoundException("탐험을 찾을 수 없습니다"));
 
         // 사용자 id 확인
         if (exploration.getUserId() != userId) {
-            throw new RuntimeException("권한이 없습니다");
+            throw new IllegalArgumentException("권한이 없습니다");
         }
 
         // route를 lineString으로
@@ -180,6 +181,4 @@ public class ExplorationServiceImpl implements ExplorationService {
 
         return responseDto;
     }
-
-
 }

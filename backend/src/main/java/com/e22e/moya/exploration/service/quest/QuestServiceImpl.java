@@ -7,13 +7,15 @@ import com.e22e.moya.common.entity.quest.Quest;
 import com.e22e.moya.common.entity.quest.QuestCompleted;
 import com.e22e.moya.common.entity.species.ParkSpecies;
 import com.e22e.moya.common.entity.species.Species;
-import com.e22e.moya.exploration.dto.quest.QuestDto;
-import com.e22e.moya.exploration.dto.quest.QuestListResponseDto;
+import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
+import com.e22e.moya.exploration.dto.quest.list.QuestDto;
+import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
 import com.e22e.moya.exploration.repository.ParkRepository;
 import com.e22e.moya.exploration.repository.QuestCompletedRepository;
 import com.e22e.moya.exploration.repository.QuestRepository;
 import com.e22e.moya.exploration.repository.SpeciesRepository;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
@@ -58,7 +60,6 @@ public class QuestServiceImpl implements QuestService {
         }
 
     }
-
 
     /**
      * 퀘스트 생성
@@ -105,13 +106,18 @@ public class QuestServiceImpl implements QuestService {
     @Transactional(readOnly = true)
     public QuestListResponseDto getQuestList(long userId, Long explorationId) {
 
-        List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationUserIdAndExplorationId(userId, explorationId);
+        List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationUserIdAndExplorationId(
+            userId, explorationId);
+
+        if (explorationQuestList.isEmpty()) {
+            throw new EntityNotFoundException("도전과제를 찾을 수 없습니다.");
+        }
 
         List<QuestDto> questDTOList = new ArrayList<>();
 
         for (QuestCompleted questList : explorationQuestList) {
             QuestDto questDTO = new QuestDto();
-            questDTO.setQuestId(questList.getQuest().getId());
+            questDTO.setQuestId(questList.getId());
 
             // npc 정보 조회
             NpcPos npcPos = questList.getNpcPos();
@@ -127,7 +133,8 @@ public class QuestServiceImpl implements QuestService {
             questDTO.setSpeciesId(questList.getSpeciesId());
 
             // Species 정보 조회
-            Species species = speciesRepository.findById(questList.getSpeciesId()).orElseThrow(() -> new EntityNotFoundException("Species not found"));
+            Species species = speciesRepository.findById(questList.getSpeciesId())
+                .orElseThrow(() -> new EntityNotFoundException("동식물을 찾을 수 없습니다."));
             questDTO.setSpeciesName(species.getName());
 
             questDTO.setCompleted(questList.isCompleted());
@@ -137,4 +144,35 @@ public class QuestServiceImpl implements QuestService {
 
         return new QuestListResponseDto(questDTOList);
     }
+
+    /**
+     * 도전과제 완료 처리
+     *
+     * @param explorationId 탐험 id
+     * @param questId       퀘스트 id
+     */
+    @Override
+    @Transactional(isolation = Isolation.READ_COMMITTED)
+    public QuestCompleteResponseDto completeQuest(Long explorationId, Long questId) {
+        QuestCompleted questCompleted = questCompletedRepository.findById(questId)
+            .orElseThrow(() -> new EntityNotFoundException("도전과제를 찾을 수 없음"));
+
+        if (questCompleted.isCompleted()) {
+            throw new IllegalStateException("도전과제가 이미 완료됨");
+        }
+
+        questCompleted.setCompleted(true);
+        questCompleted.setCompletedAt(LocalDateTime.now());
+
+        questCompletedRepository.save(questCompleted);
+
+        log.info("도전과제 완료: {}", questId);
+
+        int nOfCompletedQuests = questCompletedRepository.countCompletedQuestsByExplorationId(
+            explorationId);
+
+        return new QuestCompleteResponseDto(questCompleted.getCompletedAt(), nOfCompletedQuests);
+
+    }
+
 }
