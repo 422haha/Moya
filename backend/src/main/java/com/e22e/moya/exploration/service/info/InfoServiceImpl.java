@@ -5,7 +5,6 @@ import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
-import com.e22e.moya.common.entity.species.SpeciesPos;
 import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
 import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.dto.info.ParkSpeciesDto;
@@ -14,6 +13,7 @@ import com.e22e.moya.exploration.dto.info.SpeciesDto;
 import com.e22e.moya.exploration.repository.ExplorationRepository;
 import com.e22e.moya.exploration.repository.ParkRepository;
 import com.e22e.moya.exploration.service.quest.QuestService;
+import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -58,7 +58,7 @@ public class InfoServiceImpl implements InfoService {
     public ExplorationStartDto getInitInfo(Long parkId, Long userId) {
         ExplorationStartDto explorationStartDto = new ExplorationStartDto();
         Park park = parkRepository.findById(parkId)
-            .orElseThrow(() -> new RuntimeException("공원을 찾을 수 없음"));
+            .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
 
         // 내가 공원에서 발견한 것들
         List<ParkSpeciesDto> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(parkId,

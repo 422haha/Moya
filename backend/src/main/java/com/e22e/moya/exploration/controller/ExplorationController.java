@@ -6,11 +6,13 @@ import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
 import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
-import com.e22e.moya.exploration.dto.quest.QuestListResponseDto;
+import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
+import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
 import com.e22e.moya.exploration.service.exploration.ExplorationService;
 import com.e22e.moya.exploration.service.info.InfoService;
 import com.e22e.moya.exploration.service.quest.QuestService;
 import io.jsonwebtoken.JwtException;
+import jakarta.persistence.EntityNotFoundException;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -83,12 +85,14 @@ public class ExplorationController {
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 
-        } catch (Exception e) {
-
-            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e);
-            response.put("message", "탐험에 필요한 정보 불러올 수 없음");
-            response.put("data", new Object[]{});
+        } catch (EntityNotFoundException e) {
+            log.error("공원을 찾을 수 없습니다. : {}", e.getMessage());
+            response.put("message", "공원을 찾을 수 없습니다");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
+            response.put("message", "탐험에 필요한 정보 불러올 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
@@ -109,13 +113,14 @@ public class ExplorationController {
             response.put("data", addResponseDto);
             return ResponseEntity.ok().body(response);
 
-        } catch (Exception e) {
-
-            log.error("도감에 저장 실패 : {}", e.getMessage());
-            response.put("message", "탐험에 필요한 정보 불러올 수 없음");
-            response.put("data", new Object[]{});
+        } catch (EntityNotFoundException e) {
+            log.error("리소스를 찾을 수 없음 : {}", e.getMessage());
+            response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
+        } catch (Exception e) {
+            log.error("도감에 저장 실패 : {}", e.getMessage());
+            response.put("message", "도감에 저장할 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
     }
@@ -137,13 +142,18 @@ public class ExplorationController {
             response.put("data", endResponseDto);
             return ResponseEntity.ok().body(response);
 
-        } catch (Exception e) {
-
-            log.error("탐험 기록 저장 실패 : {}", e.getMessage());
-            response.put("message", "탐험 기록 저장 실패");
-            response.put("data", new Object[]{});
+        } catch (EntityNotFoundException e) {
+            log.error("탐험을 찾을 수 없음 : {}", e.getMessage());
+            response.put("message", "탐험을 찾을 수 없습니다.");
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
+        } catch (IllegalArgumentException e) {
+            log.error("권한 없음 : {}", e.getMessage());
+            response.put("message", "탐험 종료 권한이 없습니다.");
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        } catch (Exception e) {
+            log.error("탐험 기록 저장 실패 : {}", e.getMessage());
+            response.put("message", "탐험 기록 저장에 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
     }
@@ -157,20 +167,52 @@ public class ExplorationController {
 
         try {
             long userId = 1; //jwtUtil.getUserIdFromToken(token);
-            QuestListResponseDto questListResponseDto = questService.getQuestList(userId, explorationId);
+            QuestListResponseDto questListResponseDto = questService.getQuestList(userId,
+                explorationId);
 
             response.put("message", "도전과제 목록 조회 완료");
             response.put("data", questListResponseDto);
             return ResponseEntity.ok().body(response);
 
-        } catch (Exception e) {
-
-            log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
-            response.put("message", "도전과제 목록 조회 실패");
-            response.put("data", new Object[]{});
+        } catch (EntityNotFoundException e) {
+            log.error("도전과제 목록을 찾을 수 없음 : {}", e.getMessage());
+            response.put("message", e.getMessage());
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-
+        } catch (Exception e) {
+            log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
+            response.put("message", "도전과제 목록 조회에 실패했습니다.");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
+    }
 
+    // 도전과제 성공 처리
+    @PostMapping("/{explorationId}/quest/{questId}/complete")
+    public ResponseEntity<Map<String, Object>> completeQuest(
+        @RequestParam Long explorationId,
+        @RequestParam Long questId
+    ) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            QuestCompleteResponseDto questCompleteResponseDto = questService.completeQuest(
+                explorationId, questId);
+
+            response.put("message", "도전과제 완료");
+            response.put("data", questCompleteResponseDto);
+            return ResponseEntity.ok().body(response);
+
+        } catch (EntityNotFoundException e) {
+            log.error("도전과제를 찾을 수 없음 : {}", e.getMessage());
+            response.put("message", "퀘스트를 찾을 수 없습니다.");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (IllegalStateException e) {
+            log.error("도전과제 이미 완료됨 : {}", e.getMessage());
+            response.put("message", "도전과제가 이미 완료되었습니다.");
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
+        } catch (Exception e) {
+            log.error("도전과제 완료 처리 실패 : {}", e.getMessage());
+            response.put("message", "도전과제 완료 처리에 실패했습니다/");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 }
