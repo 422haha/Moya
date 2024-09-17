@@ -21,7 +21,7 @@ import java.time.LocalDateTime;
 @SpringBootTest
 @Transactional
 @ActiveProfiles("test")
-class ExplorationServiceImplTest_addOnDictionary_DB {
+class ExplorationServiceImplTestAddOnDictionaryDB {
 
     @Autowired
     private ExplorationService explorationService;

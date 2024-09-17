@@ -21,7 +21,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
-import org.locationtech.jts.geom.Point;
+import org.geolatte.geom.*;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
@@ -83,6 +83,7 @@ public class InfoServiceImpl implements InfoService {
         exploration.setStartTime(LocalDateTime.now());
         exploration = explorationRepository.save(exploration);
 
+        explorationStartDto.setExplorationId(exploration.getId());
         questService.generateNewQuests(exploration);
         return explorationStartDto;
     }
@@ -110,20 +111,26 @@ public class InfoServiceImpl implements InfoService {
         Map<Long, SpeciesDto> speciesDtoMap = new HashMap<>();
 
         for (ParkSpeciesDto info : parkSpeciesInfoList) {
-            SpeciesDto speciesDto = speciesDtoMap.computeIfAbsent(info.getSpeciesId(), id -> {
-                SpeciesDto dto = new SpeciesDto();
-                dto.setId(info.getSpeciesId());
-                dto.setName(info.getSpeciesName());
-                dto.setScientificName(info.getScientificName());
-                dto.setDescription(info.getDescription());
-                dto.setImageUrl(info.getImageUrl());
-                dto.setPositions(new ArrayList<>());
-                return dto;
-            });
+            Long speciesId = info.getSpeciesId();
+            SpeciesDto speciesDto;
+
+            if (speciesDtoMap.containsKey(speciesId)) {
+                speciesDto = speciesDtoMap.get(speciesId);
+            } else {
+                speciesDto = new SpeciesDto();
+                speciesDto.setId(info.getSpeciesId());
+                speciesDto.setName(info.getSpeciesName());
+                speciesDto.setScientificName(info.getScientificName());
+                speciesDto.setDescription(info.getDescription());
+                speciesDto.setImageUrl(info.getImageUrl());
+                speciesDto.setPositions(new ArrayList<>());
+                speciesDtoMap.put(speciesId, speciesDto);
+            }
 
             PositionDto positionDto = new PositionDto();
-            positionDto.setLatitude(info.getPosition().getY());
-            positionDto.setLongitude(info.getPosition().getX());
+            Point<G2D> point = info.getPosition();
+            positionDto.setLatitude(point.getPosition().getLat());
+            positionDto.setLongitude(point.getPosition().getLon());
             speciesDto.getPositions().add(positionDto);
         }
 
@@ -149,19 +156,14 @@ public class InfoServiceImpl implements InfoService {
      *
      * @param positions 좌표들
      */
-    private List<PositionDto> convertToPositionDtos(List<?> positions) {
+    private List<PositionDto> convertToPositionDtos(List<NpcPos> positions) {
         List<PositionDto> positionDtoList = new ArrayList<>();
-        for (Object pos : positions) {
+        for (NpcPos pos : positions) {
             PositionDto positionDto = new PositionDto();
-            Point point = null;
-            if (pos instanceof SpeciesPos) {
-                point = ((SpeciesPos) pos).getPos();
-            } else if (pos instanceof NpcPos) {
-                point = ((NpcPos) pos).getPos();
-            }
+            Point<G2D> point = pos.getPos();
             if (point != null) {
-                positionDto.setLatitude(point.getY());  // PostGIS에서 Y가 위도
-                positionDto.setLongitude(point.getX()); // PostGIS에서 X가 경도
+                positionDto.setLatitude(point.getPosition().getLat());
+                positionDto.setLongitude(point.getPosition().getLon());
             }
             positionDtoList.add(positionDto);
         }

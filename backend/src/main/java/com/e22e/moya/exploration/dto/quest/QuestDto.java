@@ -7,11 +7,13 @@ import lombok.Setter;
 @Setter
 public class QuestDto {
 
-    private Long id;
+    private Long questId;
     private Long npcId;
     private String npcName;
-    private double longitude; // npc의 위치
-    private double latitude; // npc의 위치
+    private double longitude;
+    private double latitude;
     private int questType;
+    private Long speciesId;
     private String speciesName;
+    private boolean completed;
 }

@@ -6,8 +6,10 @@ import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
 import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.quest.QuestListResponseDto;
 import com.e22e.moya.exploration.service.exploration.ExplorationService;
 import com.e22e.moya.exploration.service.info.InfoService;
+import com.e22e.moya.exploration.service.quest.QuestService;
 import io.jsonwebtoken.JwtException;
 import java.util.HashMap;
 import java.util.Map;
@@ -32,12 +34,14 @@ public class ExplorationController {
     private final JwtUtil jwtUtil;
     private final InfoService infoService;
     private final ExplorationService explorationService;
+    private final QuestService questService;
 
     public ExplorationController(JwtUtil jwtUtil, InfoService explorationService,
-        ExplorationService explorationService1) {
+        ExplorationService explorationService1, QuestService questService) {
         this.jwtUtil = jwtUtil;
         this.infoService = explorationService;
         this.explorationService = explorationService1;
+        this.questService = questService;
     }
 
     //탐험 시작 컨트롤러
@@ -80,7 +84,8 @@ public class ExplorationController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
 
         } catch (Exception e) {
-            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
+
+            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e);
             response.put("message", "탐험에 필요한 정보 불러올 수 없음");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
@@ -136,6 +141,32 @@ public class ExplorationController {
 
             log.error("탐험 기록 저장 실패 : {}", e.getMessage());
             response.put("message", "탐험 기록 저장 실패");
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+
+        }
+
+    }
+
+    // 도전과제 목록 조회
+    @GetMapping("/{explorationId}/quest/list")
+    public ResponseEntity<Map<String, Object>> questList(
+//        @RequestHeader("Authorization") String token,
+        @RequestParam Long explorationId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            long userId = 1; //jwtUtil.getUserIdFromToken(token);
+            QuestListResponseDto questListResponseDto = questService.getQuestList(userId, explorationId);
+
+            response.put("message", "도전과제 목록 조회 완료");
+            response.put("data", questListResponseDto);
+            return ResponseEntity.ok().body(response);
+
+        } catch (Exception e) {
+
+            log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
+            response.put("message", "도전과제 목록 조회 실패");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 

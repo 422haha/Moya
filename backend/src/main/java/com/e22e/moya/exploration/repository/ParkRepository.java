@@ -22,11 +22,12 @@ public interface ParkRepository extends JpaRepository<Park, Long> {
     @Query("SELECT DISTINCT pn FROM Park p JOIN p.parkNpcs pn JOIN FETCH pn.npc JOIN FETCH pn.positions WHERE p.id=:parkId")
     List<ParkNpcs> findNpcsInPark(@Param("parkId") Long parkId);
 
+
     @Query(value =
         "SELECT s.species_id as speciesId, s.name as speciesName, " +
             "s.scientific_name as scientificName, s.description as description, " +
             "d.image_url as imageUrl, " +
-            "sp.pos as positions " +
+            "sp.pos as position " +
             "FROM discovery d " +
             "JOIN species s ON d.species_id = s.species_id " +
             "JOIN species_pos sp ON d.species_pos_id = sp.id " +
