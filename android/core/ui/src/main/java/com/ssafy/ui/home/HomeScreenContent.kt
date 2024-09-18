@@ -1,4 +1,4 @@
-package com.ssafy.ui.screen
+package com.ssafy.ui.home
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -31,6 +31,9 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ssafy.ui.R
 import com.ssafy.ui.component.BoxWithImage
+import com.ssafy.ui.component.BoxWithImageState
+import com.ssafy.ui.component.ErrorScreen
+import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SecondaryColor
@@ -38,46 +41,80 @@ import com.ssafy.ui.theme.SecondarySurfaceColor
 import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun HomeScreen(
-    onNavigateToParkList: () -> Unit = {},
-    onNavigateToExploreList: () -> Unit = {}
+fun HomeScreenContent(
+    homeScreenState: HomeScreenState,
+    onIntent: (HomeUserIntent) -> Unit = {},
 ) {
     Scaffold(
         content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize(),
-                verticalArrangement = Arrangement.SpaceEvenly,
-            ) {
-                UserInfo()
-                HomeBox(
-                    text = "나의 모험",
-                    SecondaryColor,
-                    SecondarySurfaceColor,
-                    onNavigateToExploreList,
-                    R.drawable.baseline_calendar_month_24
-                )
-                HomeBox(
-                    text = "모험을 떠나요",
-                    PrimaryColor,
-                    SurfaceColor,
-                    onNavigateToParkList,
-                    R.drawable.baseline_location_on_24
-                )
+            when (homeScreenState) {
+                is HomeScreenState.Loading -> {
+                    LoadingScreen(modifier = Modifier.padding(paddingValues))
+                }
+
+                is HomeScreenState.Loaded -> {
+                    HomeScreenLoaded(
+                        modifier = Modifier.padding(paddingValues),
+                        state = homeScreenState,
+                        onIntent = onIntent
+                    )
+                }
+
+                is HomeScreenState.Error -> {
+                    ErrorScreen(modifier = Modifier.padding(paddingValues), homeScreenState.message)
+                }
             }
+
+
         }
     )
 }
 
+@Composable
+fun HomeScreenLoaded(
+    modifier: Modifier,
+    state: HomeScreenState.Loaded,
+    onIntent: (HomeUserIntent) -> Unit = {},
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize(),
+        verticalArrangement = Arrangement.SpaceEvenly,
+    ) {
+        UserInfo(
+            userName = state.userName,
+            userImage = state.userImage,
+        )
+        HomeBox(
+            text = "나의 모험",
+            SecondaryColor,
+            SecondarySurfaceColor,
+            onClick = { onIntent(HomeUserIntent.OnNavigateToExploreList) },
+            icon = R.drawable.baseline_calendar_month_24,
+            state = state.exploreState
+        )
+        HomeBox(
+            text = "모험을 떠나요",
+            PrimaryColor,
+            SurfaceColor,
+            onClick = { onIntent(HomeUserIntent.OnNavigateToParkList) },
+            icon = R.drawable.baseline_location_on_24,
+            state = state.parkState
+        )
+    }
+}
 
 @Composable
-fun UserInfo() {
+fun UserInfo(
+    userName: String,
+    userImage: String?,
+) {
     Surface(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
+                //TODO : 이미지 로딩 추가
                 painterResource(id = R.drawable.ic_launcher_foreground),
-                contentDescription = "유저 이름",
+                contentDescription = "userImage",
                 modifier = Modifier
                     .clip(CircleShape)
                     .background(Color.Gray)
@@ -85,7 +122,7 @@ fun UserInfo() {
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
-                text = "유저이름",
+                text = userName,
                 modifier = Modifier.align(Alignment.CenterVertically),
                 fontWeight = FontWeight.Bold
             )
@@ -99,7 +136,8 @@ fun HomeBox(
     outBoxColor: Color,
     inBoxColor: Color,
     onClick: () -> Unit = {},
-    painterResource: Int
+    icon: Int,
+    state: BoxWithImageState,
 ) {
     Surface(
         modifier = Modifier
@@ -139,7 +177,8 @@ fun HomeBox(
                 color = inBoxColor,
                 textColor = outBoxColor,
                 onClick = onClick,
-                painterResource = painterResource
+                icon = icon,
+                state = state
             )
         }
     }
@@ -148,17 +187,35 @@ fun HomeBox(
 @Preview(showBackground = true)
 @Composable
 fun HomeScreenPreview() {
-    HomeScreen(onNavigateToExploreList = {}, onNavigateToParkList = {})
+    HomeScreenContent(
+        homeScreenState = HomeScreenState.Loaded(
+            userName = "사용자 이름", userImage = null,
+            parkState = BoxWithImageState(
+                title = "동락공원",
+                info = "2024.09.17",
+                image = null
+            ), exploreState = BoxWithImageState(
+                title = "동락공원",
+                info = "500m",
+                image = null
+            )
+        )
+    )
 }
 
 @Preview(showBackground = true)
 @Composable
-fun BoxWithImagePreview() {
-    BoxWithImage(
-        borderWidth = 4.dp,
-        color = SecondarySurfaceColor,
-        textColor = SecondaryColor,
-        painterResource = R.drawable.baseline_location_on_24
+fun HomeScreenPreviewLoading() {
+    HomeScreenContent(
+        homeScreenState = HomeScreenState.Loading
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HomeScreenPreviewError() {
+    HomeScreenContent(
+        homeScreenState = HomeScreenState.Error("error message")
     )
 }
 
@@ -169,6 +226,11 @@ fun HomeBoxPreview() {
         text = "헬로",
         SecondaryColor,
         SecondarySurfaceColor,
-        painterResource = R.drawable.baseline_calendar_month_24
+        icon = R.drawable.baseline_calendar_month_24,
+        state = BoxWithImageState(
+            title = "동락공원",
+            info = "2024.09.17",
+            image = null
+        )
     )
 }
