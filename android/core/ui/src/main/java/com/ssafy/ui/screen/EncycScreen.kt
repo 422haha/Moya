@@ -11,11 +11,12 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
@@ -125,14 +126,15 @@ fun EncycGrid(items: List<String>, modifier: Modifier = Modifier, onItemClicked:
         contentPadding = PaddingValues(4.dp),
         modifier = modifier
             .fillMaxHeight()
+            .heightIn(min = 200.dp)
             .padding(horizontal = 8.dp)
     ) {
-        items(items) { item ->
-            val index = items.indexOf(item)
+        itemsIndexed(items) { index, item ->
             PlantCard(
                 plantName = item,
-                isDiscovered = item != "미발견 - 능소화",
-                onClick = { onItemClicked(index) })
+                isDiscovered = index % 2 == 0,
+                onClick = { onItemClicked(index) }
+            )
         }
     }
 }
