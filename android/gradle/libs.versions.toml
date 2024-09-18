@@ -40,6 +40,9 @@ timber = "5.0.1"
 naver-map-compose = "1.7.2"
 playServicesLocation = "21.3.0"
 
+#toolbar
+toolbar-compose = "2.3.5"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -90,6 +93,9 @@ timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "tim
 #navermap
 naver-map-compose = { group = "io.github.fornewid", name = "naver-map-compose", version.ref = "naver-map-compose" }
 play-services-location = { group = "com.google.android.gms", name = "play-services-location", version.ref = "playServicesLocation" }
+
+#toolbar
+toolbar-compose = { group = "me.onebone", name = "toolbar-compose", version.ref = "toolbar-compose" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]
