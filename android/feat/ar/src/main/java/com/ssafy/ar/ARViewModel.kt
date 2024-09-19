@@ -23,7 +23,7 @@ class ARViewModel : ViewModel() {
     val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
 
     // Dialog Data
-    private val _dialogData = MutableStateFlow(Pair(0, QuestStatus.WAIT))
+    private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus> >(Pair(0, QuestStatus.WAIT))
     val dialogData: StateFlow<Pair<Int, QuestStatus> > = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
