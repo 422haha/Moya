@@ -9,9 +9,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
+import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.TopBar
 import com.ssafy.ui.encyclopedia.EncycGrid
+import com.ssafy.ui.encyclopedia.EncycGridState
 import com.ssafy.ui.screen.DescriptionSection
 import com.ssafy.ui.screen.ImageSection
 import com.ssafy.ui.screen.TitleAndDividerSection
@@ -22,58 +25,87 @@ import me.onebone.toolbar.ScrollStrategy
 import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 
 @Composable
-fun ParkDetailScreen(
-    onItemClicked: (Long) -> Unit = {},
-    onPop: () -> Unit = {},
-    onEnterExplore: () -> Unit = {}
+fun ParkDetailScreenContent(
+    modifier: Modifier = Modifier,
+    parkDetailScreenState: ParkDetailScreenState,
+    onIntent: (ParkDetailScreenUserIntent) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopBar(
-                text = "동락공원",
+                text = if (parkDetailScreenState is ParkDetailScreenState.Loaded) parkDetailScreenState.parkName else "",
                 backgroundColor = PrimaryColor,
-                onPop = onPop
+                onPop = { onIntent(ParkDetailScreenUserIntent.OnPop) }
             )
         },
         bottomBar = {
-            FindButton("모험 시작하기", onEnterExplore)
+            FindButton("모험 시작하기",
+                onClick = { onIntent(ParkDetailScreenUserIntent.OnEnterExplore) })
         }
     ) { innerPadding ->
-        val toolbarScaffoldState = rememberCollapsingToolbarScaffoldState()
+        when (parkDetailScreenState) {
+            is ParkDetailScreenState.Loading -> {
+                LoadingScreen(modifier = modifier.padding(innerPadding))
+            }
 
-        CollapsingToolbarScaffold(
-            state = toolbarScaffoldState,
-            scrollStrategy = ScrollStrategy.EnterAlways,
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(innerPadding),
-            toolbar = {
-                CollapsingToolbar(
-                    modifier = Modifier.fillMaxWidth(),
-                    collapsingToolbarState = toolbarScaffoldState.toolbarState,
-                ) {
-                    Column(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                    ) {
-                        ImageSection()
-                        TitleAndDividerSection("공원 소개")
-                        DescriptionSection("동락공원이예요")
-                    }
-                }
-            },
-        ) {
-            Column(
-                modifier = Modifier
-                    .fillMaxSize()
-            ) {
-                TitleAndDividerSection("관찰 가능한 동식물")
-                EncycGrid(
-                    items = List(20) { "능소화" },
-                    onItemClicked = onItemClicked,
-                    modifier = Modifier.fillMaxHeight()
+            is ParkDetailScreenState.Loaded -> {
+                ParkDetailScreenLoaded(
+                    modifier = modifier.padding(innerPadding),
+                    state = parkDetailScreenState,
+                    onIntent = onIntent
                 )
             }
+
+            is ParkDetailScreenState.Error -> {
+                ErrorScreen(
+                    modifier = modifier.padding(innerPadding),
+                    parkDetailScreenState.message
+                )
+            }
+        }
+
+    }
+}
+
+@Composable
+fun ParkDetailScreenLoaded(
+    modifier: Modifier,
+    state: ParkDetailScreenState.Loaded,
+    onIntent: (ParkDetailScreenUserIntent) -> Unit
+) {
+    val toolbarScaffoldState = rememberCollapsingToolbarScaffoldState()
+
+    CollapsingToolbarScaffold(
+        state = toolbarScaffoldState,
+        scrollStrategy = ScrollStrategy.EnterAlways,
+        modifier = modifier
+            .fillMaxSize(),
+        toolbar = {
+            CollapsingToolbar(
+                modifier = Modifier.fillMaxWidth(),
+                collapsingToolbarState = toolbarScaffoldState.toolbarState,
+            ) {
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                ) {
+                    ImageSection()
+                    TitleAndDividerSection("공원 소개")
+                    DescriptionSection(state.description)
+                }
+            }
+        },
+    ) {
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+        ) {
+            TitleAndDividerSection("관찰 가능한 동식물")
+            EncycGrid(
+                items = state.items,
+                onItemClicked = { id -> onIntent(ParkDetailScreenUserIntent.OnItemSelect(id)) },
+                modifier = Modifier.fillMaxHeight()
+            )
         }
     }
 }
@@ -81,5 +113,18 @@ fun ParkDetailScreen(
 @Preview(showBackground = true)
 @Composable
 fun ParkDetailScreenPreview() {
-    ParkDetailScreen()
+    ParkDetailScreenContent(
+        parkDetailScreenState = ParkDetailScreenState.Loaded(
+            parkName = "동락공원",
+            description = "동락공원이예요",
+            items = List(20) { index ->
+                EncycGridState(
+                    plantName = "식물 $index",
+                    plantImage = null,
+                    isDiscovered = index % 2 == 0
+                )
+            }
+        ),
+        onIntent = {}
+    )
 }
