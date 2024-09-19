@@ -1,6 +1,5 @@
 package com.ssafy.ar
 
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -23,13 +22,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.filament.Engine
-import com.google.ar.core.Anchor
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.TrackingFailureReason
-import com.ssafy.ar.ArData.QuestData
 import com.ssafy.ar.ArData.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.ARScene
@@ -37,15 +33,9 @@ import io.github.sceneview.ar.arcore.createAnchorOrNull
 import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
-import io.github.sceneview.loaders.MaterialLoader
-import io.github.sceneview.loaders.ModelLoader
-import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.math.Size
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
-import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCollisionSystem
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
@@ -57,8 +47,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
-
-private const val kMaxModelInstances = 1
 
 private const val TAG = "ArScreen"
 
@@ -123,7 +111,7 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                 .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
                                 ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
                                     planeRenderer = false
-                                    val anchorNode = createAnchorNode(
+                                    val anchorNode = viewModel.createAnchorNode(
                                         scriptNode[0],
                                         engine,
                                         modelLoader,
@@ -146,9 +134,6 @@ fun ARSceneComposable(viewModel: ARViewModel) {
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-
-                    Log.d(TAG, "ARSceneComposable: $node")
-
                     val anchorId = node?.parent?.name
 
                     if (anchorId != null) {
@@ -168,10 +153,13 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                             if (accepted) { // 수락
                                                 val parentAnchorNode = node.parent as? AnchorNode
                                                 parentAnchorNode?.let {
-                                                    viewModel.updateAnchorNode(anchorId, QuestStatus.PROGRESS)
+                                                    viewModel.updateAnchorNode(
+                                                        anchorId,
+                                                        QuestStatus.PROGRESS
+                                                    )
 
                                                     coroutineScope.launch {
-                                                        updateAnchorNode(
+                                                        viewModel.updateAnchorNode(
                                                             prevNode = node,
                                                             questId = quest.id,
                                                             questModel = quest.model,
@@ -192,7 +180,10 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                         ) { accepted ->
                                             if (accepted) { // 완료
                                                 // TODO 온디바이스 AI로 검사
-                                                viewModel.updateAnchorNode(anchorId, QuestStatus.COMPLETE)
+                                                viewModel.updateAnchorNode(
+                                                    anchorId,
+                                                    QuestStatus.COMPLETE
+                                                )
                                                     .apply {
                                                         node.childNodes.filterIsInstance<ImageNode>()
                                                             .firstOrNull()
@@ -269,95 +260,9 @@ fun ArStatusText(
     )
 }
 
-private suspend fun updateAnchorNode(
-    prevNode: Node,
-    questId: String,
-    questModel: String,
-    parentAnchor: AnchorNode,
-    modelLoader: ModelLoader,
-    materialLoader: MaterialLoader,
-    modelInstances: MutableMap<String, ModelInstance>,
-) = withContext(Dispatchers.Main) {
-    parentAnchor.removeChildNode(prevNode).also {
-        val newModelInstance = modelInstances.getOrPut(questId) {
-            modelLoader.createInstancedModel(
-                questModel,
-                kMaxModelInstances
-            ).first()
-        }
-
-        val newModelNode = ModelNode(
-            modelInstance = newModelInstance,
-            scaleToUnits = 0.5f
-        ).apply {
-            name = questId
-            position = prevNode.worldPosition
-            rotation = prevNode.worldRotation
-        }
-
-        val imageNode = ImageNode(
-            materialLoader = materialLoader,
-            imageFileLocation = "picture/progress.png",
-            size = Size(0.35f, 0.35f),
-            center = Position(0f, 0.67f, 0f)
-        )
-
-        newModelNode.addChildNode(imageNode)
-
-        parentAnchor.addChildNode(newModelNode)
-    }
-}
-
-// 특정 위치에 3D 모델을 배치
-private suspend fun createAnchorNode(
-    node: QuestData,
-    engine: Engine,
-    modelLoader: ModelLoader,
-    materialLoader: MaterialLoader,
-    modelInstances: MutableMap<String, ModelInstance>,
-    anchor: Anchor
-): AnchorNode {
-    val idx = (1..3).random()
-
-    val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
-        isPositionEditable = false
-        isRotationEditable = false
-        isScaleEditable = false
-    }
-
-    val modelInstance = modelInstances.getOrPut(node.id) {
-        modelLoader.createInstancedModel(
-            node.model,
-            kMaxModelInstances
-        ).first()
-    }
-
-    val modelNode = ModelNode(
-        modelInstance = modelInstance,
-        scaleToUnits = 0.5f
-    ).apply {
-        name = idx.toString()
-        rotation = Rotation(0f, 180f, 0f)
-    }
-
-    val imageNode = ImageNode(
-        materialLoader = materialLoader,
-        imageFileLocation = "picture/wait.png",
-        size = Size(0.35f, 0.35f),
-        center = Position(0f, 0.65f, 0f)
-    )
-
-    modelNode.addChildNode(imageNode)
-
-    anchorNode.addChildNode(modelNode)
-
-    return anchorNode
-}
-
 // 지금 childNode에 1개만 할 수 있음
 // 앵커를 효율적으로 여러개 배치해야함
 
 // track 메시지 분기처리
 
 // GPS마다 노드 배치
-
