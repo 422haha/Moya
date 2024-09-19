@@ -31,7 +31,7 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun ParkListScreen(
+fun ParkListScreenContent(
     modifier: Modifier = Modifier,
     state: ParkListScreenState,
     onIntent: (ParkListUserIntent) -> Unit = {},
@@ -113,7 +113,7 @@ fun ParkListScreenLoaded(
 @Preview(showBackground = true)
 @Composable
 fun HomeDetailScreenPreview() {
-    ParkListScreen(
+    ParkListScreenContent(
         state = ParkListScreenState.Loaded(
             list = listOf(
                 BoxWithImageStateWithData(
