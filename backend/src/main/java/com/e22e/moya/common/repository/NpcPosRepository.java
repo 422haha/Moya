@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.repository;
+package com.e22e.moya.common.repository;
 
 
 import com.e22e.moya.common.entity.npc.NpcPos;
