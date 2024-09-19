@@ -85,7 +85,7 @@ fun MainNavigation(
             ExploreStartScreen(onExitExplore = {
                 navController.navigate(Home) {
                     //TODO 추후에 탐험기록 화면으로 이동하도록 수정
-                    popUpTo(navController.navigate(Home)) { inclusive = true }
+                    popUpTo(Home) { inclusive = true }
                 }
             }, onEnterEncyc = {
                 navController.navigate(Encyc)

@@ -2,7 +2,8 @@ CREATE
     EXTENSION IF NOT EXISTS postgis;
 -- 기본 사용자 추가
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url, locale)
-VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url', 'ko-KR');
+VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url',
+        'ko-KR');
 
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url, locale)
 VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2', 'profile_image_url', 'ko-KR');
@@ -135,6 +136,40 @@ VALUES
     -- 환경 연수원 - 개구리
     (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 9),
     (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 9);
+
+-- ==============================================test
+-- 1. 멀찍히 떨어진 개별 점 (청설모)
+INSERT INTO species_pos (pos, park_species_id)
+VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 1);
+-- 1. 멀찍히 떨어진 개별 점 (왕벛나무)
+INSERT INTO species_pos (pos, park_species_id)
+VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.412100, 36.109100), 4326), 2);
+
+-- 2. 반경 20m 안에 3점이 존재하는 경우 (왕벚나무)
+INSERT INTO species_pos (pos, park_species_id)
+VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 2);
+-- 2. 반경 20m 안에 3점이 존재하는 경우 (왕벚나무)
+INSERT INTO species_pos (pos, park_species_id)
+VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
+       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
+       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
+
+-- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (참새)
+INSERT INTO species_pos (pos, park_species_id)
+SELECT ST_SetSRID(ST_MakePoint(
+                          128.414000 + (random() * 0.001),
+                          36.106000 + (random() * 0.001)
+                  ), 4326),
+       3
+FROM generate_series(1, 50);
+-- ==============================================test
+
 -- Quest
 INSERT INTO quest (type)
 VALUES (1),
@@ -147,4 +182,5 @@ SELECT 1, s.species_id, sp.id, NOW(), 'https://example.com/discovered_squirrel.j
 FROM species s
          JOIN park_species ps ON s.species_id = ps.species_id
          JOIN species_pos sp ON ps.id = sp.park_species_id
-WHERE s.name = '청설모' AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
+WHERE s.name = '청설모'
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));

@@ -23,11 +23,20 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
+import com.naver.maps.geometry.LatLng
+import com.naver.maps.map.compose.ExperimentalNaverMapApi
+import com.naver.maps.map.compose.LocationTrackingMode
+import com.naver.maps.map.compose.MapProperties
+import com.naver.maps.map.compose.Marker
+import com.naver.maps.map.compose.MarkerState
+import com.naver.maps.map.compose.NaverMap
+import com.naver.maps.map.compose.rememberCameraPositionState
+import com.naver.maps.map.compose.rememberFusedLocationSource
+import com.naver.maps.map.overlay.OverlayImage
 import com.ssafy.ui.R
 import com.ssafy.ui.component.ChallengeDialog
 import com.ssafy.ui.component.CustomButtonWithImage
@@ -37,20 +46,35 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
 
 //TODO 추후에 카메라 화면으로 이동하는 람다식 받아야함
+@OptIn(ExperimentalNaverMapApi::class)
 @Composable
 fun ExploreStartScreen(onExitExplore: () -> Unit = {}, onEnterEncyc: () -> Unit = {}) {
     var showExitDialog by remember { mutableStateOf(false) }
     var showChallengeDialog by remember { mutableStateOf(false) }
 
+    val fusedLocationClient = rememberFusedLocationSource()
+    val cameraPositionState = rememberCameraPositionState()
+    val markerPosition = LatLng(37.532600, 127.024612)
+
     Scaffold(
         content = { paddingValues ->
-            Box(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .background(Color.Gray)
-                    .fillMaxSize()
-                    .padding(vertical = 16.dp)
-            ) {
+            Box(modifier = Modifier.fillMaxSize()) {
+                NaverMap(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    locationSource = fusedLocationClient,
+                    properties = MapProperties(
+                        locationTrackingMode = LocationTrackingMode.Follow
+                    ),
+                    cameraPositionState = cameraPositionState
+                ) {
+                    Marker(
+                        state = MarkerState(position = markerPosition),
+                        icon = OverlayImage.fromResource(R.drawable.ic_launcher_background),
+                    )
+                }
+
                 Column(
                     horizontalAlignment = Alignment.End,
                     verticalArrangement = Arrangement.Top,
@@ -82,10 +106,13 @@ fun ExploreStartScreen(onExitExplore: () -> Unit = {}, onEnterEncyc: () -> Unit 
                         imagePainter = R.drawable.assignment_late
                     )
                 }
+
+                // 화면 오른쪽 하단에 겹치는 카메라 이동 버튼
                 IconButton(
                     onClick = { /* TODO 카메라 AR화면으로 이동*/ },
                     modifier = Modifier
                         .align(Alignment.BottomCenter)
+                        .padding(16.dp)
                         .clip(RoundedCornerShape(16.dp))
                         .background(PrimaryColor)
                         .size(52.dp)
@@ -118,9 +145,9 @@ fun ExploreStartScreen(onExitExplore: () -> Unit = {}, onEnterEncyc: () -> Unit 
     if (showChallengeDialog) {
         Dialog(onDismissRequest = { showChallengeDialog = false }) {
             ChallengeDialog(
-                //TODO 추후에 카메라 화면으로 이동하는 람다식 받아서 onConfirm에 넣어주기
                 onConfirm = { showChallengeDialog = false },
-                onDismiss = { showChallengeDialog = false })
+                onDismiss = { showChallengeDialog = false }
+            )
         }
     }
 }

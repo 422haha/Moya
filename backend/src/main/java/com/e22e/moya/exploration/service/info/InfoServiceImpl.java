@@ -66,13 +66,13 @@ public class InfoServiceImpl implements InfoService {
         List<SpeciesDto> mySpeciesDto = convertToSpeciesDtos(myDiscoveredSpecies);//내가 공원에서 발견한것들
 
         // 공원에서 발견할 수 있는 것들 군집
-//        List<ParkSpeciesDto> allParkSpecies = parkRepository.findAllSpecies(
-//            parkId);
-//        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(allParkSpecies);
+        List<ParkSpeciesDto> allParkSpecies = parkRepository.findAllSpecies(
+            parkId);
+        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(allParkSpecies);
         List<NpcDto> npcDtos = getNpcsInPark(park);
 
         explorationStartDto.setMyDiscoveredSpecies(mySpeciesDto);
-//        explorationStartDto.setSpecies(allSpeciesDto);
+        explorationStartDto.setSpecies(allSpeciesDto);
         explorationStartDto.setNpcs(npcDtos);
 
         // 새로운 탐험 생성 및 저장
