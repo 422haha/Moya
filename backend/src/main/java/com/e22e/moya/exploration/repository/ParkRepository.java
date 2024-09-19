@@ -38,6 +38,33 @@ public interface ParkRepository extends JpaRepository<Park, Long> {
         @Param("userId") Long userId);
 
 
-//    List<ParkSpeciesDto> findAllSpecies(@Param("parkId") Long parkId);
-
+    @Query(nativeQuery = true, value =
+        "WITH clustered AS ( " +
+            "    SELECT " +
+            "        s.species_id, s.name, s.scientific_name, s.description, s.image_url, " +
+            "        sp.pos, " +
+            "        ST_ClusterDBSCAN(sp.pos, 20, 3) OVER () AS cluster_id " +
+            "    FROM park_species ps " +
+            "    JOIN species s ON ps.species_id = s.species_id " +
+            "    JOIN species_pos sp ON ps.id = sp.park_species_id " +
+            "    WHERE ps.park_id = :parkId " +
+            ") " +
+            "SELECT " +
+            "    c.species_id AS speciesId, " +
+            "    c.name AS speciesName, " +
+            "    c.scientific_name AS scientificName, " +
+            "    c.description, " +
+            "    c.image_url AS imageUrl, " +
+            "    CASE " +
+            "        WHEN COUNT(*) OVER (PARTITION BY c.cluster_id) >= 3 THEN " +
+            "            ST_Centroid(ST_Collect(c.pos)) " +
+            "        ELSE c.pos " +
+            "    END AS position " +
+            "FROM clustered c " +
+            "GROUP BY c.species_id, c.name, c.scientific_name, c.description, c.image_url, c.pos, c.cluster_id "
+            +
+            "ORDER BY c.species_id, c.cluster_id")
+    List<ParkSpeciesDto> findAllSpecies(
+        @Param("parkId") Long parkId
+    );
 }
