@@ -1,6 +1,7 @@
 package com.e22e.moya.user.service;
 
 import com.e22e.moya.common.entity.Users;
+import com.e22e.moya.user.dto.UserNameResponseDto;
 import com.e22e.moya.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
@@ -29,5 +30,13 @@ public class UserServiceImpl implements UserService {
             newUser.setProfileImageUrl(profileImageUrl);
             return userRepository.save(newUser);
         }
+    }
+
+    @Override
+    public UserNameResponseDto getUserName(Long userId) {
+        Users user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+
+        return new UserNameResponseDto(user.getName(), user.getProfileImageUrl());
     }
 }
