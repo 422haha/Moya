@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.ssafy.ar.ArData.WAIT_QUEST
+import com.ssafy.ar.ArData.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
 
 @Composable
 fun QuestDialog(
     idx: Int,
-    state: Int,
+    state: QuestStatus,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -86,7 +86,7 @@ fun QuestDialog(
                     ),
                     text = buildAnnotatedString {
                         append(
-                            if (state == WAIT_QUEST) scriptNode[idx].prevDescription
+                            if (state == QuestStatus.WAIT) scriptNode[idx].prevDescription
                             else scriptNode[idx].prevCheckDescription
                         )
                         withStyle(
@@ -96,12 +96,12 @@ fun QuestDialog(
                             )
                         ) {
                             append(
-                                if (state == WAIT_QUEST) scriptNode[idx].middleDescription
+                                if (state == QuestStatus.WAIT) scriptNode[idx].middleDescription
                                 else scriptNode[idx].middleCheckDescription
                             )
                         }
                         append(
-                            if (state == WAIT_QUEST) scriptNode[idx].nextDescription
+                            if (state == QuestStatus.WAIT) scriptNode[idx].nextDescription
                             else scriptNode[idx].nextCheckDescription
                         )
                     },
@@ -136,7 +136,7 @@ fun QuestDialog(
                         ) {
                         Text(
                             text =
-                            if (state == WAIT_QUEST) "거절"
+                            if (state == QuestStatus.WAIT) "거절"
                             else "취소",
                             textAlign = TextAlign.Center,
                             style = TextStyle(
@@ -168,7 +168,7 @@ fun QuestDialog(
                     ) {
                         Text(
                             text =
-                            if (state == WAIT_QUEST) "수락"
+                            if (state == QuestStatus.WAIT) "수락"
                             else "확인",
                             textAlign = TextAlign.Center,
                             style = TextStyle(

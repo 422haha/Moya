@@ -29,10 +29,8 @@ import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.TrackingFailureReason
-import com.ssafy.ar.ArData.COMPLETE_QUEST
-import com.ssafy.ar.ArData.PROGRESS_QUEST
 import com.ssafy.ar.ArData.QuestData
-import com.ssafy.ar.ArData.WAIT_QUEST
+import com.ssafy.ar.ArData.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.createAnchorOrNull
@@ -137,7 +135,7 @@ fun ARSceneComposable(viewModel: ARViewModel) {
 
                                         name = uuid
 
-                                        viewModel.addAnchorNode(uuid, WAIT_QUEST)
+                                        viewModel.addAnchorNode(uuid, QuestStatus.WAIT)
                                     }
 
                                     childNodes.add(anchorNode)
@@ -158,54 +156,58 @@ fun ARSceneComposable(viewModel: ARViewModel) {
 
                         if (nodeId != null && node is ModelNode) {
                             val quest = scriptNode[nodeId]
-                            when (val state = anchorNodes[anchorId]) {
-                                // 퀘스트 진행전
-                                WAIT_QUEST -> {
-                                    viewModel.showQuestDialog(
-                                        nodeId, state
-                                    ) { accepted ->
-                                        if (accepted) { // 수락
-                                            val parentAnchorNode = node.parent as? AnchorNode
-                                            parentAnchorNode?.let {
-                                                viewModel.updateAnchorNode(anchorId, PROGRESS_QUEST)
+                            val state = anchorNodes[anchorId]
 
-                                                coroutineScope.launch {
-                                                    updateAnchorNode(
-                                                        prevNode = node,
-                                                        questId = quest.id,
-                                                        questModel = quest.model,
-                                                        parentAnchor = parentAnchorNode,
-                                                        modelLoader = modelLoader,
-                                                        materialLoader = materialLoader,
-                                                        modelInstances = modelInstances,
-                                                    )
+                            state?.let {
+                                when (state) {
+                                    // 퀘스트 진행전
+                                    QuestStatus.WAIT -> {
+                                        viewModel.showQuestDialog(
+                                            nodeId, state
+                                        ) { accepted ->
+                                            if (accepted) { // 수락
+                                                val parentAnchorNode = node.parent as? AnchorNode
+                                                parentAnchorNode?.let {
+                                                    viewModel.updateAnchorNode(anchorId, QuestStatus.PROGRESS)
+
+                                                    coroutineScope.launch {
+                                                        updateAnchorNode(
+                                                            prevNode = node,
+                                                            questId = quest.id,
+                                                            questModel = quest.model,
+                                                            parentAnchor = parentAnchorNode,
+                                                            modelLoader = modelLoader,
+                                                            materialLoader = materialLoader,
+                                                            modelInstances = modelInstances,
+                                                        )
+                                                    }
                                                 }
                                             }
                                         }
                                     }
-                                }
-                                // 퀘스트 진행중
-                                PROGRESS_QUEST -> {
-                                    viewModel.showQuestDialog(
-                                        nodeId, state
-                                    ) { accepted ->
-                                        if (accepted) { // 완료
-                                            // TODO 온디바이스 AI로 검사
-                                            viewModel.updateAnchorNode(anchorId, COMPLETE_QUEST)
-                                                .apply {
-                                                    node.childNodes.filterIsInstance<ImageNode>()
-                                                        .firstOrNull()
-                                                        ?.setBitmap("picture/complete.png")
+                                    // 퀘스트 진행중
+                                    QuestStatus.PROGRESS -> {
+                                        viewModel.showQuestDialog(
+                                            nodeId, state
+                                        ) { accepted ->
+                                            if (accepted) { // 완료
+                                                // TODO 온디바이스 AI로 검사
+                                                viewModel.updateAnchorNode(anchorId, QuestStatus.COMPLETE)
+                                                    .apply {
+                                                        node.childNodes.filterIsInstance<ImageNode>()
+                                                            .firstOrNull()
+                                                            ?.setBitmap("picture/complete.png")
 
-                                                    coroutineScope.launch {
-                                                        snackbarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                        coroutineScope.launch {
+                                                            snackbarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                        }
                                                     }
-                                                }
+                                            }
                                         }
                                     }
+                                    // 퀘스트 완료
+                                    QuestStatus.COMPLETE -> {}
                                 }
-                                // 퀘스트 완료
-                                COMPLETE_QUEST -> {}
                             }
                         }
                     }

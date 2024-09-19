@@ -1,8 +1,10 @@
 package com.ssafy.ar.ArData
 
-const val WAIT_QUEST = 1
-const val PROGRESS_QUEST = 2
-const val COMPLETE_QUEST = 3
+sealed interface QuestStatus {
+    data object WAIT : QuestStatus
+    data object PROGRESS : QuestStatus
+    data object COMPLETE : QuestStatus
+}
 
 data class QuestData(
     val id: String = "",
@@ -15,6 +17,6 @@ data class QuestData(
     val middleCheckDescription: String = "",
     val nextCheckDescription: String = "",
     val completeMessage: String = "",
-    var isComplete: Int = WAIT_QUEST
+    var isComplete: QuestStatus = QuestStatus.WAIT
 )
 
