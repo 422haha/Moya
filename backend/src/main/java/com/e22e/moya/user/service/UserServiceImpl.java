@@ -5,6 +5,8 @@ import com.e22e.moya.user.dto.UserNameResponseDto;
 import com.e22e.moya.user.repository.UserRepository;
 import org.springframework.stereotype.Service;
 import java.util.Optional;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UserServiceImpl implements UserService {
@@ -33,6 +35,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    @Transactional(isolation = Isolation.REPEATABLE_READ)
     public UserNameResponseDto getUserName(Long userId) {
         Users user = userRepository.findById(userId)
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
