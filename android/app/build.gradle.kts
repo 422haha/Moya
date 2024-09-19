@@ -70,6 +70,7 @@ dependencies {
     //serialization
     implementation(libs.kotlinx.serialization.core)
 
+    implementation(project(":feat:main"))
     implementation(project(":core:ui"))
 
     testImplementation(libs.junit)

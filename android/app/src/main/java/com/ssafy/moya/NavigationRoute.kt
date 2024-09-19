@@ -12,16 +12,16 @@ object ParkList
 object ExploreList
 
 @Serializable
-data class ExploreDetail(val itemId: Int)
+data class ExploreDetail(val itemId: Long)
 
 @Serializable
-data class ParkDetail(val itemId: Int)
+data class ParkDetail(val itemId: Long)
 
 @Serializable
 object Encyc
 
 @Serializable
-data class EncycDetail(val itemId: Int)
+data class EncycDetail(val itemId: Long)
 
 @Serializable
 object ExploreStart
