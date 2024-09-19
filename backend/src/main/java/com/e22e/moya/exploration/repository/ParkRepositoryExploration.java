@@ -1,4 +1,4 @@
-package com.e22e.moya.common.repository;
+package com.e22e.moya.exploration.repository;
 
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
@@ -12,7 +12,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface ParkRepository extends JpaRepository<Park, Long> {
+public interface ParkRepositoryExploration extends JpaRepository<Park, Long> {
 
     Optional<Park> findById(Long id);
 

@@ -10,8 +10,8 @@ import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.dto.info.ParkSpeciesDto;
 import com.e22e.moya.exploration.dto.info.PositionDto;
 import com.e22e.moya.exploration.dto.info.SpeciesDto;
-import com.e22e.moya.common.repository.ExplorationRepository;
-import com.e22e.moya.common.repository.ParkRepository;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
 import com.e22e.moya.exploration.service.quest.QuestService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
@@ -37,12 +37,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class InfoServiceImpl implements InfoService {
 
-    private final ParkRepository parkRepository;
+    private final ParkRepositoryExploration parkRepository;
     private final QuestService questService;
-    private final ExplorationRepository explorationRepository;
+    private final ExplorationRepositoryExploration explorationRepository;
 
-    public InfoServiceImpl(ParkRepository parkRepository, QuestService questService,
-        ExplorationRepository explorationRepository) {
+    public InfoServiceImpl(ParkRepositoryExploration parkRepository, QuestService questService,
+        ExplorationRepositoryExploration explorationRepository) {
         this.parkRepository = parkRepository;
         this.questService = questService;
         this.explorationRepository = explorationRepository;
