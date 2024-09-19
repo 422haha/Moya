@@ -43,11 +43,12 @@ public interface ParkRepository extends JpaRepository<Park, Long> {
             "    SELECT " +
             "        s.species_id, s.name, s.scientific_name, s.description, s.image_url, " +
             "        sp.pos, " +
-            "        ST_ClusterDBSCAN(sp.pos, 20, 3) OVER () AS cluster_id " +
+            // DBSCAN 클러스터링을 통해 cluster_id 생성
+            "    ST_ClusterDBSCAN(sp.pos, 20, 3) OVER () AS cluster_id " +
             "    FROM park_species ps " +
-            "    JOIN species s ON ps.species_id = s.species_id " +
-            "    JOIN species_pos sp ON ps.id = sp.park_species_id " +
-            "    WHERE ps.park_id = :parkId " +
+            "    JOIN species s ON ps.species_id = s.species_id " + // 종 정보 join
+            "    JOIN species_pos sp ON ps.id = sp.park_species_id " + // 위치 정보 join
+            "    WHERE ps.park_id = :parkId " + // 공원 id로 필터링
             ") " +
             "SELECT " +
             "    c.species_id AS speciesId, " +
@@ -56,9 +57,10 @@ public interface ParkRepository extends JpaRepository<Park, Long> {
             "    c.description, " +
             "    c.image_url AS imageUrl, " +
             "    CASE " +
+            // 클러스터 내 포인트 수가 3 이상이면
             "        WHEN COUNT(*) OVER (PARTITION BY c.cluster_id) >= 3 THEN " +
-            "            ST_Centroid(ST_Collect(c.pos)) " +
-            "        ELSE c.pos " +
+            "            ST_Centroid(ST_Collect(c.pos)) " + // 클러스터의 중심점 계산
+            "        ELSE c.pos " + // 단일 포인트 반환
             "    END AS position " +
             "FROM clustered c " +
             "GROUP BY c.species_id, c.name, c.scientific_name, c.description, c.image_url, c.pos, c.cluster_id "
