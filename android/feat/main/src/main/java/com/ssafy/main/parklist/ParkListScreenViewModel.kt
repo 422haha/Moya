@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ParkListScreenViewModel @Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow(ParkListScreenState.Loading)
+    private val _state = MutableStateFlow<ParkListScreenState>(ParkListScreenState.Loading)
     val state: StateFlow<ParkListScreenState> = _state
 
     fun onIntent(intent: ParkListUserIntent) {

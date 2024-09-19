@@ -1,6 +1,7 @@
 package com.ssafy.main.home
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -14,6 +15,10 @@ fun HomeScreen(
     onNavigateToExploreList: () -> Unit
 ){
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.load()
+    }
 
     HomeScreenContent(
         homeScreenState = uiState,

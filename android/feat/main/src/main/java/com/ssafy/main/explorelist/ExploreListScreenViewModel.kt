@@ -10,7 +10,7 @@ import javax.inject.Inject
 
 @HiltViewModel
 class ExploreListScreenViewModel @Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow(ExploreListScreenState.Loading)
+    private val _state = MutableStateFlow<ExploreListScreenState>(ExploreListScreenState.Loading)
     val state: StateFlow<ExploreListScreenState> = _state
 
     fun onIntent(intent: ExploreListUserIntent) {
