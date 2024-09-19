@@ -1,4 +1,4 @@
-package com.ssafy.ui.screen
+package com.ssafy.ui.parkdetail
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -11,6 +11,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.encyclopedia.EncycGrid
+import com.ssafy.ui.screen.DescriptionSection
+import com.ssafy.ui.screen.ImageSection
+import com.ssafy.ui.screen.TitleAndDividerSection
 import com.ssafy.ui.theme.PrimaryColor
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -19,7 +23,7 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 
 @Composable
 fun ParkDetailScreen(
-    onItemClicked: (Int) -> Unit = {},
+    onItemClicked: (Long) -> Unit = {},
     onPop: () -> Unit = {},
     onEnterExplore: () -> Unit = {}
 ) {
