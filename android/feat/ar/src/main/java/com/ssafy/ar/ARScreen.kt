@@ -1,10 +1,22 @@
 package com.ssafy.ar
 
+import android.Manifest
+import android.app.PendingIntent
+import android.content.BroadcastReceiver
+import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.location.Location
+import android.util.Log
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.Button
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -19,13 +31,24 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.app.ActivityCompat
+import com.google.android.gms.location.Geofence
+import com.google.android.gms.location.GeofencingEvent
+import com.google.android.gms.location.GeofencingRequest
+import com.google.android.gms.location.LocationCallback
+import com.google.android.gms.location.LocationRequest
+import com.google.android.gms.location.LocationResult
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.LatLng
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.TrackingFailureReason
+import com.ssafy.ar.ArData.GeofenceLocation
 import com.ssafy.ar.ArData.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.ARScene
@@ -76,6 +99,16 @@ fun ARSceneComposable(viewModel: ARViewModel) {
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+    var activeGeofence by remember { mutableStateOf<String?>(null) }
+    val geofenceLocations = remember {
+        listOf(
+            GeofenceLocation("Location1", LatLng(36.10718419443119, 128.41647704496236)),
+            GeofenceLocation("Location2", LatLng(36.10718419443119, 128.41647704496236)),
+            GeofenceLocation("Location3", LatLng(36.10719340772349, 128.41647777400757))
+        )
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
@@ -197,7 +230,11 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                         }
                                     }
                                     // 퀘스트 완료
-                                    QuestStatus.COMPLETE -> {}
+                                    QuestStatus.COMPLETE -> {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(quest.completeMessage)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -208,6 +245,26 @@ fun ARSceneComposable(viewModel: ARViewModel) {
             trackingFailureReason = trackingFailureReason,
             childNodesEmpty = childNodes.isEmpty()
         )
+
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Text(text = if (activeGeofence != null) "현재 위치: $activeGeofence" else "모니터링 중...")
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Button(onClick = {
+                coroutineScope.launch {
+                    setupGeofencing(context, geofenceLocations) { enteredGeofenceId ->
+                        activeGeofence = enteredGeofenceId
+                    }
+                }
+            }) {
+                Text("지오펜스 시작")
+            }
+        }
 
         SnackbarHost(
             hostState = snackbarHostState,
@@ -260,9 +317,86 @@ fun ArStatusText(
     )
 }
 
-// 지금 childNode에 1개만 할 수 있음
-// 앵커를 효율적으로 여러개 배치해야함
+fun setupGeofencing(context: Context, locations: List<GeofenceLocation>, onGeofenceEvent: (String?) -> Unit) {
+    val geofencingClient = LocationServices.getGeofencingClient(context)
+    val geofenceList = locations.map { location ->
+        Geofence.Builder()
+            .setRequestId(location.id)
+            .setCircularRegion(location.latLng.latitude, location.latLng.longitude, location.radius)
+            .setExpirationDuration(Geofence.NEVER_EXPIRE)
+            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
+            .build()
+    }
 
-// track 메시지 분기처리
+    val geofencingRequest = GeofencingRequest.Builder()
+        .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
+        .addGeofences(geofenceList)
+        .build()
 
-// GPS마다 노드 배치
+    val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
+
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+        PackageManager.PERMISSION_GRANTED) {
+        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
+            .addOnSuccessListener {
+                // Geofences added successfully
+            }
+            .addOnFailureListener {
+                // Failed to add geofences
+            }
+    }
+
+    // Set up location updates for battery efficiency
+    val locationRequest = LocationRequest.create().apply {
+        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
+        interval = 10000 // 10 seconds
+        fastestInterval = 5000 // 5 seconds
+        smallestDisplacement = 10f // 10 meters
+    }
+
+    val locationCallback = object : LocationCallback() {
+        override fun onLocationResult(locationResult: LocationResult) {
+            locationResult.lastLocation?.let { location ->
+                val nearestGeofence = findNearestGeofence(location, locations)
+                onGeofenceEvent(nearestGeofence?.id)
+            }
+        }
+    }
+
+    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
+        PackageManager.PERMISSION_GRANTED) {
+        LocationServices.getFusedLocationProviderClient(context)
+            .requestLocationUpdates(locationRequest, locationCallback, null)
+    }
+}
+
+class GeofenceBroadcastReceiver : BroadcastReceiver() {
+    override fun onReceive(context: Context, intent: Intent) {
+        val geofencingEvent = GeofencingEvent.fromIntent(intent)
+        if (geofencingEvent != null) {
+            if (geofencingEvent.hasError()) {
+                Log.d(TAG, "onReceive: 위치 오류!!")
+                return
+            }
+        }
+
+        val geofenceTransition = geofencingEvent?.geofenceTransition
+        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
+            val triggeringGeofences = geofencingEvent.triggeringGeofences
+            Log.d(TAG, "onReceive: 위치 내에 들어옴!!")
+        }
+    }
+}
+
+fun findNearestGeofence(currentLocation: Location, geofenceLocations: List<GeofenceLocation>): GeofenceLocation? {
+    return geofenceLocations.minByOrNull { location ->
+        val geofenceLocation = Location("geofence").apply {
+            latitude = location.latLng.latitude
+            longitude = location.latLng.longitude
+        }
+
+        Log.d(TAG, "findNearestGeofence: $geofenceLocation")
+        currentLocation.distanceTo(geofenceLocation)
+    }
+}

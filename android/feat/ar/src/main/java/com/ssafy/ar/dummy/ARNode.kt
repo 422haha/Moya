@@ -26,7 +26,7 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
         prevCheckDescription = "집에 쓸 재료인 ",
         middleCheckDescription = "솔방울 3개",
         nextCheckDescription = "를\n벌써 모아온 거야?",
-        completeMessage = "고마워 덕분에\n예쁜 집을 지었어!",
+        completeMessage = "고마워! 덕분에 예쁜 집을 지었어!",
     ),
     QuestData(
         id = "2",
@@ -38,7 +38,7 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
         prevCheckDescription = "알을 숨길 만한 ",
         middleCheckDescription = "은행잎 5장",
         nextCheckDescription = "을\n벌써 모아온 거야?",
-        completeMessage = "고마워 덕분에\n무사히 알을 숨겼어!",
+        completeMessage = "고마워! 덕분에 무사히 알을 숨겼어!",
     ),
     QuestData(
         id = "3",
@@ -50,7 +50,7 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
         prevCheckDescription = "심부름을 벌써 ",
         middleCheckDescription = "나대신",
         nextCheckDescription = "\n다녀온 거야?",
-        completeMessage = "고마워 덕분에\n엄마한테 칭찬 받았어!",
+        completeMessage = "고마워! 덕분에 엄마한테 칭찬 받았어!",
     ),
     QuestData(
         id = "4",
@@ -62,7 +62,7 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
         prevCheckDescription = "마술쇼 소품으로 사용할\n",
         middleCheckDescription = "단풍잎 5장",
         nextCheckDescription = "을 벌써 모아온 거야?",
-        completeMessage = "고마워 덕분에\n무사히 마술 공연을 끝냈어!",
+        completeMessage = "고마워! 덕분에 무사히 마술 공연을 끝냈어!",
     )
     
 )

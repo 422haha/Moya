@@ -1,6 +1,7 @@
 package com.ssafy.ar.ArData
 
 import androidx.compose.runtime.Immutable
+import com.google.android.gms.maps.model.LatLng
 
 @Immutable
 data class CurrentLocation(
@@ -11,3 +12,6 @@ data class CurrentLocation(
     val verticalAccuracy: Double = 0.0,
     val distances: List<Float> = listOf()
 )
+
+@Immutable
+data class GeofenceLocation(val id: String, val latLng: LatLng, val radius: Float = 5f)

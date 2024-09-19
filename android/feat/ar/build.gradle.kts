@@ -14,4 +14,5 @@ android {
 dependencies {
     implementation("io.github.sceneview:arsceneview:2.2.1")
     implementation("com.google.android.gms:play-services-location:21.0.1")
+    implementation(libs.play.services.maps)
 }
