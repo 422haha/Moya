@@ -23,6 +23,8 @@ android {
         }
 
         buildConfigField("Boolean", "DEBUG", properties["DEBUG"] as String)
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties["NAVER_CLIENT_ID"]}\"")
+        manifestPlaceholders["NAVER_CLIENT_ID"] = properties["NAVER_CLIENT_ID"] as String
     }
 
     buildTypes {
@@ -68,6 +70,7 @@ dependencies {
     //serialization
     implementation(libs.kotlinx.serialization.core)
 
+    implementation(project(":feat:main"))
     implementation(project(":core:ui"))
 
     testImplementation(libs.junit)

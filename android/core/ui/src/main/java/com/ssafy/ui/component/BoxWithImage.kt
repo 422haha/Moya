@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,6 +32,13 @@ import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 
+@Immutable
+data class BoxWithImageState(
+    val info: String,
+    val title: String,
+    val image: String?,
+)
+
 //TODO 추후에 이미지를 받도록 수정하고 이미지가 널이면 텍스트와 버튼이 중앙에 보이도록 수정
 @Composable
 fun BoxWithImage(
@@ -38,7 +46,8 @@ fun BoxWithImage(
     color: Color,
     textColor: Color,
     onClick: () -> Unit = {},
-    painterResource: Int
+    icon: Int,
+    state: BoxWithImageState,
 ) {
     Surface(
         color = color,
@@ -62,6 +71,7 @@ fun BoxWithImage(
                     .clip(RoundedCornerShape(12.dp))
             ) {
                 Image(
+                    //TODO 이미지 추가
                     painter = painterResource(id = R.drawable.ic_launcher_background),
                     contentDescription = "이미지",
                     contentScale = ContentScale.Crop,
@@ -78,13 +88,13 @@ fun BoxWithImage(
                         .padding(horizontal = 4.dp)
                 ) {
                     Icon(
-                        painterResource(id = painterResource),
+                        painterResource(id = icon),
                         contentDescription = "핀마커",
                         modifier = Modifier.size(32.dp),
                         tint = LightBackgroundColor
                     )
                     Text(
-                        text = "500m",
+                        text = state.info,
                         color = Color.White,
                         modifier = Modifier
                             .padding(vertical = 16.dp)
@@ -94,7 +104,7 @@ fun BoxWithImage(
             }
             Spacer(modifier = Modifier.height(12.dp))
             Text(
-                text = "동락공원",
+                text = state.title,
                 modifier = Modifier
                     .align(Alignment.CenterHorizontally),
                 color = textColor
@@ -110,6 +120,11 @@ fun BoxWithImagePreview() {
     BoxWithImage(
         color = SurfaceColor,
         textColor = PrimaryColor,
-        painterResource = R.drawable.baseline_location_on_24
+        icon = R.drawable.baseline_location_on_24,
+        state = BoxWithImageState(
+            title = "동락공원",
+            info = "500m",
+            image = null
+        ),
     )
 }

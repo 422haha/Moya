@@ -5,15 +5,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ssafy.main.encyclopedia.EncycScreen
+import com.ssafy.main.explorelist.ExploreListScreen
+import com.ssafy.main.home.HomeScreen
+import com.ssafy.main.parkdetail.ParkDetailScreen
+import com.ssafy.main.parklist.ParkListScreen
 import com.ssafy.ui.screen.EncycDetailScreen
-import com.ssafy.ui.screen.EncycScreen
 import com.ssafy.ui.screen.ExploreDetailScreen
-import com.ssafy.ui.screen.ExploreListScreen
 import com.ssafy.ui.screen.ExploreStartScreen
-import com.ssafy.ui.screen.HomeScreen
 import com.ssafy.ui.screen.LoginScreen
-import com.ssafy.ui.screen.ParkDetailScreen
-import com.ssafy.ui.screen.ParkListScreen
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -34,14 +34,14 @@ fun MainNavigation(
             )
         }
         composable<ExploreList> {
-            ExploreListScreen(onItemClicked = { itemId ->
+            ExploreListScreen(onExploreItemClick = { itemId ->
                 navController.navigate(ExploreDetail(itemId))
             }, onPop = {
                 navController.popBackStack()
             })
         }
         composable<ParkList> {
-            ParkListScreen(onItemClicked = { itemId ->
+            ParkListScreen(onParkItemClick = { itemId ->
                 navController.navigate(ParkDetail(itemId))
             }, onPop = {
                 navController.popBackStack()
@@ -55,7 +55,7 @@ fun MainNavigation(
             })
         }
         composable<ParkDetail> {
-            ParkDetailScreen(onItemClicked = { itemId ->
+            ParkDetailScreen(onNavigateToEncycDetail = { itemId ->
                 navController.navigate(EncycDetail(itemId))
             }, onPop = {
                 navController.popBackStack()
@@ -64,7 +64,7 @@ fun MainNavigation(
             })
         }
         composable<Encyc> {
-            EncycScreen(onItemClicked = { itemId ->
+            EncycScreen(onNavigateToEncycDetail = { itemId ->
                 navController.navigate(EncycDetail(itemId))
             }, onPop = {
                 navController.popBackStack()
@@ -85,7 +85,7 @@ fun MainNavigation(
             ExploreStartScreen(onExitExplore = {
                 navController.navigate(Home) {
                     //TODO 추후에 탐험기록 화면으로 이동하도록 수정
-                    popUpTo(navController.navigate(Home)) { inclusive = true }
+                    popUpTo(Home) { inclusive = true }
                 }
             }, onEnterEncyc = {
                 navController.navigate(Encyc)

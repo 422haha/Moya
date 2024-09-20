@@ -29,7 +29,7 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun PlantCard(plantName: String, isDiscovered: Boolean, onClick: () -> Unit) {
+fun PlantCard(plantName: String, isDiscovered: Boolean, onClick: () -> Unit = {}) {
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
@@ -46,7 +46,7 @@ fun PlantCard(plantName: String, isDiscovered: Boolean, onClick: () -> Unit) {
             modifier = Modifier
                 .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+            verticalArrangement = Arrangement.Top
         ) {
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
