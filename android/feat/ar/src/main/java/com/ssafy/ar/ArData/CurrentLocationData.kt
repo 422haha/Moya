@@ -14,4 +14,4 @@ data class CurrentLocation(
 )
 
 @Immutable
-data class GeofenceLocation(val id: String, val latLng: LatLng, val radius: Float = 5f)
+data class NPCLocation(val id: String, val latLng: LatLng, val radius: Float = 5f, val isPlace: Boolean)

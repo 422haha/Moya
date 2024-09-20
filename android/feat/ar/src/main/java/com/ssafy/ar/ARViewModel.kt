@@ -1,12 +1,16 @@
 package com.ssafy.ar
 
+import android.location.Location
+import android.system.Os.remove
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
 import com.ssafy.ar.ArData.CurrentLocation
+import com.ssafy.ar.ArData.NPCLocation
 import com.ssafy.ar.ArData.QuestData
 import com.ssafy.ar.ArData.QuestStatus
+import com.ssafy.ar.dummy.npcs
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
@@ -21,6 +25,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -31,9 +36,9 @@ class ARViewModel : ViewModel() {
     private val _anchorNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
     val anchorNodes: StateFlow<Map<String, QuestStatus>> = _anchorNodes.asStateFlow()
 
-    // Location
-    private val _curLocation = MutableStateFlow(CurrentLocation())
-    val curLocation: StateFlow<CurrentLocation> = _curLocation.asStateFlow()
+    // AR AnchorNode
+    private val _npcMarketNodes = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
+    val npcMarketNodes: StateFlow<Map<String, NPCLocation>> = _npcMarketNodes.asStateFlow()
 
     // Dialog
     private val _showDialog = MutableStateFlow(false)
@@ -43,6 +48,15 @@ class ARViewModel : ViewModel() {
     private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus> >(Pair(0, QuestStatus.WAIT))
     val dialogData: StateFlow<Pair<Int, QuestStatus> > = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
+
+    private val _currentLocation = MutableStateFlow<Location?>(null)
+    val currentLocation = _currentLocation.asStateFlow()
+
+    fun updateLocation(location: Location) {
+        viewModelScope.launch {
+            _currentLocation.emit(location)
+        }
+    }
 
     fun addAnchorNode(id: String, state: QuestStatus) {
         val updatedMap = _anchorNodes.value.toMutableMap().apply {
@@ -73,8 +87,22 @@ class ARViewModel : ViewModel() {
         return _anchorNodes.value[id]
     }
 
-    fun updateLocation(newLocation: CurrentLocation) {
-        _curLocation.value = newLocation
+    fun getAllNpcMarker() {
+        _npcMarketNodes.value = npcs
+    }
+
+    fun updateNPCLocationIsPlace(id: String, newIsPlaceValue: Boolean) {
+        _npcMarketNodes.update { currentMap ->
+            currentMap.toMutableMap().apply {
+                this[id]?.let { npcLocation ->
+                    this[id] = npcLocation.copy(isPlace = newIsPlaceValue)
+                }
+            }
+        }
+    }
+
+    fun isNPCPlaced(id: String): Boolean {
+        return _npcMarketNodes.value[id]?.isPlace ?: false
     }
 
     fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {

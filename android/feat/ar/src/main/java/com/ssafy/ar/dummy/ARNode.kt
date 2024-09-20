@@ -1,6 +1,8 @@
 package com.ssafy.ar.dummy
 
+import com.google.android.gms.maps.model.LatLng
 import com.ssafy.ar.ArData.ARNode
+import com.ssafy.ar.ArData.NPCLocation
 import com.ssafy.ar.ArData.QuestData
 
 val scriptNode: MutableList<QuestData> = mutableListOf(
@@ -67,7 +69,13 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
     
 )
 
-val nodes: MutableList<ARNode> = mutableListOf(
+val npcs: Map<String, NPCLocation> = mapOf(
+    "Location1" to NPCLocation("Location1", LatLng(36.1068254, 128.4162736), isPlace = false),
+    "Location2" to NPCLocation("Location2", LatLng(36.1066207, 128.4161508), isPlace = false),
+    "Location3" to NPCLocation("Location3", LatLng(36.1066257, 128.4163829), isPlace = false)
+)
+
+val nodes: List<ARNode> = listOf(
     ARNode(
         "0",
         36.10716757434519,

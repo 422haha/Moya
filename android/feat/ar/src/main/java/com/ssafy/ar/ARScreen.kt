@@ -1,27 +1,26 @@
 package com.ssafy.ar
 
 import android.Manifest
-import android.app.PendingIntent
-import android.content.BroadcastReceiver
+import android.annotation.SuppressLint
 import android.content.Context
-import android.content.Intent
 import android.content.pm.PackageManager
 import android.location.Location
+import android.location.LocationManager
+import android.os.Looper
 import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.systemBarsPadding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -32,33 +31,41 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalLifecycleOwner
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.core.app.ActivityCompat
-import com.google.android.gms.location.Geofence
-import com.google.android.gms.location.GeofencingEvent
-import com.google.android.gms.location.GeofencingRequest
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.LifecycleEventObserver
+import com.google.android.filament.Engine
+import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
+import com.google.android.gms.location.Priority
 import com.google.android.gms.maps.model.LatLng
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.TrackingFailureReason
-import com.ssafy.ar.ArData.GeofenceLocation
+import com.google.ar.core.dependencies.f
+import com.ssafy.ar.ArData.NPCLocation
 import com.ssafy.ar.ArData.QuestStatus
+import com.ssafy.ar.dummy.npcs
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.createAnchorOrNull
 import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
+import io.github.sceneview.loaders.MaterialLoader
+import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCollisionSystem
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
@@ -67,6 +74,8 @@ import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.async
+import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.UUID
@@ -74,7 +83,23 @@ import java.util.UUID
 private const val TAG = "ArScreen"
 
 @Composable
-fun ARSceneComposable(viewModel: ARViewModel) {
+fun ARSceneComposable(
+    viewModel: ARViewModel,
+    onPermissionDenied: () -> Unit
+) {
+    // LifeCycle
+    val context = LocalContext.current
+    val lifecycleOwner = LocalLifecycleOwner.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Permission
+    var hasPermission by remember { mutableStateOf(false) }
+
+    // Dialog & SnackBar
+    val showDialog by viewModel.showDialog.collectAsState()
+    val dialogData by viewModel.dialogData.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     // AR Basic
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
@@ -91,23 +116,42 @@ fun ARSceneComposable(viewModel: ARViewModel) {
     }
     var frame by remember { mutableStateOf<Frame?>(null) }
 
-    // AR Quest State
-    val coroutineScope = rememberCoroutineScope()
+    // AR State
     val anchorNodes by viewModel.anchorNodes.collectAsState()
+    val npcMarkerLocations by viewModel.npcMarketNodes.collectAsState()
 
-    // Dialog & SnackBar
-    val showDialog by viewModel.showDialog.collectAsState()
-    val dialogData by viewModel.dialogData.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
+    val currentLocation by viewModel.currentLocation.collectAsState()
+    // Location
+    var nearestNPCDistance by remember { mutableStateOf<Float?>(0f) }
+    var nearestNPC by remember { mutableStateOf<NPCLocation?>(null) }
 
-    val context = LocalContext.current
-    var activeGeofence by remember { mutableStateOf<String?>(null) }
-    val geofenceLocations = remember {
-        listOf(
-            GeofenceLocation("Location1", LatLng(36.10718419443119, 128.41647704496236)),
-            GeofenceLocation("Location2", LatLng(36.10718419443119, 128.41647704496236)),
-            GeofenceLocation("Location3", LatLng(36.10719340772349, 128.41647777400757))
+    val fusedLocationClient: FusedLocationProviderClient =
+        remember { LocationServices.getFusedLocationProviderClient(context) }
+    val locationCallback = remember {
+        object : LocationCallback() {
+            override fun onLocationResult(locationResult: LocationResult) {
+                locationResult.lastLocation?.let { location ->
+                    viewModel.updateLocation(location)
+                }
+            }
+        }
+    }
+
+    MultiplePermissionsHandler(
+        permissions = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
         )
+    ) { permissionResults ->
+        if (permissionResults.all { permissions -> permissions.value }) {
+            hasPermission = true
+
+            viewModel.getAllNpcMarker()
+        } else {
+            onPermissionDenied()
+            return@MultiplePermissionsHandler
+        }
     }
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -138,29 +182,40 @@ fun ARSceneComposable(viewModel: ARViewModel) {
             onSessionUpdated = { session, updatedFrame ->
                 coroutineScope.launch {
                     withContext(Dispatchers.Main) {
-                        frame = updatedFrame
-                        if (childNodes.isEmpty()) {
-                            updatedFrame.getUpdatedPlanes()
-                                .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
-                                ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                                    planeRenderer = false
-                                    val anchorNode = viewModel.createAnchorNode(
-                                        scriptNode[0],
-                                        engine,
-                                        modelLoader,
-                                        materialLoader,
-                                        modelInstances,
-                                        anchor,
-                                    ).apply {
-                                        val uuid = UUID.randomUUID().toString()
+                        val npcId = nearestNPC?.id ?: ""
+                        val isPlaceNPC = npcId.let { viewModel.isNPCPlaced(it) }
 
-                                        name = uuid
+                        if (npcId.isNotBlank() &&
+                            !isPlaceNPC &&
+                            (currentLocation?.accuracy ?: 100.0f) >= 8.0f &&
+                            (nearestNPCDistance ?: 100.0f) <= 10.0f
+                        ) {
+                            coroutineScope.launch {
+                                frame = updatedFrame
+                                updatedFrame.getUpdatedPlanes()
+                                    .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
+                                    ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
+                                        planeRenderer = false
+                                        val anchorNode = viewModel.createAnchorNode(
+                                            scriptNode[0],
+                                            engine,
+                                            modelLoader,
+                                            materialLoader,
+                                            modelInstances,
+                                            anchor,
+                                        ).apply {
+                                            val uuid = UUID.randomUUID().toString()
 
-                                        viewModel.addAnchorNode(uuid, QuestStatus.WAIT)
+                                            name = uuid
+
+                                            viewModel.addAnchorNode(uuid, QuestStatus.WAIT)
+
+                                            viewModel.updateNPCLocationIsPlace(npcId, true)
+                                        }
+
+                                        childNodes.add(anchorNode)
                                     }
-
-                                    childNodes.add(anchorNode)
-                                }
+                            }
                         }
                     }
                 }
@@ -246,24 +301,27 @@ fun ARSceneComposable(viewModel: ARViewModel) {
             childNodesEmpty = childNodes.isEmpty()
         )
 
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(text = if (activeGeofence != null) "현재 위치: $activeGeofence" else "모니터링 중...")
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(onClick = {
-                coroutineScope.launch {
-                    setupGeofencing(context, geofenceLocations) { enteredGeofenceId ->
-                        activeGeofence = enteredGeofenceId
-                    }
-                }
-            }) {
-                Text("지오펜스 시작")
-            }
+        Column {
+            Text(
+                text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
+                color = Color.White
+            )
+            Text(
+                text = "경도: ${currentLocation?.longitude ?: "모니터링중..."} ",
+                color = Color.White
+            )
+            Text(
+                text = "정확도: ${currentLocation?.accuracy ?: "모니터링중..."} ",
+                color = Color.Red
+            )
+            Text(
+                text = "가까운 마커: ${nearestNPC?.id ?: "모니터링중..."} ",
+                color = Color.Red
+            )
+            Text(
+                text = "마커 거리(m): ${nearestNPCDistance ?: "모니터링중..."} ",
+                color = Color.Red
+            )
         }
 
         SnackbarHost(
@@ -281,6 +339,31 @@ fun ARSceneComposable(viewModel: ARViewModel) {
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() }
         )
+    }
+
+    LaunchedEffect(currentLocation) {
+        nearestNPC = currentLocation?.let { findNearestNPC(it, npcMarkerLocations) }
+        nearestNPCDistance = currentLocation?.let { curLoc ->
+            nearestNPC?.let { curNPC ->
+                measureNearestNpcDistance(curLoc, curNPC)
+            }
+        }
+    }
+
+    DisposableEffect(lifecycleOwner) {
+        val observer = LifecycleEventObserver { _, event ->
+            if (event == Lifecycle.Event.ON_RESUME) {
+                startLocationUpdates(context, fusedLocationClient, locationCallback)
+            } else if (event == Lifecycle.Event.ON_PAUSE) {
+                stopLocationUpdates(fusedLocationClient, locationCallback)
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+
+        onDispose {
+            lifecycleOwner.lifecycle.removeObserver(observer)
+            stopLocationUpdates(fusedLocationClient, locationCallback)
+        }
     }
 }
 
@@ -317,86 +400,65 @@ fun ArStatusText(
     )
 }
 
-fun setupGeofencing(context: Context, locations: List<GeofenceLocation>, onGeofenceEvent: (String?) -> Unit) {
-    val geofencingClient = LocationServices.getGeofencingClient(context)
-    val geofenceList = locations.map { location ->
-        Geofence.Builder()
-            .setRequestId(location.id)
-            .setCircularRegion(location.latLng.latitude, location.latLng.longitude, location.radius)
-            .setExpirationDuration(Geofence.NEVER_EXPIRE)
-            .setTransitionTypes(Geofence.GEOFENCE_TRANSITION_ENTER or Geofence.GEOFENCE_TRANSITION_EXIT)
-            .build()
-    }
-
-    val geofencingRequest = GeofencingRequest.Builder()
-        .setInitialTrigger(GeofencingRequest.INITIAL_TRIGGER_ENTER)
-        .addGeofences(geofenceList)
+// 위치 추적 시작
+private fun startLocationUpdates(
+    context: Context,
+    fusedLocationClient: FusedLocationProviderClient,
+    locationCallback: LocationCallback
+) {
+    val locationRequest = LocationRequest.Builder(
+        Priority.PRIORITY_HIGH_ACCURACY, 1000
+    )
+        .setWaitForAccurateLocation(false)
+        .setMinUpdateIntervalMillis(1000)
+        .setMinUpdateDistanceMeters(0.2f)
         .build()
 
-    val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
-    val pendingIntent = PendingIntent.getBroadcast(context, 0, intent, PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE)
-
-    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED) {
-        geofencingClient.addGeofences(geofencingRequest, pendingIntent)
-            .addOnSuccessListener {
-                // Geofences added successfully
-            }
-            .addOnFailureListener {
-                // Failed to add geofences
-            }
-    }
-
-    // Set up location updates for battery efficiency
-    val locationRequest = LocationRequest.create().apply {
-        priority = LocationRequest.PRIORITY_BALANCED_POWER_ACCURACY
-        interval = 10000 // 10 seconds
-        fastestInterval = 5000 // 5 seconds
-        smallestDisplacement = 10f // 10 meters
-    }
-
-    val locationCallback = object : LocationCallback() {
-        override fun onLocationResult(locationResult: LocationResult) {
-            locationResult.lastLocation?.let { location ->
-                val nearestGeofence = findNearestGeofence(location, locations)
-                onGeofenceEvent(nearestGeofence?.id)
-            }
-        }
-    }
-
-    if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) ==
-        PackageManager.PERMISSION_GRANTED) {
-        LocationServices.getFusedLocationProviderClient(context)
-            .requestLocationUpdates(locationRequest, locationCallback, null)
+    if (ActivityCompat.checkSelfPermission(
+            context,
+            Manifest.permission.ACCESS_FINE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+    ) {
+        fusedLocationClient.requestLocationUpdates(
+            locationRequest,
+            locationCallback,
+            Looper.getMainLooper()
+        )
     }
 }
 
-class GeofenceBroadcastReceiver : BroadcastReceiver() {
-    override fun onReceive(context: Context, intent: Intent) {
-        val geofencingEvent = GeofencingEvent.fromIntent(intent)
-        if (geofencingEvent != null) {
-            if (geofencingEvent.hasError()) {
-                Log.d(TAG, "onReceive: 위치 오류!!")
-                return
-            }
-        }
-
-        val geofenceTransition = geofencingEvent?.geofenceTransition
-        if (geofenceTransition == Geofence.GEOFENCE_TRANSITION_ENTER || geofenceTransition == Geofence.GEOFENCE_TRANSITION_EXIT) {
-            val triggeringGeofences = geofencingEvent.triggeringGeofences
-            Log.d(TAG, "onReceive: 위치 내에 들어옴!!")
-        }
-    }
+// 위치 추적 종료
+private fun stopLocationUpdates(
+    fusedLocationClient: FusedLocationProviderClient,
+    locationCallback: LocationCallback
+) {
+    fusedLocationClient.removeLocationUpdates(locationCallback)
 }
 
-fun findNearestGeofence(currentLocation: Location, geofenceLocations: List<GeofenceLocation>): GeofenceLocation? {
-    return geofenceLocations.minByOrNull { location ->
-        val geofenceLocation = Location("geofence").apply {
+// 가장 가까운 노드와의 거리를 측정
+private fun measureNearestNpcDistance(location: Location, npcLocation: NPCLocation): Float {
+    val targetLocation = Location("target").apply {
+        latitude = npcLocation.latLng.latitude
+        longitude = npcLocation.latLng.longitude
+    }
+
+    val distanceInMeters = location.distanceTo(targetLocation)
+    return distanceInMeters
+}
+
+// 가장 가까운 노드를 찾기
+private fun findNearestNPC(
+    currentLocation: Location,
+    npcLocations: Map<String, NPCLocation>
+): NPCLocation? {
+    return npcLocations.values.minByOrNull { location ->
+        val npcLocation = Location("npc").apply {
             latitude = location.latLng.latitude
             longitude = location.latLng.longitude
         }
 
-        Log.d(TAG, "findNearestGeofence: $geofenceLocation")
-        currentLocation.distanceTo(geofenceLocation)
+        currentLocation.distanceTo(npcLocation)
     }
 }
+
+// viewModel에서 관리해야할 것으로 옮김
