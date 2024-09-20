@@ -41,15 +41,17 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.StarYellowColor
 import com.ssafy.ui.theme.SurfaceColor
 
+val chipLabels = listOf("전체", "수집완료", "미발견")
+
 @Composable
 fun EncycScreenContent(
     modifier: Modifier = Modifier,
     encycScreenState: EncycScreenState,
-    onIntent: (EncycScreenUserIntent) -> Unit = {}
+    onIntent: (EncycUserIntent) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
-            TopBar("도감", PrimaryColor, onPop = { onIntent(EncycScreenUserIntent.OnPop) })
+            TopBar("도감", PrimaryColor, onPop = { onIntent(EncycUserIntent.OnPop) })
         },
         content = { paddingValues ->
             when (encycScreenState) {
@@ -77,7 +79,7 @@ fun EncycScreenContent(
 fun EncycScreenLoaded(
     modifier: Modifier,
     state: EncycScreenState.Loaded,
-    onIntent: (EncycScreenUserIntent) -> Unit = {}
+    onIntent: (EncycUserIntent) -> Unit = {}
 ) {
     Column(
         modifier = modifier
@@ -86,12 +88,12 @@ fun EncycScreenLoaded(
         FilterChips(
             selectedChipIndex = state.selectedChipIndex,
             onChipSelected = { index ->
-                onIntent(EncycScreenUserIntent.OnChipSelected(index))
+                onIntent(EncycUserIntent.OnChipSelected(index))
             })
         EncycGrid(
             items = state.items,
             modifier = Modifier.weight(1f),
-            onItemClicked = { onIntent(EncycScreenUserIntent.OnItemSelect(it)) }
+            onItemClicked = { onIntent(EncycUserIntent.OnItemSelect(it)) }
         )
         CollectionProgress(progress = state.progress)
     }
@@ -129,8 +131,6 @@ fun FilterChips(
     selectedChipIndex: Int,
     onChipSelected: (Int) -> Unit
 ) {
-    val chipLabels = listOf("전체", "수집완료", "미발견")
-
     Row(
         horizontalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier

@@ -13,11 +13,11 @@ import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.encycdetail.DescriptionSection
+import com.ssafy.ui.encycdetail.ImageSection
+import com.ssafy.ui.encycdetail.TitleAndDividerSection
 import com.ssafy.ui.encyclopedia.EncycGrid
 import com.ssafy.ui.encyclopedia.EncycGridState
-import com.ssafy.ui.screen.DescriptionSection
-import com.ssafy.ui.screen.ImageSection
-import com.ssafy.ui.screen.TitleAndDividerSection
 import com.ssafy.ui.theme.PrimaryColor
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -28,19 +28,19 @@ import me.onebone.toolbar.rememberCollapsingToolbarScaffoldState
 fun ParkDetailScreenContent(
     modifier: Modifier = Modifier,
     parkDetailScreenState: ParkDetailScreenState,
-    onIntent: (ParkDetailScreenUserIntent) -> Unit = {}
+    onIntent: (ParkDetailUserIntent) -> Unit = {}
 ) {
     Scaffold(
         topBar = {
             TopBar(
                 text = if (parkDetailScreenState is ParkDetailScreenState.Loaded) parkDetailScreenState.parkName else "",
                 backgroundColor = PrimaryColor,
-                onPop = { onIntent(ParkDetailScreenUserIntent.OnPop) }
+                onPop = { onIntent(ParkDetailUserIntent.OnPop) }
             )
         },
         bottomBar = {
             FindButton("모험 시작하기",
-                onClick = { onIntent(ParkDetailScreenUserIntent.OnEnterExplore) })
+                onClick = { onIntent(ParkDetailUserIntent.OnEnterExplore) })
         }
     ) { innerPadding ->
         when (parkDetailScreenState) {
@@ -71,7 +71,7 @@ fun ParkDetailScreenContent(
 fun ParkDetailScreenLoaded(
     modifier: Modifier,
     state: ParkDetailScreenState.Loaded,
-    onIntent: (ParkDetailScreenUserIntent) -> Unit
+    onIntent: (ParkDetailUserIntent) -> Unit
 ) {
     val toolbarScaffoldState = rememberCollapsingToolbarScaffoldState()
 
@@ -103,7 +103,7 @@ fun ParkDetailScreenLoaded(
             TitleAndDividerSection("관찰 가능한 동식물")
             EncycGrid(
                 items = state.items,
-                onItemClicked = { id -> onIntent(ParkDetailScreenUserIntent.OnItemSelect(id)) },
+                onItemClicked = { id -> onIntent(ParkDetailUserIntent.OnItemSelect(id)) },
                 modifier = Modifier.fillMaxHeight()
             )
         }

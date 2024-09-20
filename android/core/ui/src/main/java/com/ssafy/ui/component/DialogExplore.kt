@@ -27,7 +27,6 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.customTypography
 
-//TODO 여기 사진이랑 힌트도 받도록 수정해서 분기처리하기
 @Composable
 fun ExploreDialog(
     title: String,
