@@ -23,21 +23,21 @@ public class ParkController {
 
     /**
      * 홈 화면에서 가장 가까운 공원 정보를 반환
-     * @param token 사용자의 JWT 토큰
      * @param latitude 위도
      * @param longitude 경도
      * @return 가장 가까운 공원 정보
      */
     @GetMapping("/home")
     public ResponseEntity<Map<String, Object>> getNearestPark(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @RequestParam("latitude") double latitude,
         @RequestParam("longitude") double longitude) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+            // Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             // 제일 가까운 공원 조회
             ParkResponseDto parkResponse = parkService.getNearestPark(userId, latitude, longitude);
@@ -55,7 +55,6 @@ public class ParkController {
 
     /**
      * 공원 목록을 페이지네이션하여 반환
-     * @param token 사용자의 JWT 토큰
      * @param page 요청 페이지 번호
      * @param size 페이지 크기
      * @param latitude 위도
@@ -64,7 +63,7 @@ public class ParkController {
      */
     @GetMapping("/parks")
     public ResponseEntity<Map<String, Object>> getParks(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @RequestParam("page") int page,
         @RequestParam("size") int size,
         @RequestParam("latitude") double latitude,
@@ -73,7 +72,8 @@ public class ParkController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+            // Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             // 공원 목록 조회
             ParkListResponseDto parks = parkService.getParks(userId, latitude, longitude, page, size);
@@ -91,19 +91,19 @@ public class ParkController {
 
     /**
      * 특정 공원의 상세 정보를 반환
-     * @param token 사용자의 JWT 토큰
      * @param parkId 조회하려는 공원의 ID
      * @return 공원의 상세 정보와 상태 코드
      */
     @GetMapping("/parks/{parkId}")
     public ResponseEntity<Map<String, Object>> getParkDetail(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @PathVariable("parkId") Long parkId) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+            // Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             // 공원 상세 정보 조회
             ParkDetailResponseDto parkDetail = parkService.getParkDetail(parkId);
