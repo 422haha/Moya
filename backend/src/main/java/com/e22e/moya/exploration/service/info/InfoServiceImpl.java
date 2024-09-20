@@ -5,7 +5,7 @@ import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
-import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.dto.info.ParkSpeciesDto;
 import com.e22e.moya.exploration.dto.info.PositionDto;
@@ -57,8 +57,8 @@ public class InfoServiceImpl implements InfoService {
      * @param userId 사용자 id
      */
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public ExplorationStartDto getInitInfo(Long parkId, Long userId) {
-        ExplorationStartDto explorationStartDto = new ExplorationStartDto();
+    public ExplorationInfoDto getInitInfo(Long parkId, Long userId) {
+        ExplorationInfoDto explorationStartDto = new ExplorationInfoDto();
         Park park = parkRepository.findById(parkId)
             .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
 
@@ -96,9 +96,19 @@ public class InfoServiceImpl implements InfoService {
     }
 
     /**
+     * 탐험 정보 로드 메서드
+     *
+     * @param explorationId 탐험 id
+     * @param userId
+     */
+    @Transactional(readOnly = true)
+    public ExplorationInfoDto getInfo(Long explorationId, long userId) {
+
+        return null;
+    }
+
+    /**
      * 내가 발견한 종의 위치와 내가 발견한 종의 모든 위치가 겹치지 않도록
-     *
-     *
      */
     private List<ParkSpeciesDto> filterDiscoveredSpecies(List<ParkSpeciesDto> allSpecies,
         List<ParkSpeciesDto> discoveredSpecies) {
