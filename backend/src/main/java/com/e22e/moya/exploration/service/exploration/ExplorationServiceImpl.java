@@ -11,11 +11,11 @@ import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
-import com.e22e.moya.common.repository.DiscoveryRepository;
-import com.e22e.moya.common.repository.ExplorationRepository;
-import com.e22e.moya.common.repository.ParkSpeciesRepository;
-import com.e22e.moya.common.repository.SpeciesPosRepository;
-import com.e22e.moya.common.repository.SpeciesRepository;
+import com.e22e.moya.exploration.repository.DiscoveryRepositoryExploration;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkSpeciesRepositoryExploration;
+import com.e22e.moya.exploration.repository.SpeciesPosRepositoryExploration;
+import com.e22e.moya.exploration.repository.SpeciesRepositoryExploration;
 import com.e22e.moya.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -42,16 +42,16 @@ import org.springframework.transaction.annotation.Transactional;
 public class ExplorationServiceImpl implements ExplorationService {
 
     private final UserRepository userRepository;
-    private final SpeciesRepository speciesRepository;
-    private final DiscoveryRepository discoveryRepository;
-    private final ExplorationRepository explorationRepository;
-    private final ParkSpeciesRepository parkSpeciesRepository;
-    private final SpeciesPosRepository speciesPosRepository;
+    private final SpeciesRepositoryExploration speciesRepository;
+    private final DiscoveryRepositoryExploration discoveryRepository;
+    private final ExplorationRepositoryExploration explorationRepository;
+    private final ParkSpeciesRepositoryExploration parkSpeciesRepository;
+    private final SpeciesPosRepositoryExploration speciesPosRepository;
 
     public ExplorationServiceImpl(UserRepository userRepository,
-        SpeciesRepository speciesRepository, DiscoveryRepository discoveryRepository,
-        ExplorationRepository explorationRepository, ParkSpeciesRepository parkSpeciesRepository,
-        SpeciesPosRepository speciesPosRepository) {
+        SpeciesRepositoryExploration speciesRepository, DiscoveryRepositoryExploration discoveryRepository,
+        ExplorationRepositoryExploration explorationRepository, ParkSpeciesRepositoryExploration parkSpeciesRepository,
+        SpeciesPosRepositoryExploration speciesPosRepository) {
         this.userRepository = userRepository;
         this.speciesRepository = speciesRepository;
         this.discoveryRepository = discoveryRepository;

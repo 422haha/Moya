@@ -7,11 +7,11 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.e22e.moya.common.entity.*;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.species.*;
-import com.e22e.moya.common.repository.DiscoveryRepository;
-import com.e22e.moya.common.repository.ExplorationRepository;
-import com.e22e.moya.common.repository.ParkSpeciesRepository;
-import com.e22e.moya.common.repository.SpeciesPosRepository;
-import com.e22e.moya.common.repository.SpeciesRepository;
+import com.e22e.moya.exploration.repository.DiscoveryRepositoryExploration;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkSpeciesRepositoryExploration;
+import com.e22e.moya.exploration.repository.SpeciesPosRepositoryExploration;
+import com.e22e.moya.exploration.repository.SpeciesRepositoryExploration;
 import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.user.repository.UserRepository;
@@ -34,15 +34,15 @@ class ExplorationServiceImplTestAddOnDictionary {
     @Mock
     private UserRepository userRepository;
     @Mock
-    private SpeciesRepository speciesRepository;
+    private SpeciesRepositoryExploration speciesRepository;
     @Mock
-    private DiscoveryRepository discoveryRepository;
+    private DiscoveryRepositoryExploration discoveryRepository;
     @Mock
-    private ExplorationRepository explorationRepository;
+    private ExplorationRepositoryExploration explorationRepository;
     @Mock
-    private ParkSpeciesRepository parkSpeciesRepository;
+    private ParkSpeciesRepositoryExploration parkSpeciesRepository;
     @Mock
-    private SpeciesPosRepository speciesPosRepository;
+    private SpeciesPosRepositoryExploration speciesPosRepository;
 
     @BeforeEach
     void setUp() {
