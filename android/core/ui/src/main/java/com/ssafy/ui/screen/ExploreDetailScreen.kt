@@ -31,7 +31,7 @@ import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
 
 @Composable
-fun ExploreDetailScreen(onItemClicked: (Int) -> Unit = {}, onPop: () -> Unit = {}) {
+fun ExploreDetailScreen(onItemClicked: (Long) -> Unit = {}, onPop: () -> Unit = {}) {
     Scaffold(
         topBar = { TopBar(text = "동락공원", SecondaryColor, onPop) },
         content = { paddingValue ->
@@ -128,7 +128,7 @@ fun TextBox(modifier: Modifier = Modifier) {
 }
 
 @Composable
-fun HorizontalEncyc(onItemClicked: (Int) -> Unit) {
+fun HorizontalEncyc(onItemClicked: (Long) -> Unit) {
     LazyHorizontalGrid(
         rows = GridCells.Fixed(1),
         modifier = Modifier
@@ -136,7 +136,7 @@ fun HorizontalEncyc(onItemClicked: (Int) -> Unit) {
             .background(SecondarySurfaceColor)
     ) {
         items(8) { index ->
-            PlantCard(plantName = "능소화", isDiscovered = true, onClick = { onItemClicked(index) })
+            PlantCard(plantName = "능소화", isDiscovered = true, onClick = { onItemClicked(index.toLong()) })
         }
     }
 }

@@ -1,4 +1,4 @@
-package com.ssafy.ui.screen
+package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
@@ -24,10 +24,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableIntStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,6 +32,8 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ssafy.ui.component.ErrorScreen
+import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
 import com.ssafy.ui.theme.LightBackgroundColor
@@ -43,27 +42,59 @@ import com.ssafy.ui.theme.StarYellowColor
 import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
-fun EncycScreen(onItemClicked: (Int) -> Unit = {}, onPop: () -> Unit = {}) {
+fun EncycScreenContent(
+    modifier: Modifier = Modifier,
+    encycScreenState: EncycScreenState,
+    onIntent: (EncycScreenUserIntent) -> Unit = {}
+) {
     Scaffold(
         topBar = {
-            TopBar("도감", PrimaryColor, onPop)
+            TopBar("도감", PrimaryColor, onPop = { onIntent(EncycScreenUserIntent.OnPop) })
         },
         content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-            ) {
-                FilterChips()
-                EncycGrid(
-                    items = List(8) { "능소화" },
-                    modifier = Modifier.weight(1f),
-                    onItemClicked = onItemClicked
-                )
-                CollectionProgress(progress = 60.0f)
+            when (encycScreenState) {
+                is EncycScreenState.Loading -> {
+                    LoadingScreen(modifier = modifier.padding(paddingValues))
+                }
+
+                is EncycScreenState.Loaded -> {
+                    EncycScreenLoaded(
+                        modifier = modifier.padding(paddingValues),
+                        state = encycScreenState,
+                        onIntent = onIntent
+                    )
+                }
+
+                is EncycScreenState.Error -> {
+                    ErrorScreen(modifier = modifier.padding(paddingValues), encycScreenState.message)
+                }
             }
         }
     )
+}
+
+@Composable
+fun EncycScreenLoaded(
+    modifier: Modifier,
+    state: EncycScreenState.Loaded,
+    onIntent: (EncycScreenUserIntent) -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        FilterChips(
+            selectedChipIndex = state.selectedChipIndex,
+            onChipSelected = { index ->
+                onIntent(EncycScreenUserIntent.OnChipSelected(index))
+            })
+        EncycGrid(
+            items = state.items,
+            modifier = Modifier.weight(1f),
+            onItemClicked = { onIntent(EncycScreenUserIntent.OnItemSelect(it)) }
+        )
+        CollectionProgress(progress = state.progress)
+    }
 }
 
 @Composable
@@ -94,9 +125,10 @@ fun FilterChipComponent(text: String, isSelected: Boolean, onClick: () -> Unit) 
 }
 
 @Composable
-fun FilterChips() {
-    var selectedChipIndex by remember { mutableIntStateOf(0) }
-
+fun FilterChips(
+    selectedChipIndex: Int,
+    onChipSelected: (Int) -> Unit
+) {
     val chipLabels = listOf("전체", "수집완료", "미발견")
 
     Row(
@@ -111,16 +143,26 @@ fun FilterChips() {
                 text = label,
                 isSelected = index == selectedChipIndex,
                 onClick = {
-                    selectedChipIndex = index
+                    onChipSelected(index)
                 }
             )
         }
     }
 }
 
+@Immutable
+data class EncycGridState(
+    val plantName: String,
+    val plantImage: String?,
+    val isDiscovered: Boolean
+)
 
 @Composable
-fun EncycGrid(items: List<String>, modifier: Modifier = Modifier, onItemClicked: (Int) -> Unit) {
+fun EncycGrid(
+    items: List<EncycGridState>,
+    modifier: Modifier = Modifier,
+    onItemClicked: (Long) -> Unit
+) {
     LazyVerticalGrid(
         columns = GridCells.Fixed(2),
         contentPadding = PaddingValues(4.dp),
@@ -131,9 +173,9 @@ fun EncycGrid(items: List<String>, modifier: Modifier = Modifier, onItemClicked:
     ) {
         itemsIndexed(items) { index, item ->
             PlantCard(
-                plantName = item,
-                isDiscovered = index % 2 == 0,
-                onClick = { onItemClicked(index) }
+                plantName = item.plantName,
+                isDiscovered = item.isDiscovered,
+                onClick = { onItemClicked(index.toLong()) }
             )
         }
     }
@@ -185,7 +227,19 @@ fun CollectionProgress(progress: Float) {
 @Preview(showBackground = true)
 @Composable
 fun EncycScreenPreview() {
-    EncycScreen()
+    EncycScreenContent(
+        encycScreenState = EncycScreenState.Loaded(
+            selectedChipIndex = 0,
+            items = List(8) { index ->
+                EncycGridState(
+                    plantName = "식물 $index",
+                    plantImage = null,
+                    isDiscovered = index % 2 == 0
+                )
+            },
+            progress = 60.0f
+        )
+    )
 }
 
 @Preview(showBackground = true)

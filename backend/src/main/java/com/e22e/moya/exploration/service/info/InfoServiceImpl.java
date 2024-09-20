@@ -5,21 +5,23 @@ import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
-import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.dto.info.ParkSpeciesDto;
 import com.e22e.moya.exploration.dto.info.PositionDto;
 import com.e22e.moya.exploration.dto.info.SpeciesDto;
-import com.e22e.moya.common.repository.ExplorationRepository;
-import com.e22e.moya.common.repository.ParkRepository;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
 import com.e22e.moya.exploration.service.quest.QuestService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.geolatte.geom.*;
 import org.springframework.stereotype.Service;
@@ -37,12 +39,12 @@ import org.springframework.transaction.annotation.Transactional;
  */
 public class InfoServiceImpl implements InfoService {
 
-    private final ParkRepository parkRepository;
+    private final ParkRepositoryExploration parkRepository;
     private final QuestService questService;
-    private final ExplorationRepository explorationRepository;
+    private final ExplorationRepositoryExploration explorationRepository;
 
-    public InfoServiceImpl(ParkRepository parkRepository, QuestService questService,
-        ExplorationRepository explorationRepository) {
+    public InfoServiceImpl(ParkRepositoryExploration parkRepository, QuestService questService,
+        ExplorationRepositoryExploration explorationRepository) {
         this.parkRepository = parkRepository;
         this.questService = questService;
         this.explorationRepository = explorationRepository;
@@ -55,8 +57,8 @@ public class InfoServiceImpl implements InfoService {
      * @param userId 사용자 id
      */
     @Transactional(isolation = Isolation.READ_COMMITTED)
-    public ExplorationStartDto getInitInfo(Long parkId, Long userId) {
-        ExplorationStartDto explorationStartDto = new ExplorationStartDto();
+    public ExplorationInfoDto getInitInfo(Long parkId, Long userId) {
+        ExplorationInfoDto explorationStartDto = new ExplorationInfoDto();
         Park park = parkRepository.findById(parkId)
             .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
 
@@ -68,7 +70,12 @@ public class InfoServiceImpl implements InfoService {
         // 공원에서 발견할 수 있는 것들 군집
         List<ParkSpeciesDto> allParkSpecies = parkRepository.findAllSpecies(
             parkId);
-        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(allParkSpecies);
+
+        // 내가 발견한 것 위치는 제외하도록
+        List<ParkSpeciesDto> filteredParkSpecies = filterDiscoveredSpecies(allParkSpecies,
+            myDiscoveredSpecies);
+
+        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(filteredParkSpecies);
         List<NpcDto> npcDtos = getNpcsInPark(park);
 
         explorationStartDto.setMyDiscoveredSpecies(mySpeciesDto);
@@ -88,6 +95,48 @@ public class InfoServiceImpl implements InfoService {
         return explorationStartDto;
     }
 
+    /**
+     * 탐험 정보 로드 메서드
+     *
+     * @param explorationId 탐험 id
+     * @param userId
+     */
+    @Transactional(readOnly = true)
+    public ExplorationInfoDto getInfo(Long explorationId, long userId) {
+
+        return null;
+    }
+
+    /**
+     * 내가 발견한 종의 위치와 내가 발견한 종의 모든 위치가 겹치지 않도록
+     */
+    private List<ParkSpeciesDto> filterDiscoveredSpecies(List<ParkSpeciesDto> allSpecies,
+        List<ParkSpeciesDto> discoveredSpecies) {
+        List<ParkSpeciesDto> filteredSpecies = new ArrayList<>();
+        Map<Point<G2D>, Set<Long>> speciesAtPos = new HashMap<>();
+
+        // 발견된 종의 위치와 종 id를 map에 추가
+        for (ParkSpeciesDto discovered : discoveredSpecies) {
+            Point<G2D> position = discovered.getPosition();
+            Long speciesId = discovered.getSpeciesId();
+            if (!speciesAtPos.containsKey(position)) {
+                speciesAtPos.put(position, new HashSet<>());
+            }
+            speciesAtPos.get(position).add(speciesId);
+        }
+
+        // allSpecies에서 필터링
+        for (ParkSpeciesDto species : allSpecies) {
+            Point<G2D> position = species.getPosition();
+            Long speciesId = species.getSpeciesId();
+            if (!speciesAtPos.containsKey(position) ||
+                !speciesAtPos.get(position).contains(speciesId)) {
+                filteredSpecies.add(species);
+            }
+        }
+
+        return filteredSpecies;
+    }
 
     /**
      * 공원에 있는 npc 가져오는 메서드
