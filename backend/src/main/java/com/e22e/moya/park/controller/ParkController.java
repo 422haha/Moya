@@ -23,7 +23,8 @@ public class ParkController {
 
     /**
      * 홈 화면에서 가장 가까운 공원 정보를 반환
-     * @param latitude 위도
+     *
+     * @param latitude  위도
      * @param longitude 경도
      * @return 가장 가까운 공원 정보
      */
@@ -47,7 +48,7 @@ public class ParkController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            response.put("message", "서버 내부 오류가 발생했습니다");
+            response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
             response.put("data", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -55,9 +56,10 @@ public class ParkController {
 
     /**
      * 공원 목록을 페이지네이션하여 반환
-     * @param page 요청 페이지 번호
-     * @param size 페이지 크기
-     * @param latitude 위도
+     *
+     * @param page      요청 페이지 번호
+     * @param size      페이지 크기
+     * @param latitude  위도
      * @param longitude 경도
      * @return 공원 목록과 상태 코드
      */
@@ -76,14 +78,15 @@ public class ParkController {
             long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             // 공원 목록 조회
-            ParkListResponseDto parks = parkService.getParks(userId, latitude, longitude, page, size);
+            ParkListResponseDto parks = parkService.getParks(userId, latitude, longitude, page,
+                size);
 
             response.put("message", "공원 목록 조회 성공");
             response.put("data", parks);
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            response.put("message", "서버 내부 오류가 발생했습니다");
+            response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
             response.put("data", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
@@ -91,6 +94,7 @@ public class ParkController {
 
     /**
      * 특정 공원의 상세 정보를 반환
+     *
      * @param parkId 조회하려는 공원의 ID
      * @return 공원의 상세 정보와 상태 코드
      */
@@ -113,7 +117,7 @@ public class ParkController {
             return ResponseEntity.ok(response);
 
         } catch (Exception e) {
-            response.put("message", "서버 내부 오류가 발생했습니다");
+            response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
             response.put("data", null);
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
