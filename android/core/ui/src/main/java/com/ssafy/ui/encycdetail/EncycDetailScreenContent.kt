@@ -56,7 +56,7 @@ data class EncycDetail(
 @Composable
 fun EncycDetailScreenContent(
     modifier: Modifier = Modifier,
-    encycDetailState: EncycDetailState,
+    encycDetailState: EncycDetailScreenState,
     onIntent: (EncycDetailUserIntent) -> Unit = {}
 ) {
 
@@ -70,17 +70,19 @@ fun EncycDetailScreenContent(
             TopBar(text = "능소화", PrimaryColor, onPop = { onIntent(EncycDetailUserIntent.OnPop) })
         },
         floatingActionButton = {
-            if (encycDetailState is EncycDetailState.Loaded) {
-                TTSButton(encycDetailState.data.description, onTTSClicked = { onIntent(EncycDetailUserIntent.OnTTSClicked) })
+            if (encycDetailState is EncycDetailScreenState.Loaded) {
+                TTSButton(
+                    encycDetailState.data.description,
+                    onTTSClicked = { onIntent(EncycDetailUserIntent.OnTTSClicked(encycDetailState.data.description)) })
             }
         },
         content = { paddingValues ->
             when (encycDetailState) {
-                is EncycDetailState.Loading -> {
+                is EncycDetailScreenState.Loading -> {
                     LoadingScreen(modifier = modifier.padding(paddingValues))
                 }
 
-                is EncycDetailState.Loaded -> {
+                is EncycDetailScreenState.Loaded -> {
                     EncycDetailScreenLoaded(
                         modifier = modifier.padding(paddingValues),
                         state = encycDetailState,
@@ -88,7 +90,7 @@ fun EncycDetailScreenContent(
                     )
                 }
 
-                is EncycDetailState.Error -> {
+                is EncycDetailScreenState.Error -> {
                     ErrorScreen(
                         modifier = modifier.padding(paddingValues),
                         encycDetailState.message
@@ -97,7 +99,9 @@ fun EncycDetailScreenContent(
             }
         },
         bottomBar = {
-            FindButton("찾으러 가기", {})
+            FindButton(
+                "찾으러 가기",
+                onClick = { onIntent(EncycDetailUserIntent.OnExploreButtonClicked) })
         }
     )
 }
@@ -105,7 +109,7 @@ fun EncycDetailScreenContent(
 @Composable
 fun EncycDetailScreenLoaded(
     modifier: Modifier,
-    state: EncycDetailState.Loaded,
+    state: EncycDetailScreenState.Loaded,
     onIntent: (EncycDetailUserIntent) -> Unit = {}
 ) {
     Column(
@@ -276,7 +280,7 @@ fun TTSButton(textToRead: String, onTTSClicked: (String) -> Unit) {
 @Composable
 fun EncycDetailScreenPreview() {
     EncycDetailScreenContent(
-        encycDetailState = EncycDetailState.Loaded(
+        encycDetailState = EncycDetailScreenState.Loaded(
             EncycDetail(
                 plantName = "능소화",
                 plantImage = null,
