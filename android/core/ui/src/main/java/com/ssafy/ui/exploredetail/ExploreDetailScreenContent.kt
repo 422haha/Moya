@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,37 +26,91 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
+import com.ssafy.ui.component.ErrorScreen
+import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.encyclopedia.EncycGridState
+import com.ssafy.ui.formatDate
 import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
+import java.util.Date
+
+@Immutable
+data class ExploreDetail(
+    val distance: Float,
+    val runningTime: Long,
+    val stepCount: Long,
+    val registerCount: Long,
+    val date: Date
+)
 
 @Composable
-fun ExploreDetailScreen(onItemClicked: (Long) -> Unit = {}, onPop: () -> Unit = {}) {
+fun ExploreDetailScreenContent(
+    modifier: Modifier = Modifier,
+    exploreDetailScreenState: ExploreDetailScreenState,
+    onIntent: (ExploreDetailUserIntent) -> Unit = {}
+) {
     Scaffold(
-        topBar = { TopBar(text = "동락공원", SecondaryColor, onPop) },
+        topBar = {
+            TopBar(
+                text = "동락공원",
+                SecondaryColor,
+                onPop = { onIntent(ExploreDetailUserIntent.OnPop) })
+        },
         content = { paddingValue ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValue)
-                    .background(SecondarySurfaceColor)
-            ) {
-                Image(
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "지도(내가 걸어온 길이랑 마커 표시)",
-                    modifier = Modifier
-                        .fillMaxWidth(),
-                    contentScale = ContentScale.Crop
-                )
-                ExploreInfo()
-                HorizontalEncyc(onItemClicked)
+            when (exploreDetailScreenState) {
+                is ExploreDetailScreenState.Loading -> {
+                    LoadingScreen(modifier = modifier.padding(paddingValue))
+                }
+
+                is ExploreDetailScreenState.Loaded -> {
+                    ExploreDetailScreenLoaded(
+                        modifier = modifier.padding(paddingValue),
+                        state = exploreDetailScreenState,
+                        onIntent = onIntent
+                    )
+                }
+
+                is ExploreDetailScreenState.Error -> {
+                    ErrorScreen(
+                        modifier = modifier.padding(paddingValue),
+                        exploreDetailScreenState.message
+                    )
+                }
             }
+
         }
     )
 }
 
 @Composable
-fun ExploreInfo() {
+fun ExploreDetailScreenLoaded(
+    modifier: Modifier = Modifier,
+    state: ExploreDetailScreenState.Loaded,
+    onIntent: (ExploreDetailUserIntent) -> Unit
+) {
+    Column(
+        modifier = modifier
+            .background(SecondarySurfaceColor)
+    ) {
+        Image(
+            //TODO 여긴 지도 이미지
+            painter = painterResource(id = R.drawable.ic_launcher_background),
+            contentDescription = "지도(내가 걸어온 길이랑 마커 표시)",
+            modifier = Modifier
+                .fillMaxWidth(),
+            contentScale = ContentScale.Crop
+        )
+        ExploreInfo(state)
+        HorizontalEncyc(onItemClicked = { id ->
+            onIntent(ExploreDetailUserIntent.OnEncycItemClicked(id))
+        }, state)
+    }
+}
+
+@Composable
+fun ExploreInfo(state: ExploreDetailScreenState.Loaded) {
     Box(
         modifier = Modifier
             .background(SecondarySurfaceColor)
@@ -79,7 +134,8 @@ fun ExploreInfo() {
                     tint = SecondaryColor
                 )
                 Text(
-                    text = "2024.09.02", fontSize = 24.sp,
+                    text = formatDate(state.exploreDetail.date),
+                    fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = SecondaryColor,
                     modifier = Modifier.padding(horizontal = 8.dp)
@@ -91,8 +147,12 @@ fun ExploreInfo() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                TextBox(modifier = Modifier.weight(1f))
-                TextBox(modifier = Modifier.weight(1f))
+                TextBox(modifier = Modifier.weight(1f), "이동거리", "${state.exploreDetail.distance}km")
+                TextBox(
+                    modifier = Modifier.weight(1f),
+                    "소요시간",
+                    "${state.exploreDetail.runningTime}분"
+                )
             }
 
             Row(
@@ -100,8 +160,16 @@ fun ExploreInfo() {
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween
             ) {
-                TextBox(modifier = Modifier.weight(1f))
-                TextBox(modifier = Modifier.weight(1f))
+                TextBox(
+                    modifier = Modifier.weight(1f),
+                    "걸음 수",
+                    "${state.exploreDetail.stepCount}걸음"
+                )
+                TextBox(
+                    modifier = Modifier.weight(1f),
+                    "도감 등록 수",
+                    "${state.exploreDetail.registerCount}종"
+                )
             }
 
             Text(
@@ -115,20 +183,23 @@ fun ExploreInfo() {
 }
 
 @Composable
-fun TextBox(modifier: Modifier = Modifier) {
+fun TextBox(modifier: Modifier = Modifier, titleText: String, contentText: String) {
     Column(
         horizontalAlignment = Alignment.Start,
         modifier = modifier
             .padding(horizontal = 8.dp)
             .padding(vertical = 4.dp)
     ) {
-        Text(text = "이동 거리", fontSize = 24.sp, fontWeight = FontWeight.Bold)
-        Text(text = "3km", fontSize = 16.sp, color = Color.Gray)
+        Text(text = titleText, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(text = contentText, fontSize = 16.sp, color = Color.Gray)
     }
 }
 
 @Composable
-fun HorizontalEncyc(onItemClicked: (Long) -> Unit) {
+fun HorizontalEncyc(
+    onItemClicked: (Long) -> Unit,
+    state: ExploreDetailScreenState.Loaded
+) {
     LazyHorizontalGrid(
         rows = GridCells.Fixed(1),
         modifier = Modifier
@@ -136,7 +207,10 @@ fun HorizontalEncyc(onItemClicked: (Long) -> Unit) {
             .background(SecondarySurfaceColor)
     ) {
         items(8) { index ->
-            PlantCard(plantName = "능소화", isDiscovered = true, onClick = { onItemClicked(index.toLong()) })
+            PlantCard(
+                plantName = state.items[index].plantName,
+                isDiscovered = state.items[index].isDiscovered,
+                onClick = { onItemClicked(index.toLong()) })
         }
     }
 }
@@ -144,5 +218,22 @@ fun HorizontalEncyc(onItemClicked: (Long) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun ExploreScreenPreview() {
-    ExploreDetailScreen()
+    ExploreDetailScreenContent(
+        exploreDetailScreenState = ExploreDetailScreenState.Loaded(
+            exploreDetail = ExploreDetail(
+                distance = 3.0f,
+                runningTime = 20,
+                stepCount = 100,
+                registerCount = 8,
+                date = Date()
+            ),
+            items = List(8) { index ->
+                EncycGridState(
+                    plantName = "식물 $index",
+                    plantImage = null,
+                    isDiscovered = true
+                )
+            }
+        )
+    )
 }
