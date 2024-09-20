@@ -32,13 +32,20 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
+import com.ssafy.ui.explorestart.ExploreStartScreenState
+import com.ssafy.ui.explorestart.Missions
 import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
+import com.ssafy.ui.theme.StarOutlineColor
+import com.ssafy.ui.theme.StarYellowColor
 import com.ssafy.ui.theme.customTypography
 
 @Composable
-fun ChallengeDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
-
+fun ChallengeDialog(
+    onConfirm: () -> Unit = {},
+    onDismiss: () -> Unit = {},
+    state: ExploreStartScreenState.ShowChallengeDialog
+) {
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
@@ -76,25 +83,28 @@ fun ChallengeDialog(onConfirm: () -> Unit = {}, onDismiss: () -> Unit = {}) {
             Spacer(modifier = Modifier.height(16.dp))
 
             ChallengeItem(
-                text = "솔방울 선물하기",
-                onConfirm = onConfirm
+                text = state.missions[0].missionTitle,
+                onConfirm = onConfirm,
+                isSuccess = state.missions[0].isSuccess
             )
             Spacer(modifier = Modifier.height(12.dp))
             ChallengeItem(
-                text = "은행잎 선물하기",
-                onConfirm = onConfirm
+                text = state.missions[1].missionTitle,
+                onConfirm = onConfirm,
+                isSuccess = state.missions[1].isSuccess
             )
             Spacer(modifier = Modifier.height(12.dp))
             ChallengeItem(
-                text = "단풍잎 선물하기",
-                onConfirm = onConfirm
+                text = state.missions[2].missionTitle,
+                onConfirm = onConfirm,
+                isSuccess = state.missions[2].isSuccess
             )
         }
     }
 }
 
 @Composable
-fun ChallengeItem(text: String, onConfirm: () -> Unit) {
+fun ChallengeItem(text: String, onConfirm: () -> Unit, isSuccess: Boolean) {
     Box(
         modifier = Modifier
             .clickable { onConfirm() }
@@ -111,9 +121,12 @@ fun ChallengeItem(text: String, onConfirm: () -> Unit) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
                     //TODO 이거 성공했으면 star가 보이도록
-                    painter = painterResource(id = R.drawable.baseline_star_border_24),
+                    painter = if (isSuccess) painterResource(id = R.drawable.baseline_star_24) else
+                        painterResource(id = R.drawable.baseline_star_border_24),
                     contentDescription = "별 모양",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier
+                        .size(24.dp),
+                    tint = if (isSuccess) StarYellowColor else StarOutlineColor
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = text, color = SecondaryColor, fontSize = 16.sp)
@@ -134,6 +147,16 @@ fun ChallengeItem(text: String, onConfirm: () -> Unit) {
 fun ChallengeDialogPreview() {
     val showDialog = remember { mutableStateOf(true) }
     if (showDialog.value) {
-        ChallengeDialog(onDismiss = { showDialog.value = false })
+        ChallengeDialog(
+            onDismiss = { showDialog.value = false },
+            state = ExploreStartScreenState.ShowChallengeDialog(
+                isVisible = true,
+                missions = listOf(
+                    Missions("솔방울 선물하기", true),
+                    Missions("은행잎 선물하기", false),
+                    Missions("단풍잎 5개 모으기", false)
+                )
+            )
+        )
     }
 }
