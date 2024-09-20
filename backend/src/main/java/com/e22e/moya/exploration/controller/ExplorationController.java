@@ -5,7 +5,7 @@ import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
-import com.e22e.moya.exploration.dto.info.ExplorationStartDto;
+import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
 import com.e22e.moya.exploration.service.exploration.ExplorationService;
@@ -66,7 +66,7 @@ public class ExplorationController {
             long userId = 1;
 
             // 탐험 시작시 필요한 정보 조회
-            ExplorationStartDto explorationStartDto = infoService.getInitInfo(parkId,
+            ExplorationInfoDto explorationStartDto = infoService.getInitInfo(parkId,
                 userId);
 
             log.info("탐험에 필요한 정보 불러오기 성공 : {}", parkId);
@@ -95,6 +95,40 @@ public class ExplorationController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+//    @GetMapping("{parkId}/load/{explorationId}")
+//    public ResponseEntity<Map<String, Object>> loadExploration(
+//        @RequestParam Long explorationId) {
+//        Map<String, Object> response = new HashMap<>();
+//        try {
+//
+//            long userId = 1;
+//
+//            // 탐험 시작시 필요한 정보 조회
+//            ExplorationInfoDto explorationInfoDto = infoService.getInfo(explorationId, userId);
+//
+//            log.info("탐험에 필요한 정보 불러오기 성공 : {}", explorationId);
+//
+//            response.put("message", "탐험 정보 로드");
+//            response.put("data", explorationInfoDto);
+//            return ResponseEntity.status(HttpStatus.OK).body(response);
+//
+//        } catch (JwtException e) {
+//            log.error("리프레시 토큰 재발급 불가 : {}", e.getMessage());
+//            response.put("message", "리프레시 토큰 재발급 불가");
+//            response.put("data", new Object[]{});
+//            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+//
+//        } catch (EntityNotFoundException e) {
+//            log.error("공원을 찾을 수 없습니다. : {}", e.getMessage());
+//            response.put("message", "공원을 찾을 수 없습니다");
+//            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+//        } catch (Exception e) {
+//            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
+//            response.put("message", "탐험에 필요한 정보 불러올 수 없습니다.");
+//            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+//        }
+//    }
 
     //탐험 중 촬영한 사진 도감에 등록 컨트롤러
     @PostMapping("/{explorationId}/camera")
