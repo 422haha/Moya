@@ -1,4 +1,4 @@
-package com.ssafy.ui.screen
+package com.ssafy.ui.exploredetail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
