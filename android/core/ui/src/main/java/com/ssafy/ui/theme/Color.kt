@@ -22,3 +22,5 @@ val SecondarySurfaceColor = Color(0xFFFFF1D6)
 val StarYellowColor = Color(0xFFFFBC10)
 val StarOutlineColor = Color(0xFFFFCF27)
 val DarkGrayColor = Color(0xFF5F5F5F)
+
+val NaverColor = Color(0xFF03C75A)
