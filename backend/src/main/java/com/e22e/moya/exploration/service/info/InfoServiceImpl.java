@@ -18,8 +18,10 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import lombok.extern.slf4j.Slf4j;
 import org.geolatte.geom.*;
 import org.springframework.stereotype.Service;
@@ -68,7 +70,12 @@ public class InfoServiceImpl implements InfoService {
         // 공원에서 발견할 수 있는 것들 군집
         List<ParkSpeciesDto> allParkSpecies = parkRepository.findAllSpecies(
             parkId);
-        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(allParkSpecies);
+
+        // 내가 발견한 것 위치는 제외하도록
+        List<ParkSpeciesDto> filteredParkSpecies = filterDiscoveredSpecies(allParkSpecies,
+            myDiscoveredSpecies);
+
+        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(filteredParkSpecies);
         List<NpcDto> npcDtos = getNpcsInPark(park);
 
         explorationStartDto.setMyDiscoveredSpecies(mySpeciesDto);
@@ -88,6 +95,38 @@ public class InfoServiceImpl implements InfoService {
         return explorationStartDto;
     }
 
+    /**
+     * 내가 발견한 종의 위치와 내가 발견한 종의 모든 위치가 겹치지 않도록
+     *
+     *
+     */
+    private List<ParkSpeciesDto> filterDiscoveredSpecies(List<ParkSpeciesDto> allSpecies,
+        List<ParkSpeciesDto> discoveredSpecies) {
+        List<ParkSpeciesDto> filteredSpecies = new ArrayList<>();
+        Map<Point<G2D>, Set<Long>> speciesAtPos = new HashMap<>();
+
+        // 발견된 종의 위치와 종 id를 map에 추가
+        for (ParkSpeciesDto discovered : discoveredSpecies) {
+            Point<G2D> position = discovered.getPosition();
+            Long speciesId = discovered.getSpeciesId();
+            if (!speciesAtPos.containsKey(position)) {
+                speciesAtPos.put(position, new HashSet<>());
+            }
+            speciesAtPos.get(position).add(speciesId);
+        }
+
+        // allSpecies에서 필터링
+        for (ParkSpeciesDto species : allSpecies) {
+            Point<G2D> position = species.getPosition();
+            Long speciesId = species.getSpeciesId();
+            if (!speciesAtPos.containsKey(position) ||
+                !speciesAtPos.get(position).contains(speciesId)) {
+                filteredSpecies.add(species);
+            }
+        }
+
+        return filteredSpecies;
+    }
 
     /**
      * 공원에 있는 npc 가져오는 메서드
