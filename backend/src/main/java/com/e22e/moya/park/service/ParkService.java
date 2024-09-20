@@ -8,8 +8,7 @@ public interface ParkService {
 
     ParkResponseDto getNearestPark(Long userId, double latitude, double longitude);
 
-    ParkListResponseDto getParks(Long userId, double latitude, double longitude, int page,
-        int size);
+    ParkListResponseDto getParks(Long userId, double latitude, double longitude, int page, int size);
 
     ParkDetailResponseDto getParkDetail(Long parkId);
 }
