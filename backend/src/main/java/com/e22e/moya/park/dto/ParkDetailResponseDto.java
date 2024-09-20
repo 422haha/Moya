@@ -14,7 +14,8 @@ public class ParkDetailResponseDto {
     private String imageUrl;
     private List<SpeciesDto> species;
 
-    public ParkDetailResponseDto(Long parkId, String name, String description, String imageUrl, List<SpeciesDto> species) {
+    public ParkDetailResponseDto(Long parkId, String name, String description, String imageUrl,
+        List<SpeciesDto> species) {
         this.parkId = parkId;
         this.name = name;
         this.description = description;
