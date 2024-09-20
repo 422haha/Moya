@@ -22,12 +22,11 @@ public class ParkController {
     private final JwtUtil jwtUtil;
 
     /**
-     * 홈 - 제일 가까운 공원 정보 반환
-     *
-     * @param token     사용자의 JWT 토큰
-     * @param latitude  위도
+     * 홈 화면에서 가장 가까운 공원 정보를 반환
+     * @param token 사용자의 JWT 토큰
+     * @param latitude 위도
      * @param longitude 경도
-     * @return 제일 가까운 공원의 정보와 상태 코드
+     * @return 가장 가까운 공원 정보
      */
     @GetMapping("/home")
     public ResponseEntity<Map<String, Object>> getNearestPark(
@@ -38,7 +37,6 @@ public class ParkController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // JWT 토큰에서 사용자 ID 추출
             Long userId = jwtUtil.getUserIdFromToken(token);
 
             // 제일 가까운 공원 조회
@@ -57,11 +55,10 @@ public class ParkController {
 
     /**
      * 공원 목록을 페이지네이션하여 반환
-     *
-     * @param token     사용자의 JWT 토큰
-     * @param page      요청 페이지 번호
-     * @param size      페이지 크기
-     * @param latitude  위도
+     * @param token 사용자의 JWT 토큰
+     * @param page 요청 페이지 번호
+     * @param size 페이지 크기
+     * @param latitude 위도
      * @param longitude 경도
      * @return 공원 목록과 상태 코드
      */
@@ -76,12 +73,10 @@ public class ParkController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // JWT 토큰에서 사용자 ID 추출
             Long userId = jwtUtil.getUserIdFromToken(token);
 
             // 공원 목록 조회
-            ParkListResponseDto parks = parkService.getParks(userId, latitude, longitude, page,
-                size);
+            ParkListResponseDto parks = parkService.getParks(userId, latitude, longitude, page, size);
 
             response.put("message", "공원 목록 조회 성공");
             response.put("data", parks);
@@ -95,9 +90,8 @@ public class ParkController {
     }
 
     /**
-     * 특정 공원의 상세 정보 반환
-     *
-     * @param token  사용자의 JWT 토큰
+     * 특정 공원의 상세 정보를 반환
+     * @param token 사용자의 JWT 토큰
      * @param parkId 조회하려는 공원의 ID
      * @return 공원의 상세 정보와 상태 코드
      */
@@ -109,7 +103,6 @@ public class ParkController {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // JWT 토큰에서 사용자 ID 추출
             Long userId = jwtUtil.getUserIdFromToken(token);
 
             // 공원 상세 정보 조회
