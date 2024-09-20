@@ -5,15 +5,15 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.ssafy.main.encycdetail.EncycDetailScreen
 import com.ssafy.main.encyclopedia.EncycScreen
+import com.ssafy.main.exploredetail.ExploreDetailScreen
 import com.ssafy.main.explorelist.ExploreListScreen
+import com.ssafy.main.explorestart.ExploreStartScreen
 import com.ssafy.main.home.HomeScreen
+import com.ssafy.main.login.LoginScreen
 import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
-import com.ssafy.ui.screen.EncycDetailScreen
-import com.ssafy.ui.screen.ExploreDetailScreen
-import com.ssafy.ui.screen.ExploreStartScreen
-import com.ssafy.ui.screen.LoginScreen
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -48,7 +48,7 @@ fun MainNavigation(
             })
         }
         composable<ExploreDetail> {
-            ExploreDetailScreen(onItemClicked = { itemId ->
+            ExploreDetailScreen(onEncycItemClicked = { itemId ->
                 navController.navigate(EncycDetail(itemId))
             }, onPop = {
                 navController.popBackStack()
@@ -92,7 +92,11 @@ fun MainNavigation(
             })
         }
         composable<Login> {
-            LoginScreen()
+            LoginScreen(
+                onNavigateToHome = {
+                    navController.navigate(Home)
+                }
+            )
         }
         composable<UserProfileEdit> {
             UserProfileEditScreen()

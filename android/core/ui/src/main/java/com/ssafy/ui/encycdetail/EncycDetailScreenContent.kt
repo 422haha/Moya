@@ -1,4 +1,4 @@
-package com.ssafy.ui.screen
+package com.ssafy.ui.encycdetail
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -22,6 +22,7 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -37,56 +38,94 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ssafy.ui.R
+import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
+import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.TopBar
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.jua
 
+@Immutable
+data class EncycDetail(
+    val plantName: String,
+    val plantImage: String?,
+    val description: String
+)
+
 @Composable
-fun EncycDetailScreen(
-    onPop: () -> Unit = {},
-    onTTSClicked: (String) -> Unit = {},
-    onTTSShutDown: () -> Unit = {}
+fun EncycDetailScreenContent(
+    modifier: Modifier = Modifier,
+    encycDetailState: EncycDetailScreenState,
+    onIntent: (EncycDetailUserIntent) -> Unit = {}
 ) {
 
     DisposableEffect(Unit) {
         onDispose {
-            onTTSShutDown()
+            onIntent(EncycDetailUserIntent.OnTTSShutDown)
         }
     }
-
-    val fullText =
-        "능소화는 중국이 원산인 덩굴나무로 다른 물체에 붙어 올라가 10m까지도 자란다. 추위에 약하여 우리나라에서는 남부지방에서 주로 심어 기르고 있다. 능소화(凌霄花)는 ‘하늘을 능가하는 꽃’이란 뜻이다. 오래 전에 중국에서 들여온 식물로 우리나라에서는 양반들이 이 나무를 아주 좋아해서 ‘양반꽃’이라고도 했으며, 평민들은 이 나무를 함부로 심지 못하게 했다고 한다. 지금은 남부지방을 중심으로 사찰 담장이나 가정집 정원에서 많이 볼 수 있는 관상수가 되었다."
-
     Scaffold(
         topBar = {
-            TopBar(text = "능소화", PrimaryColor, onPop)
+            TopBar(text = "능소화", PrimaryColor, onPop = { onIntent(EncycDetailUserIntent.OnPop) })
         },
         floatingActionButton = {
-            TTSButton(fullText, onTTSClicked = onTTSClicked)
+            if (encycDetailState is EncycDetailScreenState.Loaded) {
+                TTSButton(
+                    encycDetailState.data.description,
+                    onTTSClicked = { onIntent(EncycDetailUserIntent.OnTTSClicked(encycDetailState.data.description)) })
+            }
         },
         content = { paddingValues ->
-            Column(
-                modifier = Modifier
-                    .padding(paddingValues)
-                    .fillMaxSize()
-            ) {
-                Box {
-                    ImageSection()
-                    ButtonSection(modifier = Modifier.align(Alignment.BottomCenter))
+            when (encycDetailState) {
+                is EncycDetailScreenState.Loading -> {
+                    LoadingScreen(modifier = modifier.padding(paddingValues))
                 }
-                Spacer(modifier = Modifier.height(16.dp))
 
-                TitleAndDividerSection("소개")
-                DescriptionSection(fullText)
-                Spacer(modifier = Modifier.height(16.dp))
+                is EncycDetailScreenState.Loaded -> {
+                    EncycDetailScreenLoaded(
+                        modifier = modifier.padding(paddingValues),
+                        state = encycDetailState,
+                        onIntent = onIntent
+                    )
+                }
+
+                is EncycDetailScreenState.Error -> {
+                    ErrorScreen(
+                        modifier = modifier.padding(paddingValues),
+                        encycDetailState.message
+                    )
+                }
             }
         },
         bottomBar = {
-            FindButton("찾으러 가기", {})
+            FindButton(
+                "찾으러 가기",
+                onClick = { onIntent(EncycDetailUserIntent.OnExploreButtonClicked) })
         }
     )
+}
+
+@Composable
+fun EncycDetailScreenLoaded(
+    modifier: Modifier,
+    state: EncycDetailScreenState.Loaded,
+    onIntent: (EncycDetailUserIntent) -> Unit = {}
+) {
+    Column(
+        modifier = modifier
+            .fillMaxSize()
+    ) {
+        Box {
+            ImageSection()
+            ButtonSection(modifier = Modifier.align(Alignment.BottomCenter), onIntent)
+        }
+        Spacer(modifier = Modifier.height(16.dp))
+
+        TitleAndDividerSection("소개")
+        DescriptionSection(state.data.description)
+        Spacer(modifier = Modifier.height(16.dp))
+    }
 }
 
 @Composable
@@ -117,12 +156,16 @@ fun ImageSection() {
 }
 
 @Composable
-fun ButtonSection(modifier: Modifier = Modifier) {
+fun ButtonSection(
+    modifier: Modifier = Modifier,
+    onIntent: (EncycDetailUserIntent) -> Unit = {}
+) {
     Surface(
         modifier = modifier
             .height(60.dp)
             .padding(8.dp)
-            .padding(bottom = 16.dp),
+            .padding(bottom = 16.dp)
+            .clickable { onIntent(EncycDetailUserIntent.OnImageButtonClicked) },
         shape = RoundedCornerShape(50),
         color = PrimaryColor,
     ) {
@@ -130,7 +173,7 @@ fun ButtonSection(modifier: Modifier = Modifier) {
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier = Modifier
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 16.dp),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
@@ -215,7 +258,6 @@ fun DescriptionSection(fullText: String) {
 fun TTSButton(textToRead: String, onTTSClicked: (String) -> Unit) {
     Box(
         modifier = Modifier
-            .fillMaxWidth()
             .padding(horizontal = 16.dp)
     ) {
         IconButton(
@@ -237,7 +279,15 @@ fun TTSButton(textToRead: String, onTTSClicked: (String) -> Unit) {
 @Preview(showBackground = true)
 @Composable
 fun EncycDetailScreenPreview() {
-    EncycDetailScreen()
+    EncycDetailScreenContent(
+        encycDetailState = EncycDetailScreenState.Loaded(
+            EncycDetail(
+                plantName = "능소화",
+                plantImage = null,
+                description = "\"능소화는 중국이 원산인 덩굴나무로 다른 물체에 붙어 올라가 10m까지도 자란다. 추위에 약하여 우리나라에서는 남부지방에서 주로 심어 기르고 있다. 능소화(凌霄花)는 ‘하늘을 능가하는 꽃’이란 뜻이다. 오래 전에 중국에서 들여온 식물로 우리나라에서는 양반들이 이 나무를 아주 좋아해서 ‘양반꽃’이라고도 했으며, 평민들은 이 나무를 함부로 심지 못하게 했다고 한다. 지금은 남부지방을 중심으로 사찰 담장이나 가정집 정원에서 많이 볼 수 있는 관상수가 되었다.\""
+            )
+        )
+    )
 }
 
 @Preview(showBackground = true)
