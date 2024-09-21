@@ -1,4 +1,4 @@
-package com.ssafy.ar.ArData
+package com.ssafy.ar.data
 
 import androidx.compose.runtime.Immutable
 import com.google.android.gms.maps.model.LatLng

@@ -1,4 +1,4 @@
-package com.ssafy.ar.ArData
+package com.ssafy.ar.data
 
 sealed interface QuestStatus {
     data object WAIT : QuestStatus
