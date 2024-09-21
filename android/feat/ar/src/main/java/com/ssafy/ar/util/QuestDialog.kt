@@ -1,4 +1,4 @@
-package com.ssafy.ar
+package com.ssafy.ar.util
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -31,7 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.ssafy.ar.ArData.QuestStatus
+import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
 
 @Composable

@@ -1,4 +1,4 @@
-package com.ssafy.ar
+package com.ssafy.ar.util
 
 import android.content.pm.PackageManager
 import androidx.activity.compose.rememberLauncherForActivityResult
