@@ -1,6 +1,7 @@
 package com.ssafy.ar
 
 import android.location.Location
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.ar.data.NPCLocation
@@ -91,6 +92,15 @@ class ARViewModel(
         _npcMarketNodes.value = npcs
     }
 
+    fun removeNpcMarker(id: String) {
+        viewModelScope.launch {
+            val updatedMap = _npcMarketNodes.value.toMutableMap().apply {
+                remove(id)
+            }
+            _npcMarketNodes.value = updatedMap
+        }
+    }
+
     fun updateIsPlaceNPC(id: String, newIsPlaceValue: Boolean) {
         _npcMarketNodes.update { currentMap ->
             currentMap.toMutableMap().apply {
@@ -123,18 +133,20 @@ class ARViewModel(
         mutex.withLock {
             if (isPlacingNode) return
 
-            isPlacingNode = true
-
             val npcId = nearestNPC.value?.id ?: ""
             val isPlaceNPC = getIsPlaceNPC(npcId)
 
+
             if (npcId.isNotBlank() &&
                 !isPlaceNPC &&
-                (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 10.0f &&
+                (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 15.0f &&
                 (nearestNPCDistance.value ?: 100f) <= 10.0f
             ) {
+                isPlacingNode = true
                 _shouldPlaceNode.value = npcId
             }
+
+            isPlacingNode = false
         }
     }
 

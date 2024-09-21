@@ -68,8 +68,6 @@ fun ARSceneComposable(
     // Permission
     var hasPermission by remember { mutableStateOf(false) }
 
-    var stateString = remember { "" }
-
     // Location
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
@@ -231,7 +229,7 @@ fun ARSceneComposable(
         )
         ArStatusText(
             trackingFailureReason = trackingFailureReason,
-            noneStateString = stateString
+            isEmpty = childNodes.isEmpty()
         )
 
         Column {
@@ -275,9 +273,6 @@ fun ARSceneComposable(
     }
 
     LaunchedEffect(shouldPlaceNode) {
-        Log.d(TAG, "ARSceneComposable: $shouldPlaceNode")
-        stateString = "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
-
         shouldPlaceNode?.let { npcId ->
             nodeManager.placeNode(
                 npcId,
@@ -288,11 +283,7 @@ fun ARSceneComposable(
                 materialLoader,
                 modelInstances,
                 childNodes
-            ).apply {
-                stateString = "클릭해서 미션을 확인해!"
-                viewModel.removeQuest(npcId)
-                viewModel.isPlacingNode = false
-            }
+            )
         }
     }
 }
@@ -300,7 +291,7 @@ fun ARSceneComposable(
 @Composable
 fun ArStatusText(
     trackingFailureReason: TrackingFailureReason?,
-    noneStateString: String
+    isEmpty: Boolean
 ) {
     Text(
         modifier = Modifier
@@ -317,7 +308,10 @@ fun ArStatusText(
             TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"
             TrackingFailureReason.INSUFFICIENT_FEATURES -> "주변이 막혀 있어서\n찾을 수 없어"
             TrackingFailureReason.CAMERA_UNAVAILABLE -> "카메라를 사용할 수 없어"
-            else -> { noneStateString }
+            else -> {
+                if(isEmpty) "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
+                else "클릭해서 미션을 확인해 봐!"
+            }
         })
     )
 }
