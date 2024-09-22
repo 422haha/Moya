@@ -168,7 +168,7 @@ fun ARSceneComposable(
                                 modelInstances,
                                 childNodes
                             )
-                            delay(5000)
+                            delay(3000)
                         }
                         viewModel.isPlacingNode = false
                     }

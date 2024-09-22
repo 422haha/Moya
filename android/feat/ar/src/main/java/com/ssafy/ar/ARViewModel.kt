@@ -136,8 +136,8 @@ class ARViewModel(
 
         if (npcId.isNotBlank() &&
             !isPlaceNPC &&
-            (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 100.0f &&
-            (nearestNPCDistance.value ?: 100f) <= 100.0f
+            (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 10f &&
+            (nearestNPCDistance.value ?: 100f) <= 10f
         ) {
             _shouldPlaceNode.value = npcId
         } else {
