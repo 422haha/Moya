@@ -1,7 +1,6 @@
 package com.ssafy.ar
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -13,7 +12,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -39,7 +37,6 @@ import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.dummy.scriptNode
 import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.ar.util.MultiplePermissionsHandler
-import com.ssafy.ar.util.QuestDialog
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
@@ -55,7 +52,6 @@ import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.math.log
 
 private const val TAG = "ArScreen"
 

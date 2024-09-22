@@ -1,8 +1,6 @@
 package com.ssafy.ar
 
 import android.location.Location
-import android.system.Os.remove
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.ar.data.NPCLocation
@@ -14,13 +12,10 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.sync.Mutex
-import kotlinx.coroutines.sync.withLock
 
 class ARViewModel(
     private val locationManager: ARLocationManager,
 ) : ViewModel() {
-    private val mutex = Mutex()
     var isPlacingNode = false
 
     // AR AnchorNode
