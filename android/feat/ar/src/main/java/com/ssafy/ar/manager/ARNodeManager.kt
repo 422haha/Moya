@@ -22,15 +22,19 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-private const val kMaxModelInstances = 1
+private const val kMaxModelInstances = 10
 
 private const val TAG = "ARNodeManager"
 class ARNodeManager {
+    private val mutex = Mutex()
+
     // 평면에 노드 배치
-    fun placeNode(
+    suspend fun placeNode(
         npcId: String,
         viewModel: ARViewModel,
         frame: Frame?,
@@ -39,7 +43,9 @@ class ARNodeManager {
         materialLoader: MaterialLoader,
         modelInstances: MutableMap<String, ModelInstance>,
         childNodes: SnapshotStateList<Node>
-    ) {
+    ) = mutex.withLock {
+        if(viewModel.getIsPlaceNPC(npcId)) return@withLock
+
         frame?.getUpdatedPlanes()
             ?.firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
             ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
@@ -56,9 +62,13 @@ class ARNodeManager {
                     name = uuid
 
                     viewModel.addQuest(uuid, QuestStatus.WAIT)
-
+                    
                     viewModel.updateIsPlaceNPC(npcId, true)
                 }
+
+                viewModel.removeNpcMarker(npcId)
+
+                viewModel.updateShouldPlaceNode(null)
 
                 childNodes.add(anchorNode)
             }
@@ -81,12 +91,10 @@ class ARNodeManager {
             isScaleEditable = false
         }
 
-        val modelInstance = modelInstances.getOrPut(node.id) {
-            modelLoader.createInstancedModel(
-                node.model,
-                kMaxModelInstances
-            ).first()
-        }
+        val modelInstance = modelLoader.createInstancedModel(
+            node.model,
+            kMaxModelInstances
+        ).first()
 
         val modelNode = ModelNode(
             modelInstance = modelInstance,

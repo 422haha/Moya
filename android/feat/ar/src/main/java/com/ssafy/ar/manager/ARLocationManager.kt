@@ -32,7 +32,7 @@ class ARLocationManager(
     // 위치 추적 시작
     fun startLocationUpdates(): Flow<Location> = callbackFlow {
         val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
-            .setWaitForAccurateLocation(true)
+            .setWaitForAccurateLocation(false)
             .setMinUpdateIntervalMillis(1000)
             .setMinUpdateDistanceMeters(0.2f)
             .build()

@@ -1,6 +1,7 @@
 package com.ssafy.ar
 
 import android.location.Location
+import android.system.Os.remove
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -111,7 +112,7 @@ class ARViewModel(
         }
     }
 
-    private fun getIsPlaceNPC(id: String): Boolean {
+    fun getIsPlaceNPC(id: String): Boolean {
         return _npcMarketNodes.value[id]?.isPlace ?: false
     }
 
@@ -129,25 +130,23 @@ class ARViewModel(
         }
     }
 
-    private suspend fun processLocation() {
-        mutex.withLock {
-            if (isPlacingNode) return
+    private fun processLocation() {
+        val npcId = nearestNPC.value?.id ?: ""
+        val isPlaceNPC = getIsPlaceNPC(npcId)
 
-            val npcId = nearestNPC.value?.id ?: ""
-            val isPlaceNPC = getIsPlaceNPC(npcId)
-
-
-            if (npcId.isNotBlank() &&
-                !isPlaceNPC &&
-                (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 15.0f &&
-                (nearestNPCDistance.value ?: 100f) <= 10.0f
-            ) {
-                isPlacingNode = true
-                _shouldPlaceNode.value = npcId
-            }
-
-            isPlacingNode = false
+        if (npcId.isNotBlank() &&
+            !isPlaceNPC &&
+            (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 100.0f &&
+            (nearestNPCDistance.value ?: 100f) <= 100.0f
+        ) {
+            _shouldPlaceNode.value = npcId
+        } else {
+            _shouldPlaceNode.value = null
         }
+    }
+
+    fun updateShouldPlaceNode(state: String?) {
+        _shouldPlaceNode.value = state
     }
 
     fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {

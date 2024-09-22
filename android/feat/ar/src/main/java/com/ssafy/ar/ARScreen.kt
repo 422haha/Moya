@@ -53,7 +53,9 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.math.log
 
 private const val TAG = "ArScreen"
 
@@ -150,6 +152,28 @@ fun ARSceneComposable(
             },
             onSessionUpdated = { session, updatedFrame ->
                 frame = updatedFrame
+
+                if (!viewModel.isPlacingNode) {
+                    viewModel.isPlacingNode = true
+
+                    coroutineScope.launch {
+                        shouldPlaceNode?.let {
+                            nodeManager.placeNode(
+                                it,
+                                viewModel,
+                                frame,
+                                engine,
+                                modelLoader,
+                                materialLoader,
+                                modelInstances,
+                                childNodes
+                            )
+                            delay(5000)
+                        }
+                        viewModel.isPlacingNode = false
+                    }
+
+                }
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
@@ -271,21 +295,6 @@ fun ARSceneComposable(
             onDismiss = { viewModel.onDialogDismiss() }
         )
     }
-
-    LaunchedEffect(shouldPlaceNode) {
-        shouldPlaceNode?.let { npcId ->
-            nodeManager.placeNode(
-                npcId,
-                viewModel,
-                frame,
-                engine,
-                modelLoader,
-                materialLoader,
-                modelInstances,
-                childNodes
-            )
-        }
-    }
 }
 
 @Composable
@@ -302,14 +311,17 @@ fun ArStatusText(
         fontSize = 28.sp,
         color = Color.White,
         text = (when (trackingFailureReason) {
-            TrackingFailureReason.NONE -> { "위치를 찾고 있어" }
+            TrackingFailureReason.NONE -> {
+                "위치를 찾고 있어"
+            }
+
             TrackingFailureReason.BAD_STATE -> "지금 내부 상태가\n불안정해"
             TrackingFailureReason.INSUFFICIENT_LIGHT -> "주변이 어두워서\n찾을 수 없어"
             TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"
             TrackingFailureReason.INSUFFICIENT_FEATURES -> "주변이 막혀 있어서\n찾을 수 없어"
             TrackingFailureReason.CAMERA_UNAVAILABLE -> "카메라를 사용할 수 없어"
             else -> {
-                if(isEmpty) "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
+                if (isEmpty) "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
                 else "클릭해서 미션을 확인해 봐!"
             }
         })
