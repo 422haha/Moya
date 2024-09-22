@@ -1,4 +1,4 @@
-package com.ssafy.ar.util
+package com.ssafy.ar
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
