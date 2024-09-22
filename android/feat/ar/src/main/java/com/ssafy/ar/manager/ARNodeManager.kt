@@ -27,7 +27,7 @@ import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
-private const val kMaxModelInstances = 10
+private const val kMaxModelInstances = 1
 
 private const val TAG = "ARNodeManager"
 class ARNodeManager {
