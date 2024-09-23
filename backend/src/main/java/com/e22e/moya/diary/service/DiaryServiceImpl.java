@@ -25,10 +25,10 @@ public class DiaryServiceImpl implements DiaryService {
     private final DiaryDiscoveryRepositoryDiary discoveryRepository;
 
     /**
-     * 사용자의 가장 최근 탐험 정보를 조회합니다.
+     * 사용자의 가장 최근 탐험 정보를 조회
      *
      * @param userId 사용자 ID
-     * @return DiaryHomeResponseDto 최근 탐험 정보 DTO
+     * @return 최근 탐험 정보
      */
     @Override
     @Transactional(readOnly = true)
@@ -52,12 +52,12 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     /**
-     * 사용자의 탐험 리스트를 페이지네이션하여 조회합니다.
+     * 사용자의 탐험 리스트를 페이지네이션하여 조회
      *
      * @param userId 사용자 ID
      * @param page   페이지 번호
      * @param size   페이지 크기
-     * @return DiaryListResponseDto 탐험 리스트 DTO
+     * @return 탐험 리스트
      */
     @Override
     @Transactional(readOnly = true)
@@ -86,11 +86,11 @@ public class DiaryServiceImpl implements DiaryService {
     }
 
     /**
-     * 특정 탐험 ID를 기반으로 탐험의 상세 정보를 조회합니다.
+     * 특정 탐험 ID를 기반으로 탐험의 상세 정보를 조회
      *
      * @param userId        사용자 ID
      * @param explorationId 탐험 ID
-     * @return DiaryDetailResponseDto 탐험 상세 정보 DTO
+     * @return 탐험 상세 정보
      */
     @Override
     @Transactional(readOnly = true)
