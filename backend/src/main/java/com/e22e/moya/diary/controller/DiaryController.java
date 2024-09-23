@@ -20,23 +20,23 @@ import org.springframework.web.bind.annotation.*;
 @RequiredArgsConstructor
 public class DiaryController {
 
-    private final JwtUtil jwtUtil;
     private final DiaryService diaryService;
+    private final JwtUtil jwtUtil;
 
     /**
      * 홈 화면에서 가장 최근 탐험 정보를 반환
      *
-     * @param token 사용자 인증 토큰
      * @return 가장 최근 탐험 정보
      */
     @GetMapping("/home")
     public ResponseEntity<Map<String, Object>> getLatestExploration(
-        @RequestHeader("Authorization") String token) {
-
+        // @RequestHeader("Authorization") String token
+    ) {
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+//            Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             DiaryHomeResponseDto homeResponse = diaryService.getLatestExploration(userId);
 
@@ -59,21 +59,21 @@ public class DiaryController {
     /**
      * 탐험 일지 목록을 페이지네이션하여 반환
      *
-     * @param token 사용자 인증 토큰
-     * @param page  요청 페이지 번호
-     * @param size  페이지 크기
-     * @return 탐험 일지 목록과 상태 코드
+     * @param page 요청 페이지 번호
+     * @param size 페이지 크기
+     * @return 탐험 일지 목록
      */
     @GetMapping("/diarys")
     public ResponseEntity<Map<String, Object>> getExplorations(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @RequestParam("page") int page,
         @RequestParam("size") int size) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+//            Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             DiaryListResponseDto diaryList = diaryService.getExplorations(userId, page, size);
 
@@ -91,19 +91,19 @@ public class DiaryController {
     /**
      * 특정 탐험의 상세 정보를 반환
      *
-     * @param token         사용자 인증 토큰
      * @param explorationId 조회하려는 탐험의 ID
-     * @return 탐험의 상세 정보와 상태 코드
+     * @return 탐험의 상세 정보
      */
     @GetMapping("/diarys/{explorationId}")
     public ResponseEntity<Map<String, Object>> getExplorationDetail(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @PathVariable("explorationId") Long explorationId) {
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+            // Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
 
             DiaryDetailResponseDto diaryDetail = diaryService.getExplorationDetail(userId,
                 explorationId);
