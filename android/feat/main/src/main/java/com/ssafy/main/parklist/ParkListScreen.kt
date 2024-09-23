@@ -1,19 +1,27 @@
 package com.ssafy.main.parklist
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.parklist.ParkListScreenContent
 import com.ssafy.ui.parklist.ParkListUserIntent
 
 @Composable
 fun ParkListScreen(
-    viewModel: ParkListScreenViewModel = viewModel(),
+    viewModel: ParkListScreenViewModel = hiltViewModel(),
     onParkItemClick: (Long) -> Unit,
     onPop: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+
+    LaunchedEffect(Unit) {
+        viewModel.loadInitialData(
+            latitude = 37.5665,
+            longitude = 126.9780,
+        )
+    }
 
     ParkListScreenContent(state = uiState, onIntent = { intent ->
         when(intent){

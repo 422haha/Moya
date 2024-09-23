@@ -24,7 +24,7 @@ object Encyc
 data class EncycDetail(val itemId: Long)
 
 @Serializable
-object ExploreStart
+data class ExploreStart(val parkId: Long)
 
 //TODO 나중에 dataclass로 수정하고 userId 전송하도록
 @Serializable
