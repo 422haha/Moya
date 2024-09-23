@@ -1,13 +1,12 @@
 package com.e22e.moya.diary.dto;
 
-import lombok.AllArgsConstructor;
-import java.util.List;
 import lombok.Getter;
 import lombok.Setter;
+import java.util.List;
 
 @Getter
 @Setter
-@AllArgsConstructor
 public class DiaryListResponseDto {
-    private List<DiaryItemDto> explorations;
+
+    private List<DiaryExplorationDto> explorations;
 }
