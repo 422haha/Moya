@@ -68,15 +68,13 @@ public class UserController {
     public ResponseEntity<Map<String, Object>> getUserName(
         // @RequestHeader("Authorization") String token
     ) {
-        log.info("사용자 이름 조회 요청");
+//        log.info("사용자 이름 조회 요청: {}", token);
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            // Long userId = jwtUtil.getUserIdFromToken(token);
+//            Long userId = jwtUtil.getUserIdFromToken(token);
             long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
-
-            // 사용자 이름 및 프로필 이미지 조회
             UserNameResponseDto userDto = userService.getUserName(userId);
 
             response.put("message", "조회 성공");
