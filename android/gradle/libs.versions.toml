@@ -103,6 +103,7 @@ toolbar-compose = { group = "me.onebone", name = "toolbar-compose", version.ref 
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]
+serialization = ["kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]
 
 [plugins]
 android-application = { id = "com.android.application", version.ref = "agp" }
