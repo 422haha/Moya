@@ -1,7 +1,8 @@
 package com.ssafy.ar
 
-import android.util.Log
+import android.Manifest
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -20,32 +21,28 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.google.android.filament.Engine
-import com.google.ar.core.Anchor
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
-import com.google.ar.core.Plane
 import com.google.ar.core.TrackingFailureReason
-import com.ssafy.ar.ArData.QuestData
-import com.ssafy.ar.ArData.QuestStatus
+import com.ssafy.ar.data.QuestStatus
+import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.dummy.scriptNode
+import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
-import io.github.sceneview.ar.arcore.createAnchorOrNull
-import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
-import io.github.sceneview.loaders.MaterialLoader
-import io.github.sceneview.loaders.ModelLoader
-import io.github.sceneview.math.Position
-import io.github.sceneview.math.Rotation
-import io.github.sceneview.math.Size
 import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
-import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCollisionSystem
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
@@ -53,17 +50,44 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.UUID
-
-private const val kMaxModelInstances = 1
 
 private const val TAG = "ArScreen"
 
 @Composable
-fun ARSceneComposable(viewModel: ARViewModel) {
+fun ARSceneComposable(
+    onPermissionDenied: () -> Unit
+) {
+    // LifeCycle
+    val context = LocalContext.current
+    val coroutineScope = rememberCoroutineScope()
+
+    // Permission
+    var hasPermission by remember { mutableStateOf(false) }
+
+    // Location
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    // Manager
+    val locationManager = remember { ARLocationManager(context, fusedLocationClient) }
+    val nodeManager = remember { ARNodeManager() }
+
+    val viewModel: ARViewModel = viewModel(factory = object : ViewModelProvider.Factory {
+        override fun <T : ViewModel> create(modelClass: Class<T>): T {
+            return ARViewModel(locationManager) as T
+        }
+    })
+
+    // AR State
+    val anchorNodes by viewModel.anchorNodes.collectAsState()
+    val shouldPlaceNode by viewModel.shouldPlaceNode.collectAsState()
+
+    // Dialog & SnackBar
+    val showDialog by viewModel.showDialog.collectAsState()
+    val dialogData by viewModel.dialogData.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     // AR Basic
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
@@ -80,14 +104,22 @@ fun ARSceneComposable(viewModel: ARViewModel) {
     }
     var frame by remember { mutableStateOf<Frame?>(null) }
 
-    // AR Quest State
-    val coroutineScope = rememberCoroutineScope()
-    val anchorNodes by viewModel.anchorNodes.collectAsState()
+    MultiplePermissionsHandler(
+        permissions = listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        )
+    ) { permissionResults ->
+        if (permissionResults.all { permissions -> permissions.value }) {
+            hasPermission = true
 
-    // Dialog & SnackBar
-    val showDialog by viewModel.showDialog.collectAsState()
-    val dialogData by viewModel.dialogData.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
+            viewModel.getAllNpcMarker()
+        } else {
+            onPermissionDenied()
+            return@MultiplePermissionsHandler
+        }
+    }
 
     Box(modifier = Modifier.fillMaxSize()) {
         ARScene(
@@ -115,40 +147,32 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                 trackingFailureReason = it
             },
             onSessionUpdated = { session, updatedFrame ->
-                coroutineScope.launch {
-                    withContext(Dispatchers.Main) {
-                        frame = updatedFrame
-                        if (childNodes.isEmpty()) {
-                            updatedFrame.getUpdatedPlanes()
-                                .firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
-                                ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                                    planeRenderer = false
-                                    val anchorNode = createAnchorNode(
-                                        scriptNode[0],
-                                        engine,
-                                        modelLoader,
-                                        materialLoader,
-                                        modelInstances,
-                                        anchor,
-                                    ).apply {
-                                        val uuid = UUID.randomUUID().toString()
+                frame = updatedFrame
 
-                                        name = uuid
+                if (!viewModel.isPlacingNode) {
+                    viewModel.isPlacingNode = true
 
-                                        viewModel.addAnchorNode(uuid, QuestStatus.WAIT)
-                                    }
-
-                                    childNodes.add(anchorNode)
-                                }
+                    coroutineScope.launch {
+                        shouldPlaceNode?.let {
+                            nodeManager.placeNode(
+                                it,
+                                viewModel,
+                                frame,
+                                engine,
+                                modelLoader,
+                                materialLoader,
+                                modelInstances,
+                                childNodes
+                            )
+                            delay(3000)
                         }
+                        viewModel.isPlacingNode = false
                     }
+
                 }
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-
-                    Log.d(TAG, "ARSceneComposable: $node")
-
                     val anchorId = node?.parent?.name
 
                     if (anchorId != null) {
@@ -168,10 +192,8 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                             if (accepted) { // 수락
                                                 val parentAnchorNode = node.parent as? AnchorNode
                                                 parentAnchorNode?.let {
-                                                    viewModel.updateAnchorNode(anchorId, QuestStatus.PROGRESS)
-
                                                     coroutineScope.launch {
-                                                        updateAnchorNode(
+                                                        nodeManager.updateAnchorNode(
                                                             prevNode = node,
                                                             questId = quest.id,
                                                             questModel = quest.model,
@@ -179,7 +201,12 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                                             modelLoader = modelLoader,
                                                             materialLoader = materialLoader,
                                                             modelInstances = modelInstances,
-                                                        )
+                                                        ).apply {
+                                                            viewModel.updateQuestState(
+                                                                anchorId,
+                                                                QuestStatus.PROGRESS
+                                                            )
+                                                        }
                                                     }
                                                 }
                                             }
@@ -192,7 +219,10 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                         ) { accepted ->
                                             if (accepted) { // 완료
                                                 // TODO 온디바이스 AI로 검사
-                                                viewModel.updateAnchorNode(anchorId, QuestStatus.COMPLETE)
+                                                viewModel.updateQuestState(
+                                                    anchorId,
+                                                    QuestStatus.COMPLETE
+                                                )
                                                     .apply {
                                                         node.childNodes.filterIsInstance<ImageNode>()
                                                             .firstOrNull()
@@ -206,7 +236,11 @@ fun ARSceneComposable(viewModel: ARViewModel) {
                                         }
                                     }
                                     // 퀘스트 완료
-                                    QuestStatus.COMPLETE -> {}
+                                    QuestStatus.COMPLETE -> {
+                                        coroutineScope.launch {
+                                            snackbarHostState.showSnackbar(quest.completeMessage)
+                                        }
+                                    }
                                 }
                             }
                         }
@@ -215,8 +249,31 @@ fun ARSceneComposable(viewModel: ARViewModel) {
         )
         ArStatusText(
             trackingFailureReason = trackingFailureReason,
-            childNodesEmpty = childNodes.isEmpty()
+            isEmpty = childNodes.isEmpty()
         )
+
+        Column {
+            Text(
+                text = "위도: ${locationManager.currentLocation.value?.latitude ?: "모니터링중..."} ",
+                color = Color.White
+            )
+            Text(
+                text = "경도: ${locationManager.currentLocation.value?.longitude ?: "모니터링중..."} ",
+                color = Color.White
+            )
+            Text(
+                text = "정확도: ${locationManager.currentLocation.value?.accuracy ?: "모니터링중..."} ",
+                color = Color.Red
+            )
+            Text(
+                text = "가까운 마커: ${viewModel.nearestNPC.value?.id ?: "모니터링중..."} ",
+                color = Color.Red
+            )
+            Text(
+                text = "마커 거리(m): ${viewModel.nearestNPCDistance.value ?: "모니터링중..."} ",
+                color = Color.Red
+            )
+        }
 
         SnackbarHost(
             hostState = snackbarHostState,
@@ -239,7 +296,7 @@ fun ARSceneComposable(viewModel: ARViewModel) {
 @Composable
 fun ArStatusText(
     trackingFailureReason: TrackingFailureReason?,
-    childNodesEmpty: Boolean
+    isEmpty: Boolean
 ) {
     Text(
         modifier = Modifier
@@ -260,104 +317,10 @@ fun ArStatusText(
             TrackingFailureReason.INSUFFICIENT_FEATURES -> "주변이 막혀 있어서\n찾을 수 없어"
             TrackingFailureReason.CAMERA_UNAVAILABLE -> "카메라를 사용할 수 없어"
             else -> {
-                if (childNodesEmpty)
-                    "동물이 놀라지 않게\n천천히 주변을 둘러봐!"
-                else
-                    "클릭해서 미션을 확인해!"
+                if (isEmpty) "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
+                else "클릭해서 미션을 확인해 봐!"
             }
         })
     )
 }
-
-private suspend fun updateAnchorNode(
-    prevNode: Node,
-    questId: String,
-    questModel: String,
-    parentAnchor: AnchorNode,
-    modelLoader: ModelLoader,
-    materialLoader: MaterialLoader,
-    modelInstances: MutableMap<String, ModelInstance>,
-) = withContext(Dispatchers.Main) {
-    parentAnchor.removeChildNode(prevNode).also {
-        val newModelInstance = modelInstances.getOrPut(questId) {
-            modelLoader.createInstancedModel(
-                questModel,
-                kMaxModelInstances
-            ).first()
-        }
-
-        val newModelNode = ModelNode(
-            modelInstance = newModelInstance,
-            scaleToUnits = 0.5f
-        ).apply {
-            name = questId
-            position = prevNode.worldPosition
-            rotation = prevNode.worldRotation
-        }
-
-        val imageNode = ImageNode(
-            materialLoader = materialLoader,
-            imageFileLocation = "picture/progress.png",
-            size = Size(0.35f, 0.35f),
-            center = Position(0f, 0.67f, 0f)
-        )
-
-        newModelNode.addChildNode(imageNode)
-
-        parentAnchor.addChildNode(newModelNode)
-    }
-}
-
-// 특정 위치에 3D 모델을 배치
-private suspend fun createAnchorNode(
-    node: QuestData,
-    engine: Engine,
-    modelLoader: ModelLoader,
-    materialLoader: MaterialLoader,
-    modelInstances: MutableMap<String, ModelInstance>,
-    anchor: Anchor
-): AnchorNode {
-    val idx = (1..3).random()
-
-    val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
-        isPositionEditable = false
-        isRotationEditable = false
-        isScaleEditable = false
-    }
-
-    val modelInstance = modelInstances.getOrPut(node.id) {
-        modelLoader.createInstancedModel(
-            node.model,
-            kMaxModelInstances
-        ).first()
-    }
-
-    val modelNode = ModelNode(
-        modelInstance = modelInstance,
-        scaleToUnits = 0.5f
-    ).apply {
-        name = idx.toString()
-        rotation = Rotation(0f, 180f, 0f)
-    }
-
-    val imageNode = ImageNode(
-        materialLoader = materialLoader,
-        imageFileLocation = "picture/wait.png",
-        size = Size(0.35f, 0.35f),
-        center = Position(0f, 0.65f, 0f)
-    )
-
-    modelNode.addChildNode(imageNode)
-
-    anchorNode.addChildNode(modelNode)
-
-    return anchorNode
-}
-
-// 지금 childNode에 1개만 할 수 있음
-// 앵커를 효율적으로 여러개 배치해야함
-
-// track 메시지 분기처리
-
-// GPS마다 노드 배치
 

@@ -1,22 +1,42 @@
 package com.ssafy.ar
 
+import android.location.Location
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.ssafy.ar.ArData.CurrentLocation
-import com.ssafy.ar.ArData.QuestStatus
+import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.QuestStatus
+import com.ssafy.ar.dummy.npcs
+import com.ssafy.ar.manager.ARLocationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
-class ARViewModel : ViewModel() {
+class ARViewModel(
+    private val locationManager: ARLocationManager,
+) : ViewModel() {
+    var isPlacingNode = false
+
     // AR AnchorNode
     private val _anchorNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
     val anchorNodes: StateFlow<Map<String, QuestStatus>> = _anchorNodes.asStateFlow()
 
-    // Location
-    private val _curLocation = MutableStateFlow(CurrentLocation())
-    val curLocation: StateFlow<CurrentLocation> = _curLocation.asStateFlow()
+    // AR NPC
+    private val _npcMarketNodes = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
+    val npcMarketNodes: StateFlow<Map<String, NPCLocation>> = _npcMarketNodes.asStateFlow()
+
+    // 가장 가까운 NPC
+    private val _nearestNPC = MutableStateFlow<NPCLocation?>(null)
+    val nearestNPC: StateFlow<NPCLocation?> = _nearestNPC.asStateFlow()
+
+    // 가장 가까운 NPC와의 거리(m)
+    private val _nearestNPCDistance = MutableStateFlow<Float?>(0f)
+    val nearestNPCDistance: StateFlow<Float?> = _nearestNPCDistance.asStateFlow()
+
+    // 배치 가능한 노드
+    private val _shouldPlaceNode = MutableStateFlow<String?>(null)
+    val shouldPlaceNode: StateFlow<String?> = _shouldPlaceNode.asStateFlow()
 
     // Dialog
     private val _showDialog = MutableStateFlow(false)
@@ -27,14 +47,22 @@ class ARViewModel : ViewModel() {
     val dialogData: StateFlow<Pair<Int, QuestStatus> > = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
-    fun addAnchorNode(id: String, state: QuestStatus) {
+    init {
+        viewModelScope.launch {
+            locationManager.startLocationUpdates().collect { location ->
+                updateNearestNPC(location)
+            }
+        }
+    }
+
+    fun addQuest(id: String, state: QuestStatus) {
         val updatedMap = _anchorNodes.value.toMutableMap().apply {
             put(id, state)
         }
         _anchorNodes.value = updatedMap
     }
 
-    fun updateAnchorNode(id: String, newState: QuestStatus) {
+    fun updateQuestState(id: String, newState: QuestStatus) {
         viewModelScope.launch {
             val updatedMap = _anchorNodes.value.toMutableMap().apply {
                 this[id] = newState
@@ -43,7 +71,7 @@ class ARViewModel : ViewModel() {
         }
     }
 
-    fun removeAnchorNode(id: String) {
+    fun removeQuest(id: String) {
         viewModelScope.launch {
             val updatedMap = _anchorNodes.value.toMutableMap().apply {
                 remove(id)
@@ -52,12 +80,68 @@ class ARViewModel : ViewModel() {
         }
     }
 
-    fun getAnchorNodeId(id: String): QuestStatus? {
+    fun getQuestState(id: String): QuestStatus? {
         return _anchorNodes.value[id]
     }
 
-    fun updateLocation(newLocation: CurrentLocation) {
-        _curLocation.value = newLocation
+    fun getAllNpcMarker() {
+        _npcMarketNodes.value = npcs
+    }
+
+    fun removeNpcMarker(id: String) {
+        viewModelScope.launch {
+            val updatedMap = _npcMarketNodes.value.toMutableMap().apply {
+                remove(id)
+            }
+            _npcMarketNodes.value = updatedMap
+        }
+    }
+
+    fun updateIsPlaceNPC(id: String, newIsPlaceValue: Boolean) {
+        _npcMarketNodes.update { currentMap ->
+            currentMap.toMutableMap().apply {
+                this[id]?.let { npcLocation ->
+                    this[id] = npcLocation.copy(isPlace = newIsPlaceValue)
+                }
+            }
+        }
+    }
+
+    fun getIsPlaceNPC(id: String): Boolean {
+        return _npcMarketNodes.value[id]?.isPlace ?: false
+    }
+
+    private fun updateNearestNPC(location: Location) {
+        viewModelScope.launch {
+            val nearestNPC = locationManager.findNearestNPC(location, npcMarketNodes.value)
+            _nearestNPC.value = nearestNPC
+
+            val nearestDistance =
+                nearestNPC?.let { locationManager.measureNearestNpcDistance(location, it) }
+
+            _nearestNPCDistance.value = nearestDistance
+
+            processLocation()
+        }
+    }
+
+    private fun processLocation() {
+        val npcId = nearestNPC.value?.id ?: ""
+        val isPlaceNPC = getIsPlaceNPC(npcId)
+
+        if (npcId.isNotBlank() &&
+            !isPlaceNPC &&
+            (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 10f &&
+            (nearestNPCDistance.value ?: 100f) <= 10f
+        ) {
+            _shouldPlaceNode.value = npcId
+        } else {
+            _shouldPlaceNode.value = null
+        }
+    }
+
+    fun updateShouldPlaceNode(state: String?) {
+        _shouldPlaceNode.value = state
     }
 
     fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {
@@ -78,5 +162,11 @@ class ARViewModel : ViewModel() {
         _dialogData.value = Pair(0, QuestStatus.WAIT)
         dialogCallback?.invoke(false)
         dialogCallback = null
+    }
+
+    override fun onCleared() {
+        super.onCleared()
+
+        locationManager.stopLocationUpdates()
     }
 }
