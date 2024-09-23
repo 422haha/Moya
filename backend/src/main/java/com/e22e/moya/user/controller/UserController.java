@@ -62,18 +62,19 @@ public class UserController {
     /**
      * 사용자 이름 및 프로필 이미지 조회
      *
-     * @param token JWT 토큰
      * @return 사용자 이름과 프로필 이미지
      */
     @GetMapping("/name")
     public ResponseEntity<Map<String, Object>> getUserName(
-        @RequestHeader("Authorization") String token) {
-        log.info("사용자 이름 조회 요청: {}", token);
+        // @RequestHeader("Authorization") String token
+    ) {
+//        log.info("사용자 이름 조회 요청: {}", token);
 
         Map<String, Object> response = new HashMap<>();
 
         try {
-            Long userId = jwtUtil.getUserIdFromToken(token);
+//            Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
             UserNameResponseDto userDto = userService.getUserName(userId);
 
             response.put("message", "조회 성공");

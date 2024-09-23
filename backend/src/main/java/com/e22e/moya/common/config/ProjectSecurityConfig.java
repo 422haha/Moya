@@ -43,6 +43,7 @@ public class ProjectSecurityConfig {
             .addFilterBefore(new JWTTokenValidatorFilter(jwtUtil, userRepository),
                 UsernamePasswordAuthenticationFilter.class)
             .csrf(csrf -> csrf.disable())
+            .cors(cors -> cors.disable())
             .authorizeRequests(authorize -> authorize
                 .requestMatchers("/", "/login", "/oauth2/**", "/auth/**0", "/error")
                 .permitAll()

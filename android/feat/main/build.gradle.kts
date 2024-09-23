@@ -13,7 +13,9 @@ android {
 }
 
 dependencies {
-    implementation(project(":core:ui"))
-    implementation(project(":core:data"))
     implementation(libs.naver.map.compose)
+    implementation(libs.play.services.location)
+    implementation(project(":core:ui"))
+    implementation(project(":core:network"))
+    implementation(project(":core:model"))
 }

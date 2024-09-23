@@ -1,9 +1,13 @@
 plugins {
-    id("java-library")
-    alias(libs.plugins.jetbrains.kotlin.jvm)
+    alias(libs.plugins.module.android.library)
+    alias(libs.plugins.kotlin.serialization)
 }
 
-java {
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+android {
+    namespace = "com.ssafy.model"
+
+}
+
+dependencies {
+    implementation(libs.bundles.serialization)
 }

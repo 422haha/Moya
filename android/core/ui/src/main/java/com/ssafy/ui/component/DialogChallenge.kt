@@ -42,9 +42,9 @@ import com.ssafy.ui.theme.customTypography
 
 @Composable
 fun ChallengeDialog(
+    missions: List<Missions> = listOf(),
     onConfirm: () -> Unit = {},
     onDismiss: () -> Unit = {},
-    state: ExploreStartScreenState.ShowChallengeDialog
 ) {
     Surface(
         modifier = Modifier
@@ -81,24 +81,14 @@ fun ChallengeDialog(
             }
 
             Spacer(modifier = Modifier.height(16.dp))
-
-            ChallengeItem(
-                text = state.missions[0].missionTitle,
-                onConfirm = onConfirm,
-                isSuccess = state.missions[0].isSuccess
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ChallengeItem(
-                text = state.missions[1].missionTitle,
-                onConfirm = onConfirm,
-                isSuccess = state.missions[1].isSuccess
-            )
-            Spacer(modifier = Modifier.height(12.dp))
-            ChallengeItem(
-                text = state.missions[2].missionTitle,
-                onConfirm = onConfirm,
-                isSuccess = state.missions[2].isSuccess
-            )
+            missions.forEach { mission ->
+                ChallengeItem(
+                    text = mission.missionTitle,
+                    onConfirm = onConfirm,
+                    isSuccess = mission.isSuccess
+                )
+                Spacer(modifier = Modifier.height(12.dp))
+            }
         }
     }
 }
@@ -146,17 +136,16 @@ fun ChallengeItem(text: String, onConfirm: () -> Unit, isSuccess: Boolean) {
 @Composable
 fun ChallengeDialogPreview() {
     val showDialog = remember { mutableStateOf(true) }
+    val sampleMissions = listOf(
+        Missions("솔방울 선물하기", true),
+        Missions("은행잎 선물하기", false),
+        Missions("단풍잎 5개 모으기", false)
+    )
+
     if (showDialog.value) {
         ChallengeDialog(
-            onDismiss = { showDialog.value = false },
-            state = ExploreStartScreenState.ShowChallengeDialog(
-                isVisible = true,
-                missions = listOf(
-                    Missions("솔방울 선물하기", true),
-                    Missions("은행잎 선물하기", false),
-                    Missions("단풍잎 5개 모으기", false)
-                )
-            )
+            missions = sampleMissions,
+            onDismiss = { showDialog.value = false }
         )
     }
 }
