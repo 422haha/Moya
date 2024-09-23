@@ -1,5 +1,6 @@
 package com.ssafy.network.repositoryImpl
 
+import com.ssafy.model.ParkDetail
 import com.ssafy.model.ParkList
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.api.ParkApi
@@ -21,6 +22,27 @@ class ParkRepositoryImpl @Inject constructor(
         val response =
             apiHandler {
                 parkApi.getParkList(page, size, latitude, longitude)
+            }
+        when (response) {
+            is ApiResponse.Success -> {
+                emit(ApiResponse.Success(response.body?.data))
+            }
+
+            is ApiResponse.Error -> {
+                emit(
+                    ApiResponse.Error(
+                        errorCode = response.errorCode,
+                        errorMessage = response.errorMessage,
+                    ),
+                )
+            }
+        }
+    }
+
+    override suspend fun getPark(parkId: Long): Flow<ApiResponse<ParkDetail>> = flow {
+        val response =
+            apiHandler {
+                parkApi.getParkDetail(parkId)
             }
         when (response) {
             is ApiResponse.Success -> {
