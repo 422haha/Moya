@@ -8,3 +8,8 @@ data class Species(
     val imageUrl: String,
     val positions: List<LatLng>,
 )
+
+data class SpeciesMinimumInfo(
+    val speciesId: Long,
+    val speciesName: String,
+)

@@ -15,3 +15,6 @@ data class ExplorationInitialData(
     val npcs: List<Npc>,
 )
 
+data class ExplorationEndData(
+    val explorationId: Long,
+)
