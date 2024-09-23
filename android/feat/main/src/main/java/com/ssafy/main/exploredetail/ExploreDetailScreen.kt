@@ -2,14 +2,14 @@ package com.ssafy.main.exploredetail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.exploredetail.ExploreDetailScreenContent
 import com.ssafy.ui.exploredetail.ExploreDetailUserIntent
 
 @Composable
 fun ExploreDetailScreen(
-    viewModel: ExploreDetailScreenViewModel = viewModel(),
+    viewModel: ExploreDetailScreenViewModel = hiltViewModel(),
     onEncycItemClicked: (Long) -> Unit,
     onPop: () -> Unit
 ) {
