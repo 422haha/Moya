@@ -1,12 +1,14 @@
 package com.e22e.moya.user.controller;
 
 import com.e22e.moya.common.util.JwtUtil;
+import com.e22e.moya.user.dto.UserNameResponseDto;
 import com.e22e.moya.user.service.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -57,4 +59,39 @@ public class UserController {
         }
     }
 
+    /**
+     * 사용자 이름 및 프로필 이미지 조회
+     *
+     * @return 사용자 이름과 프로필 이미지
+     */
+    @GetMapping("/name")
+    public ResponseEntity<Map<String, Object>> getUserName(
+        // @RequestHeader("Authorization") String token
+    ) {
+        log.info("사용자 이름 조회 요청");
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            // Long userId = jwtUtil.getUserIdFromToken(token);
+            long userId = 1;  // 주석 처리된 부분을 userId=1로 대체
+
+            // 사용자 이름 및 프로필 이미지 조회
+            UserNameResponseDto userDto = userService.getUserName(userId);
+
+            response.put("message", "조회 성공");
+            response.put("data", userDto);
+            return ResponseEntity.ok(response);
+        } catch (IllegalArgumentException e) {
+            log.error("사용자 조회 실패: {}", e.getMessage());
+            response.put("message", "사용자를 찾을 수 없습니다");
+            response.put("data", null);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            log.error("사용자 이름 조회 실패: {}", e.getMessage());
+            response.put("message", "권한이 없습니다");
+            response.put("data", null);
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
+        }
+    }
 }

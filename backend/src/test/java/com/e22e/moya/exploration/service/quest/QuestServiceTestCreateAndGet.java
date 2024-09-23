@@ -6,9 +6,9 @@ import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.quest.QuestCompleted;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
-import com.e22e.moya.exploration.repository.ExplorationRepository;
-import com.e22e.moya.exploration.repository.ParkRepository;
-import com.e22e.moya.exploration.repository.QuestCompletedRepository;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
+import com.e22e.moya.exploration.repository.QuestCompletedRepositoryExploration;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,13 +30,13 @@ public class QuestServiceTestCreateAndGet {
     private QuestService questService;
 
     @Autowired
-    private ParkRepository parkRepository;
+    private ParkRepositoryExploration parkRepository;
 
     @Autowired
-    private ExplorationRepository explorationRepository;
+    private ExplorationRepositoryExploration explorationRepository;
 
     @Autowired
-    private QuestCompletedRepository questCompletedRepository;
+    private QuestCompletedRepositoryExploration questCompletedRepository;
 
     private Long userId;
     private Exploration exploration;
