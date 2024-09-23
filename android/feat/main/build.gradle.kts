@@ -15,4 +15,5 @@ android {
 dependencies {
     implementation(project(":core:ui"))
     implementation(project(":core:data"))
+    implementation(libs.naver.map.compose)
 }
