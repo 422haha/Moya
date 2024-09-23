@@ -40,12 +40,13 @@ public class ParkServiceImpl implements ParkService {
             throw new IllegalArgumentException("공원을 찾을 수 없습니다.");
         }
 
-        return new ParkResponseDto(
-            nearestPark.getId(),
-            nearestPark.getName(),
-            nearestPark.getDistance().intValue(),
-            nearestPark.getImageUrl()
-        );
+        ParkResponseDto responseDto = new ParkResponseDto();
+        responseDto.setParkId(nearestPark.getId());
+        responseDto.setParkName(nearestPark.getName());
+        responseDto.setDistance(nearestPark.getDistance().intValue());
+        responseDto.setImageUrl(nearestPark.getImageUrl());
+
+        return responseDto;
     }
 
     /**
@@ -68,15 +69,20 @@ public class ParkServiceImpl implements ParkService {
             longitude, offset, size);
 
         List<ParkResponseDto> parkDtos = parks.stream()
-            .map(park -> new ParkResponseDto(
-                park.getId(),
-                park.getName(),
-                park.getDistance().intValue(),
-                park.getImageUrl()
-            ))
+            .map(park -> {
+                ParkResponseDto dto = new ParkResponseDto();
+                dto.setParkId(park.getId());
+                dto.setParkName(park.getName());
+                dto.setDistance(park.getDistance().intValue());
+                dto.setImageUrl(park.getImageUrl());
+                return dto;
+            })
             .collect(Collectors.toList());
 
-        return new ParkListResponseDto(parkDtos);
+        ParkListResponseDto responseDto = new ParkListResponseDto();
+        responseDto.setParks(parkDtos);
+
+        return responseDto;
     }
 
     /**
@@ -93,19 +99,23 @@ public class ParkServiceImpl implements ParkService {
 
         // 공원에 있는 종 정보 조회 및 SpeciesDto로 변환
         List<SpeciesDto> speciesDtos = park.getParkSpecies().stream()
-            .map(parkSpecies -> new SpeciesDto(
-                parkSpecies.getSpecies().getId(),
-                parkSpecies.getSpecies().getName(),
-                parkSpecies.getSpecies().getImageUrl(),
-                false))
+            .map(parkSpecies -> {
+                SpeciesDto dto = new SpeciesDto();
+                dto.setSpeciesId(parkSpecies.getSpecies().getId());
+                dto.setName(parkSpecies.getSpecies().getName());
+                dto.setImageUrl(parkSpecies.getSpecies().getImageUrl());
+                dto.setDiscovered(false);
+                return dto;
+            })
             .collect(Collectors.toList());
 
-        return new ParkDetailResponseDto(
-            park.getId(),
-            park.getName(),
-            park.getDescription(),
-            park.getImageUrl(),
-            speciesDtos
-        );
+        ParkDetailResponseDto responseDto = new ParkDetailResponseDto();
+        responseDto.setParkId(park.getId());
+        responseDto.setName(park.getName());
+        responseDto.setDescription(park.getDescription());
+        responseDto.setImageUrl(park.getImageUrl());
+        responseDto.setSpecies(speciesDtos);
+
+        return responseDto;
     }
 }
