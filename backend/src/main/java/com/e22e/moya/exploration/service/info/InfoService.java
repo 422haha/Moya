@@ -6,5 +6,5 @@ public interface InfoService {
 
     ExplorationInfoDto getInitInfo(Long parkId, Long userId);
 
-    ExplorationInfoDto getInfo(Long explorationId, long userId);
+    ExplorationInfoDto getInfo(Long parkId, Long explorationId, long userId);
 }
