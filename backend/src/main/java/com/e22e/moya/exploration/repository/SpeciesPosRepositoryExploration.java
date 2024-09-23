@@ -16,7 +16,7 @@ public interface SpeciesPosRepositoryExploration extends JpaRepository<SpeciesPo
         "ST_Distance(CAST(sp.pos AS geography), CAST(ST_SetSRID(:point, 4326) AS geography)) as distance " +
         "FROM species_pos sp " +
         "WHERE sp.park_species_id = :#{#parkSpecies.id} " +
-        "AND ST_DWithin(CAST(sp.pos AS geography), CAST(ST_SetSRID(:point, 4326) AS geography), 10) " +
+        "AND ST_DWithin(CAST(sp.pos AS geography), CAST(ST_SetSRID(:point, 4326) AS geography), 5) " +
         "ORDER BY distance " +
         "LIMIT 1",
         nativeQuery = true)
