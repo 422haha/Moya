@@ -20,7 +20,7 @@ import java.util.List;
 class ParkServiceTest {
 
     @InjectMocks
-    private ParkServiceImpl parkService;  // ParkServiceImpl을 사용해야 함
+    private ParkServiceImpl parkService;
 
     @Mock
     private ParkRepositoryPark parkRepositoryPark;
@@ -55,14 +55,15 @@ class ParkServiceTest {
         when(park2.getDistance()).thenReturn(200.0);
 
         List<ParkDistanceProjection> parks = Arrays.asList(park1, park2);
-        when(parkRepositoryPark.findParksWithDistance(latitude, longitude, page, size)).thenReturn(
-            parks);
+
+        // Mock 설정에서 anyDouble(), anyInt()로 매개변수 수정
+        when(parkRepositoryPark.findParksWithDistance(anyDouble(), anyDouble(), anyInt(), anyInt()))
+            .thenReturn(parks);
 
         System.out.println("When 단계 - 공원 목록 가져오기 실행");
 
         // When
-        ParkListResponseDto parkListResponseDto = parkService.getParks(userId, latitude, longitude,
-            page, size);
+        ParkListResponseDto parkListResponseDto = parkService.getParks(userId, latitude, longitude, page, size);
 
         System.out.println("Then 단계 - 테스트 결과 확인");
         System.out.println("가져온 공원 목록 크기: " + parkListResponseDto.getParks().size());
