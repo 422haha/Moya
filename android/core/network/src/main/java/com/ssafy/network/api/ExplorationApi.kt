@@ -2,9 +2,11 @@ package com.ssafy.network.api
 
 import com.ssafy.model.CompletedQuest
 import com.ssafy.model.ExplorationData
+import com.ssafy.model.ExplorationEndData
 import com.ssafy.model.ExplorationInitialData
 import com.ssafy.model.ExplorationJournalRecent
 import com.ssafy.model.QuestList
+import com.ssafy.model.SpeciesMinimumInfo
 import com.ssafy.network.ResponseBody
 import com.ssafy.network.request.ExplorationEndRequestBody
 import retrofit2.Response
@@ -27,13 +29,13 @@ interface ExplorationApi {
     fun endExploration(
         @Path("explorationId") explorationId: Long,
         @Body body: ExplorationEndRequestBody,
-    ): Response<ResponseBody<String>>
+    ): Response<ResponseBody<ExplorationEndData>>
 
     @POST("/explorations/{explorationId}/camera")
     fun registerSpecies(
         @Path("explorationId") explorationId: Long,
         @Body body: ExplorationEndRequestBody,
-    ): Response<ResponseBody<String>>
+    ): Response<ResponseBody<SpeciesMinimumInfo>>
 
     @GET("/explorations/{explorationId}/quest/list")
     fun getQuestList(

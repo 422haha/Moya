@@ -3,7 +3,7 @@ package com.ssafy.network
 import com.google.gson.Gson
 import retrofit2.Response
 
-suspend fun <T : ResponseBody<T>> apiHandler(apiResponse: suspend () -> Response<T>): ApiResponse<T> {
+suspend fun <T> apiHandler(apiResponse: suspend () -> Response<T>): ApiResponse<T> {
     val result =
         runCatching {
             val response = apiResponse.invoke()

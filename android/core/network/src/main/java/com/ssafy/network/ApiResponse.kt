@@ -2,7 +2,7 @@ package com.ssafy.network
 
 sealed class ApiResponse<out T : Any?> {
     data class Success<out T : Any?>(
-        val body: ResponseBody<out T>?,
+        val body: T?,
     ) : ApiResponse<T>()
 
     data class Error(
