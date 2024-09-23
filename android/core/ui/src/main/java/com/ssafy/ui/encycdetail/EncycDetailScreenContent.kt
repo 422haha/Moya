@@ -1,7 +1,9 @@
 package com.ssafy.ui.encycdetail
 
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -42,8 +44,8 @@ import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.TopBar
-import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.jua
 
 @Immutable
@@ -135,7 +137,7 @@ fun ImageSection() {
             .fillMaxWidth(),
         shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp),
         shadowElevation = 4.dp,
-        color = PrimaryColor
+        color = PrimaryColor,
     ) {
         Box(
             modifier = Modifier
@@ -166,8 +168,9 @@ fun ButtonSection(
             .padding(8.dp)
             .padding(bottom = 16.dp)
             .clickable { onIntent(EncycDetailUserIntent.OnImageButtonClicked) },
+        border = BorderStroke(1.dp, PrimaryColor),
         shape = RoundedCornerShape(50),
-        color = PrimaryColor,
+        color = SurfaceColor,
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
@@ -178,7 +181,7 @@ fun ButtonSection(
             Icon(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "도감 사진 보기",
-                tint = LightBackgroundColor,
+                tint = PrimaryColor,
                 modifier = Modifier.size(20.dp)
             )
 
@@ -186,7 +189,7 @@ fun ButtonSection(
 
             Text(
                 text = "도감 사진 보기",
-                color = LightBackgroundColor
+                color = PrimaryColor
             )
         }
     }
@@ -265,12 +268,13 @@ fun TTSButton(textToRead: String, onTTSClicked: (String) -> Unit) {
             modifier = Modifier
                 .align(Alignment.BottomEnd)
                 .size(48.dp)
-                .clip(RoundedCornerShape(12.dp))
-                .background(Color.Gray)
+                .border(BorderStroke(2.dp, PrimaryColor), shape = RoundedCornerShape(16.dp))
+                .background(SurfaceColor)
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = R.drawable.speaker),
                 contentDescription = "오디오 재생",
+                tint = PrimaryColor
             )
         }
     }
