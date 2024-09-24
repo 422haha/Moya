@@ -1,7 +1,6 @@
 package com.ssafy.ui.encycdetail
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -39,6 +38,7 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.ssafy.ui.R
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
@@ -119,7 +119,7 @@ fun EncycDetailScreenLoaded(
             .fillMaxSize()
     ) {
         Box {
-            ImageSection()
+            state.data.plantImage?.let { ImageSection(it) }
             ButtonSection(modifier = Modifier.align(Alignment.BottomCenter), onIntent)
         }
         Spacer(modifier = Modifier.height(16.dp))
@@ -131,7 +131,7 @@ fun EncycDetailScreenLoaded(
 }
 
 @Composable
-fun ImageSection() {
+fun ImageSection(imageUrl: String) {
     Surface(
         modifier = Modifier
             .fillMaxWidth(),
@@ -145,13 +145,14 @@ fun ImageSection() {
                 .height(250.dp)
                 .padding(12.dp)
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.ic_launcher_background),
+            AsyncImage(
+                model = imageUrl,
                 contentDescription = "도감 사진",
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxSize()
-                    .clip(RoundedCornerShape(16.dp))
+                    .clip(RoundedCornerShape(16.dp)),
+                placeholder = painterResource(id = R.drawable.ic_launcher_background)
             )
         }
     }
@@ -297,5 +298,5 @@ fun EncycDetailScreenPreview() {
 @Preview(showBackground = true)
 @Composable
 fun ImageSectionPreview() {
-    ImageSection()
+    ImageSection("")
 }
