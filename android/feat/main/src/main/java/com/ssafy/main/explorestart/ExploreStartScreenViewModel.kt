@@ -28,7 +28,9 @@ class ExploreStartScreenViewModel @Inject constructor(
                     is ApiResponse.Success -> {
                         response.body?.let { body ->
                             ExploreStartScreenState.Loaded(
-                                markerPositions = body.npcs.flatMap { it.positions }.map { LatLng(it.latitude, it.longitude) }
+                                npcPositions = body.npcs.flatMap { it.positions }.map { LatLng(it.latitude, it.longitude) },
+                                discoveredPositions = body.myDiscoveredSpecies.flatMap { it.positions }.map { LatLng(it.latitude, it.longitude) },
+                                speciesPositions = body.species.flatMap { it.positions }.map { LatLng(it.latitude, it.longitude) },
                             )
                         } ?: ExploreStartScreenState.Error("Failed to load initial data")
                     }

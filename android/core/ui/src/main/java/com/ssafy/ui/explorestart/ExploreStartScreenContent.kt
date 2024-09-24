@@ -20,10 +20,6 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -55,10 +51,11 @@ import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
 
-val requiredPermissions = arrayOf(
-    Manifest.permission.ACCESS_FINE_LOCATION,
-    Manifest.permission.ACCESS_COARSE_LOCATION
-)
+val requiredPermissions =
+    arrayOf(
+        Manifest.permission.ACCESS_FINE_LOCATION,
+        Manifest.permission.ACCESS_COARSE_LOCATION,
+    )
 
 private const val PERMISSION_REQUEST_CODE = 101
 
@@ -66,7 +63,7 @@ private const val PERMISSION_REQUEST_CODE = 101
 fun ExploreStartScreenContent(
     modifier: Modifier = Modifier,
     exploreStartScreenState: ExploreStartScreenState,
-    onIntent: (ExploreStartUserIntent) -> Unit = {}
+    onIntent: (ExploreStartUserIntent) -> Unit = {},
 ) {
     Scaffold(
         content = { paddingValues ->
@@ -79,18 +76,18 @@ fun ExploreStartScreenContent(
                     ExploreStartScreenLoaded(
                         modifier = modifier.padding(paddingValues),
                         exploreStartScreenState = exploreStartScreenState,
-                        onIntent = onIntent
+                        onIntent = onIntent,
                     )
                 }
 
                 is ExploreStartScreenState.Error -> {
                     ErrorScreen(
                         modifier = modifier.padding(paddingValues),
-                        message = exploreStartScreenState.message
+                        message = exploreStartScreenState.message,
                     )
                 }
             }
-        }
+        },
     )
     if (exploreStartScreenState is ExploreStartScreenState.Loaded) {
         if (exploreStartScreenState.showExitDialog) {
@@ -98,7 +95,7 @@ fun ExploreStartScreenContent(
                 ExploreDialog(
                     title = "탐험을 끝마칠까요?",
                     onConfirm = { onIntent(ExploreStartUserIntent.OnExitExploreConfirmed) },
-                    onDismiss = { onIntent(ExploreStartUserIntent.OnExitExploreDismissed) }
+                    onDismiss = { onIntent(ExploreStartUserIntent.OnExitExploreDismissed) },
                 )
             }
         }
@@ -107,7 +104,7 @@ fun ExploreStartScreenContent(
             Dialog(onDismissRequest = { onIntent(ExploreStartUserIntent.OnChallengeDismissed) }) {
                 ChallengeDialog(
                     onConfirm = { onIntent(ExploreStartUserIntent.OnChallengeConfirmed) },
-                    onDismiss = { onIntent(ExploreStartUserIntent.OnChallengeDismissed) }
+                    onDismiss = { onIntent(ExploreStartUserIntent.OnChallengeDismissed) },
                 )
             }
         }
@@ -119,7 +116,7 @@ fun ExploreStartScreenContent(
 fun ExploreStartScreenLoaded(
     modifier: Modifier,
     exploreStartScreenState: ExploreStartScreenState.Loaded,
-    onIntent: (ExploreStartUserIntent) -> Unit
+    onIntent: (ExploreStartUserIntent) -> Unit,
 ) {
     val context = LocalContext.current
     val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
@@ -129,7 +126,7 @@ fun ExploreStartScreenLoaded(
         if (requiredPermissions.all { permission ->
                 ActivityCompat.checkSelfPermission(
                     context,
-                    permission
+                    permission,
                 ) == PackageManager.PERMISSION_GRANTED
             }
         ) {
@@ -143,25 +140,39 @@ fun ExploreStartScreenLoaded(
             ActivityCompat.requestPermissions(
                 context as Activity,
                 requiredPermissions,
-                PERMISSION_REQUEST_CODE
+                PERMISSION_REQUEST_CODE,
             )
         }
     }
 
     Box(modifier = modifier.fillMaxSize()) {
         NaverMap(
-            modifier = Modifier
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .fillMaxSize(),
             locationSource = rememberFusedLocationSource(),
-            properties = MapProperties(
-                locationTrackingMode = LocationTrackingMode.Follow
-            ),
-            cameraPositionState = cameraPositionState
+            properties =
+                MapProperties(
+                    locationTrackingMode = LocationTrackingMode.Follow,
+                ),
+            cameraPositionState = cameraPositionState,
         ) {
-            exploreStartScreenState.markerPositions.forEach { position ->
+            exploreStartScreenState.npcPositions.forEach { position ->
                 Marker(
                     state = MarkerState(position = position),
-                    icon = OverlayImage.fromResource(R.drawable.ic_launcher_background)
+                    icon = OverlayImage.fromResource(R.drawable.marker_npc),
+                )
+            }
+            exploreStartScreenState.discoveredPositions.forEach { position ->
+                Marker(
+                    state = MarkerState(position = position),
+                    icon = OverlayImage.fromResource(R.drawable.baseline_location_on_24),
+                )
+            }
+            exploreStartScreenState.speciesPositions.forEach { position ->
+                Marker(
+                    state = MarkerState(position = position),
+                    icon = OverlayImage.fromResource(R.drawable.marker_notfound),
                 )
             }
         }
@@ -169,25 +180,26 @@ fun ExploreStartScreenLoaded(
         Column(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Top,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 CustomButtonWithImage(
                     text = "탐험 끝내기",
                     onClick = { onIntent(ExploreStartUserIntent.OnExitExploreRequested) },
-                    buttonColor = PrimaryColor
+                    buttonColor = PrimaryColor,
                 )
                 CustomButtonWithImage(
                     text = "도감",
                     onClick = { onIntent(ExploreStartUserIntent.OnEnterEncyc) },
                     textColor = SecondarySurfaceColor,
-                    imagePainter = R.drawable.auto_stories
+                    imagePainter = R.drawable.auto_stories,
                 )
             }
             Spacer(modifier = Modifier.height(16.dp))
@@ -195,23 +207,24 @@ fun ExploreStartScreenLoaded(
                 text = "도전과제",
                 onClick = { onIntent(ExploreStartUserIntent.OnChallengeConfirmed) },
                 textColor = SecondarySurfaceColor,
-                imagePainter = R.drawable.assignment_late
+                imagePainter = R.drawable.assignment_late,
             )
         }
 
         IconButton(
             onClick = { onIntent(ExploreStartUserIntent.OnCameraClicked) },
-            modifier = Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(PrimaryColor)
-                .size(52.dp)
+            modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(PrimaryColor)
+                    .size(52.dp),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_center_focus_weak_24),
                 contentDescription = "Search",
-                tint = LightBackgroundColor
+                tint = LightBackgroundColor,
             )
         }
     }
@@ -221,8 +234,9 @@ fun ExploreStartScreenLoaded(
 @Composable
 fun ExploreStartScreenPreview() {
     ExploreStartScreenContent(
-        exploreStartScreenState = ExploreStartScreenState.Loaded(
-            markerPositions = listOf(LatLng(36.106646, 128.421260))
-        )
+        exploreStartScreenState =
+            ExploreStartScreenState.Loaded(
+                npcPositions = listOf(LatLng(36.106646, 128.421260)),
+            ),
     )
 }
