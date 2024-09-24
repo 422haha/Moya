@@ -66,19 +66,17 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
         nextCheckDescription = "을 벌써 모아온 거야?",
         completeMessage = "고마워! 덕분에 무사히 마술 공연을 끝냈어!",
     )
-    
 )
 
 val npcs: Map<String, NPCLocation> = mapOf(
+    "Location6" to NPCLocation("Location6", LatLng(36.1071543, 128.4165288), isPlace = false),
+    "Location7" to NPCLocation("Location7", LatLng(36.1071598, 128.4165313), isPlace = false),
     "Location4" to NPCLocation("Location4", LatLng(36.1017196, 128.419904), isPlace = false),
     "Location5" to NPCLocation("Location5", LatLng(36.101726, 128.4199104), isPlace = false),
-    "Location1" to NPCLocation("Location1", LatLng(36.1068254, 128.4162736), isPlace = false),
-    "Location2" to NPCLocation("Location2", LatLng(36.1066207, 128.4161508), isPlace = false),
-    "Location3" to NPCLocation("Location3", LatLng(36.1066257, 128.4163829), isPlace = false)
+    "Location1" to NPCLocation("Location1", LatLng(36.1067967, 128.4162641), isPlace = false),
+    "Location2" to NPCLocation("Location2", LatLng(36.1066985, 128.4161918), isPlace = false),
+    "Location3" to NPCLocation("Location3", LatLng(36.1066493, 128.4163712), isPlace = false)
 )
-
-// 36.1017125
-// 128.4199182
 
 val nodes: List<ARNode> = listOf(
     ARNode(

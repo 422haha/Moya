@@ -1,5 +1,6 @@
 package com.ssafy.ar.manager
 
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
@@ -22,6 +23,7 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -34,7 +36,7 @@ class ARNodeManager {
     private val mutex = Mutex()
 
     // 평면에 노드 배치
-    suspend fun placeNode(
+    fun placeNode(
         npcId: String,
         viewModel: ARViewModel,
         frame: Frame?,
@@ -43,8 +45,8 @@ class ARNodeManager {
         materialLoader: MaterialLoader,
         modelInstances: MutableMap<String, ModelInstance>,
         childNodes: SnapshotStateList<Node>
-    ) = mutex.withLock {
-        if(viewModel.getIsPlaceNPC(npcId)) return@withLock
+    ) {
+        if(viewModel.getIsPlaceNPC(npcId)) return
 
         frame?.getUpdatedPlanes()
             ?.firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }

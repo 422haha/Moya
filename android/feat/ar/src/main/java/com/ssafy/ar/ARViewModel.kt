@@ -10,6 +10,7 @@ import com.ssafy.ar.manager.ARLocationManager
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -43,14 +44,16 @@ class ARViewModel(
     val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
 
     // Dialog Data
-    private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus> >(Pair(0, QuestStatus.WAIT))
-    val dialogData: StateFlow<Pair<Int, QuestStatus> > = _dialogData
+    private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus>>(Pair(0, QuestStatus.WAIT))
+    val dialogData: StateFlow<Pair<Int, QuestStatus>> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
     init {
         viewModelScope.launch {
-            locationManager.startLocationUpdates().collect { location ->
-                updateNearestNPC(location)
+            locationManager.currentLocation.collectLatest { location ->
+                location?.let {
+                    updateNearestNPC(location)
+                }
             }
         }
     }
@@ -114,25 +117,28 @@ class ARViewModel(
     private fun updateNearestNPC(location: Location) {
         viewModelScope.launch {
             val nearestNPC = locationManager.findNearestNPC(location, npcMarketNodes.value)
-            _nearestNPC.value = nearestNPC
+            _nearestNPC.emit(nearestNPC)
 
             val nearestDistance =
                 nearestNPC?.let { locationManager.measureNearestNpcDistance(location, it) }
+            _nearestNPCDistance.emit(nearestDistance)
 
-            _nearestNPCDistance.value = nearestDistance
-
-            processLocation()
+            processLocation(nearestNPC, nearestDistance, location)
         }
     }
 
-    private fun processLocation() {
-        val npcId = nearestNPC.value?.id ?: ""
+    private fun processLocation(
+        nearestNPC: NPCLocation?,
+        nearestDistance: Float?,
+        location: Location?
+    ) {
+        val npcId = nearestNPC?.id ?: ""
         val isPlaceNPC = getIsPlaceNPC(npcId)
 
         if (npcId.isNotBlank() &&
             !isPlaceNPC &&
-            (locationManager.currentLocation.value?.accuracy ?: 100.0f) <= 10f &&
-            (nearestNPCDistance.value ?: 100f) <= 10f
+            (location?.accuracy ?: 100.0f) <= 8f &&
+            (nearestDistance ?: 100f) <= 5f
         ) {
             _shouldPlaceNode.value = npcId
         } else {
