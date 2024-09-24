@@ -6,6 +6,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
+import com.ssafy.ar.ARSceneComposable
 import com.ssafy.main.encycdetail.EncycDetailScreen
 import com.ssafy.main.encyclopedia.EncycScreen
 import com.ssafy.main.exploredetail.ExploreDetailScreen
@@ -101,7 +102,13 @@ fun MainNavigation(
                 onEnterEncyc = {
                     navController.navigate(Encyc)
                 },
+                onEnterAR = {
+                    navController.navigate(ARCamera)
+                }
             )
+        }
+        composable<ARCamera> {
+            ARSceneComposable( onPermissionDenied = {} )
         }
         composable<Login> {
             LoginScreen(
