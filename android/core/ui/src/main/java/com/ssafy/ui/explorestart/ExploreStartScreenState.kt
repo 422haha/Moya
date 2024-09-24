@@ -1,9 +1,12 @@
 package com.ssafy.ui.explorestart
 
+import androidx.compose.runtime.Immutable
 import com.naver.maps.geometry.LatLng
 
 sealed interface ExploreStartScreenState {
+    @Immutable
     data object Loading : ExploreStartScreenState
+    @Immutable
     data class Loaded(
         val npcPositions: List<LatLng> = listOf(),
         val discoveredPositions: List<LatLng> = listOf(),
@@ -11,7 +14,7 @@ sealed interface ExploreStartScreenState {
         val showExitDialog: Boolean = false,
         val showChallengeDialog: Boolean = false
     ) : ExploreStartScreenState
-
+    @Immutable
     data class Error(val message: String) : ExploreStartScreenState
 }
 
