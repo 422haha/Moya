@@ -21,12 +21,12 @@ class HomeScreenViewModel @Inject constructor() : ViewModel() {
             parkState = BoxWithImageState(
                 info = "500m",
                 title = "동락공원",
-                image = null
+                image = "https://cdn.autotribune.co.kr/news/photo/202404/16048_73647_5214.png"
             ),
             exploreState = BoxWithImageState(
                 info = "2024.09.17",
                 title = "동락공원",
-                image = null
+                image = "https://cdn.autotribune.co.kr/news/photo/202404/16048_73647_5214.png"
             ),
         )
     }

@@ -1,7 +1,7 @@
 package com.ssafy.ui.component
 
+import android.util.Log
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -27,7 +27,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import coil.compose.AsyncImage
 import com.ssafy.ui.R
+import com.ssafy.ui.formatDistance
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
@@ -70,16 +72,16 @@ fun BoxWithImage(
                     .padding(8.dp)
                     .clip(RoundedCornerShape(12.dp))
             ) {
-                Image(
-                    //TODO 이미지 추가
-                    painter = painterResource(id = R.drawable.ic_launcher_background),
+                AsyncImage(
+                    model = state.image,
                     contentDescription = "이미지",
                     contentScale = ContentScale.Crop,
                     modifier = Modifier
                         .fillMaxWidth()
                         //TODO 나중에 높이 값 수정 필요할듯??
                         .height(200.dp)
-                        .clip(RoundedCornerShape(12.dp))
+                        .clip(RoundedCornerShape(12.dp)),
+                    placeholder = painterResource(id = R.drawable.ic_launcher_background)
                 )
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
@@ -93,8 +95,9 @@ fun BoxWithImage(
                         modifier = Modifier.size(32.dp),
                         tint = LightBackgroundColor
                     )
+                    Log.d("TAG", "state information: $state")
                     Text(
-                        text = state.info,
+                        text = formatDistance(state.info),
                         color = Color.White,
                         modifier = Modifier
                             .padding(vertical = 16.dp)
@@ -124,7 +127,7 @@ fun BoxWithImagePreview() {
         state = BoxWithImageState(
             title = "동락공원",
             info = "500m",
-            image = null
+            image = "https://cdn.autotribune.co.kr/news/photo/202404/16048_73647_5214.png"
         ),
     )
 }

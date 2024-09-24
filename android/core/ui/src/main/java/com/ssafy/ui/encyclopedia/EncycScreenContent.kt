@@ -36,6 +36,7 @@ import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.component.plantInfo
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.StarYellowColor
@@ -173,8 +174,11 @@ fun EncycGrid(
     ) {
         itemsIndexed(items) { index, item ->
             PlantCard(
-                plantName = item.plantName,
-                isDiscovered = item.isDiscovered,
+                plantInfo(
+                    plantName = item.plantName,
+                    plantImage = item.plantImage,
+                    isDiscovered = item.isDiscovered
+                ),
                 onClick = { onItemClicked(index.toLong()) }
             )
         }

@@ -30,6 +30,7 @@ class ParkDetailViewModel @Inject constructor(
                             ParkDetailScreenState.Loaded(
                                 parkName = body.parkName,
                                 description = body.description,
+                                parkImage = body.imageUrl,
                                 items = body.species.map {
                                     EncycGridState(
                                         plantName = it.speciesName,

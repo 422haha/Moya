@@ -30,6 +30,7 @@ import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.component.plantInfo
 import com.ssafy.ui.encyclopedia.EncycGridState
 import com.ssafy.ui.formatDate
 import com.ssafy.ui.theme.SecondaryColor
@@ -208,8 +209,11 @@ fun HorizontalEncyc(
     ) {
         items(8) { index ->
             PlantCard(
-                plantName = state.items[index].plantName,
-                isDiscovered = state.items[index].isDiscovered,
+                plantInfo(
+                    plantName = state.items[index].plantName,
+                    plantImage = state.items[index].plantImage,
+                    isDiscovered = state.items[index].isDiscovered
+                ),
                 onClick = { onItemClicked(index.toLong()) })
         }
     }
