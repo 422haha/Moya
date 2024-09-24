@@ -2,14 +2,14 @@ package com.ssafy.main.encycdetail
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.encycdetail.EncycDetailScreenContent
 import com.ssafy.ui.encycdetail.EncycDetailUserIntent
 
 @Composable
 fun EncycDetailScreen(
-    viewModel: EncycDetailScreenVIewModel = viewModel(),
+    viewModel: EncycDetailScreenVIewModel = hiltViewModel(),
     onPop: () -> Unit,
     onTTSClicked: (String) -> Unit,
     onTTSShutDown: () -> Unit

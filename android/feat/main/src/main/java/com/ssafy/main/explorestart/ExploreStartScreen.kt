@@ -1,19 +1,25 @@
 package com.ssafy.main.explorestart
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.explorestart.ExploreStartScreenContent
 import com.ssafy.ui.explorestart.ExploreStartUserIntent
 
 @Composable
 fun ExploreStartScreen(
-    viewModel: ExploreStartScreenViewModel = viewModel(),
+    parkId: Long,
+    viewModel: ExploreStartScreenViewModel = hiltViewModel(),
     onExitExplore: () -> Unit,
     onEnterEncyc: () -> Unit
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
+    
+    LaunchedEffect(parkId) {
+        viewModel.loadInitialData(parkId)
+    }
 
     ExploreStartScreenContent(exploreStartScreenState = uiState, onIntent = {intent->
         when (intent) {

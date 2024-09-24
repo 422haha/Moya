@@ -18,38 +18,38 @@ import retrofit2.http.Path
 interface ExplorationApi {
 
     @GET("/exploration/home")
-    fun getRecentExploration(): Response<ResponseBody<ExplorationJournalRecent>>
+    suspend fun getRecentExploration(): Response<ResponseBody<ExplorationJournalRecent>>
 
     @GET("/exploration/start/{parkId}")
-    fun startExploration(
+    suspend fun startExploration(
         @Path("parkId") parkId: Long,
     ): Response<ResponseBody<ExplorationInitialData>>
 
     @POST("/explorations/{explorationId}/end")
-    fun endExploration(
+    suspend fun endExploration(
         @Path("explorationId") explorationId: Long,
         @Body body: ExplorationEndRequestBody,
     ): Response<ResponseBody<ExplorationEndData>>
 
     @POST("/explorations/{explorationId}/camera")
-    fun registerSpecies(
+    suspend fun registerSpecies(
         @Path("explorationId") explorationId: Long,
         @Body body: ExplorationEndRequestBody,
     ): Response<ResponseBody<SpeciesMinimumInfo>>
 
     @GET("/explorations/{explorationId}/quest/list")
-    fun getQuestList(
+    suspend fun getQuestList(
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<QuestList>>
 
     @POST("/explorations/{explorationId}/quest/{questId}/complete")
-    fun completeQuest(
+    suspend fun completeQuest(
         @Path("explorationId") explorationId: Long,
         @Path("questId") questId: Long,
     ): Response<ResponseBody<CompletedQuest>>
 
     @GET("/explorations/load/{explorationId}")
-    fun getExplorationData(
+    suspend fun getExplorationData(
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<ExplorationData>>
 }

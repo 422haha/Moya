@@ -2,14 +2,14 @@ package com.ssafy.main.encyclopedia
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.encyclopedia.EncycScreenContent
 import com.ssafy.ui.encyclopedia.EncycUserIntent
 
 @Composable
 fun EncycScreen(
-    viewModel: EncycScreenViewModel = viewModel(),
+    viewModel: EncycScreenViewModel = hiltViewModel(),
     onNavigateToEncycDetail: (Long) -> Unit,
     onPop: () -> Unit
 ) {

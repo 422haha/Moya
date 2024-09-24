@@ -2,14 +2,14 @@ package com.ssafy.main.login
 
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
-import androidx.lifecycle.viewmodel.compose.viewModel
 import com.ssafy.ui.login.LoginScreenContent
 import com.ssafy.ui.login.LoginUserIntent
 
 @Composable
 fun LoginScreen(
-    viewModel: LoginScreenViewModel = viewModel(),
+    viewModel: LoginScreenViewModel = hiltViewModel(),
     onNavigateToHome: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()

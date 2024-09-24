@@ -3,13 +3,13 @@ package com.ssafy.main.explorelist
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.ssafy.ui.explorelist.ExploreListScreenContent
 import com.ssafy.ui.explorelist.ExploreListUserIntent
 
 @Composable
 fun ExploreListScreen(
-    viewModel: ExploreListScreenViewModel = viewModel(),
+    viewModel: ExploreListScreenViewModel = hiltViewModel(),
     onExploreItemClick: (Long) -> Unit,
     onPop: () -> Unit,
 ) {

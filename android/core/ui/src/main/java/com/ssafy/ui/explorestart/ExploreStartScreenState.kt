@@ -5,7 +5,9 @@ import com.naver.maps.geometry.LatLng
 sealed interface ExploreStartScreenState {
     data object Loading : ExploreStartScreenState
     data class Loaded(
-        val markerPositions: List<LatLng> = listOf(),
+        val npcPositions: List<LatLng> = listOf(),
+        val discoveredPositions: List<LatLng> = listOf(),
+        val speciesPositions: List<LatLng> = listOf(),
         val showExitDialog: Boolean = false,
         val showChallengeDialog: Boolean = false
     ) : ExploreStartScreenState

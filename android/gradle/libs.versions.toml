@@ -30,7 +30,7 @@ kotlinx-serialization-converter = "1.0.0"
 
 #hilt
 hilt = "2.49"
-hilt-compose = "1.2.0"
+hilt-navigation-compose = "1.2.0"
 appcompat = "1.7.0"
 material = "1.12.0"
 
@@ -88,8 +88,7 @@ hilt-android = { group = "com.google.dagger", name = "hilt-android", version.ref
 hilt-android-testing = { group = "com.google.dagger", name = "hilt-android-testing", version.ref = "hilt" }
 hilt-compiler = { group = "com.google.dagger", name = "hilt-compiler", version.ref = "hilt" }
 hilt-core = { group = "com.google.dagger", name = "hilt-core", version.ref = "hilt" }
-androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompat" }
-material = { group = "com.google.android.material", name = "material", version.ref = "material" }
+hilt-navigation-compose = { group = "androidx.hilt", name = "hilt-navigation-compose", version.ref = "hilt-navigation-compose" }
 
 # timber
 timber = { group = "com.jakewharton.timber", name = "timber", version.ref = "timber" }
