@@ -1,7 +1,6 @@
 package com.ssafy.ar
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -53,6 +52,7 @@ import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 
@@ -89,7 +89,8 @@ fun ARSceneComposable(
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
 
     // Manager
-    val locationManager = remember { ARLocationManager(context, coroutineScope, fusedLocationClient) }
+    val locationManager =
+        remember { ARLocationManager(context, coroutineScope, fusedLocationClient) }
     val nodeManager = remember { ARNodeManager(engine, modelLoader, materialLoader) }
 
     val viewModel: ARViewModel = viewModel(factory = object : ViewModelProvider.Factory {
@@ -100,21 +101,21 @@ fun ARSceneComposable(
 
     // AR State
     val anchorNodes by viewModel.anchorNodes.collectAsState()
+    val npcMarkers by viewModel.npcMarketNodes.collectAsState()
     val shouldPlaceNode by viewModel.shouldPlaceNode.collectAsState()
     val nearestNPC by viewModel.nearestNPC.collectAsState()
     val nearestNPCDistance by viewModel.nearestNPCDistance.collectAsState()
     val currentLocation by locationManager.currentLocation.collectAsState()
-
-    val npcMarkers by viewModel.npcMarketNodes.collectAsState()
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
 
+    var isPlacingNode = false
+
     MultiplePermissionsHandler(
         permissions = listOf(
-            Manifest.permission.CAMERA,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.ACCESS_COARSE_LOCATION
         )
@@ -144,48 +145,66 @@ fun ARSceneComposable(
                         true -> Config.DepthMode.AUTOMATIC
                         else -> Config.DepthMode.DISABLED
                     }
-                config.instantPlacementMode = Config.InstantPlacementMode.LOCAL_Y_UP
+                config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
                 config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-                config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
+                config.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
 //                config.geospatialMode = Config.GeospatialMode.ENABLED
             },
             cameraNode = cameraNode,
-            planeRenderer = false,
+            planeRenderer = planeRenderer,
             onTrackingFailureChanged = {
                 trackingFailureReason = it
             },
             onSessionUpdated = { session, updatedFrame ->
                 frame = updatedFrame
 
-                if (!viewModel.isPlacingNode &&
+                val desiredPlaneFindingMode = if (shouldPlaceNode != null)
+                    Config.PlaneFindingMode.HORIZONTAL
+                else
+                    Config.PlaneFindingMode.DISABLED
+
+                if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                    runCatching {
+                        session.configure(session.config.apply {
+                            setPlaneFindingMode(desiredPlaneFindingMode)
+                        })
+                    }
+                }
+
+                if (!isPlacingNode &&
                     shouldPlaceNode != null &&
-                    updatedFrame.isTrackingPlane()) {
-                    viewModel.isPlacingNode = true
-
+                    updatedFrame.isTrackingPlane()
+                ) {
                     shouldPlaceNode?.let { npcId ->
-                        if(!viewModel.getIsPlaceNPC(npcId)) {
-                            nodeManager.placeNode(
-                                updatedFrame,
-                                childNodes = childNodes,
-                                onSuccess = { uuid ->
-                                    viewModel.addQuest(uuid, QuestStatus.WAIT)
+                        if (!viewModel.getIsPlaceNPC(npcId)) {
+                            isPlacingNode = true
+                            coroutineScope.launch {
+                                nodeManager.placeNode(
+                                    updatedFrame,
+                                    childNodes = childNodes,
+                                    onSuccess = { uuid ->
+                                        viewModel.addQuest(uuid, QuestStatus.WAIT)
 
-                                    viewModel.updateIsPlaceNPC(npcId, true)
+                                        viewModel.updateIsPlaceNPC(npcId, true)
 
-                                    viewModel.removeNpcMarker(npcId)
+                                        viewModel.removeNpcMarker(npcId)
 
-                                    viewModel.updateShouldPlaceNode(null)
-                                }
-                            )
+                                        viewModel.updateShouldPlaceNode(null)
+                                    }
+                                )
+
+                                delay(10000)
+
+                                isPlacingNode = false
+                            }
                         }
                     }
-                    viewModel.isPlacingNode = false
                 }
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-                    if(node is ModelNode) {
+                    if (node is ModelNode) {
                         val anchorId = node.parent?.name
 
                         if (anchorId != null) {
@@ -203,7 +222,8 @@ fun ARSceneComposable(
                                                 nodeId, state
                                             ) { accepted ->
                                                 if (accepted) { // 수락
-                                                    val parentAnchorNode = node.parent as? AnchorNode
+                                                    val parentAnchorNode =
+                                                        node.parent as? AnchorNode
                                                     parentAnchorNode?.let {
                                                         coroutineScope.launch {
                                                             withContext(Dispatchers.Main) {
@@ -326,7 +346,10 @@ fun ArStatusText(
         fontSize = 28.sp,
         color = Color.White,
         text = (when (trackingFailureReason) {
-            TrackingFailureReason.NONE -> { "위치를 찾고 있어" }
+            TrackingFailureReason.NONE -> {
+                "위치를 찾고 있어"
+            }
+
             TrackingFailureReason.BAD_STATE -> "지금 내부 상태가\n불안정해"
             TrackingFailureReason.INSUFFICIENT_LIGHT -> "주변이 어두워서\n찾을 수 없어"
             TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"

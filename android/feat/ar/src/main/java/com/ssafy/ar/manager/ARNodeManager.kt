@@ -4,7 +4,9 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
 import com.google.ar.core.Frame
+import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
+import com.google.ar.core.dependencies.f
 import com.ssafy.ar.data.QuestData
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.arcore.createAnchorOrNull
@@ -20,6 +22,9 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.util.UUID
 
@@ -30,14 +35,16 @@ class ARNodeManager(
     private val modelLoader: ModelLoader,
     private val materialLoader: MaterialLoader,
 ) {
+    private val mutex = Mutex()
+
     // 평면에 노드 배치
-    fun placeNode(
+    suspend fun placeNode(
         frame: Frame?,
         childNodes: SnapshotStateList<Node>,
         onSuccess: (String) -> Unit,
-    ) {
+    ) = mutex.withLock {
         frame?.getUpdatedPlanes()
-            ?.firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
+            ?.lastOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
             ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
                 val uuid = UUID.randomUUID().toString()
 
@@ -53,10 +60,10 @@ class ARNodeManager(
     }
 
     // 특정 위치에 앵커노드(+모델노드) 생성
-    private fun createAnchorNode(
+    private suspend fun createAnchorNode(
         node: QuestData,
         anchor: Anchor
-    ): AnchorNode {
+    ): AnchorNode = withContext(Dispatchers.Main) {
         val idx = (1..4).random()
 
         val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
@@ -89,7 +96,7 @@ class ARNodeManager(
 
         anchorNode.addChildNode(modelNode)
 
-        return anchorNode
+        anchorNode
     }
 
     // 모델 노드 업데이트
