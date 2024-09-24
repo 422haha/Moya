@@ -59,22 +59,16 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-
     //compose-navigation
     implementation(libs.androidx.navigation.compose)
 
     //serialization
     implementation(libs.kotlinx.serialization.core)
 
+    implementation(project(":feat:ar"))
+    implementation("io.github.sceneview:arsceneview:2.2.1")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
+
     implementation(project(":feat:main"))
     implementation(project(":core:ui"))
-
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
 }
