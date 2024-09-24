@@ -1,24 +1,24 @@
 package com.ssafy.main.encyclopedia
 
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.hilt.navigation.compose.hiltViewModel
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.ssafy.ui.encyclopedia.EncycScreenContent
-import com.ssafy.ui.encyclopedia.EncycScreenUserIntent
+import com.ssafy.ui.encyclopedia.EncycUserIntent
 
 @Composable
 fun EncycScreen(
-    viewModel: EncycScreenViewModel = viewModel(),
+    viewModel: EncycScreenViewModel = hiltViewModel(),
     onNavigateToEncycDetail: (Long) -> Unit,
     onPop: () -> Unit
 ) {
-    val uiState by viewModel.state.collectAsState()
+    val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     EncycScreenContent(encycScreenState = uiState, onIntent = { intent ->
         when (intent) {
-            is EncycScreenUserIntent.OnItemSelect -> onNavigateToEncycDetail(intent.id)
-            is EncycScreenUserIntent.OnPop -> onPop()
+            is EncycUserIntent.OnItemSelect -> onNavigateToEncycDetail(intent.id)
+            is EncycUserIntent.OnPop -> onPop()
             else -> viewModel.onIntent(intent)
         }
     })

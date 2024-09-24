@@ -11,11 +11,4 @@ public class ParkResponseDto {
     private String parkName;
     private int distance;
     private String imageUrl;
-
-    public ParkResponseDto(Long parkId, String parkName, int distance, String imageUrl) {
-        this.parkId = parkId;
-        this.parkName = parkName;
-        this.distance = distance;
-        this.imageUrl = imageUrl;
-    }
 }

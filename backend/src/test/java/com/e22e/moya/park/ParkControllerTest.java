@@ -44,16 +44,25 @@ public class ParkControllerTest {
         double latitude = 36.107000;
         double longitude = 128.416000;
         Long userId = 1L;
-        ParkResponseDto parkResponseDto = new ParkResponseDto(1L, "싸피 뒷뜰", 500, "image_url");
+
+        // setter 방식으로 변경
+        ParkResponseDto parkResponseDto = new ParkResponseDto();
+        parkResponseDto.setParkId(1L);
+        parkResponseDto.setParkName("싸피 뒷뜰");
+        parkResponseDto.setDistance(500);
+        parkResponseDto.setImageUrl("image_url");
 
 //        when(jwtUtil.getUserIdFromToken(token)).thenReturn(userId);
         when(parkService.getNearestPark(userId, latitude, longitude)).thenReturn(parkResponseDto);
 
         // 로그 출력 - Given 단계
-        System.out.println("Given 단계 - latitude: " + latitude + ", longitude: " + longitude + ", userId: " + userId);
+        System.out.println(
+            "Given 단계 - latitude: " + latitude + ", longitude: " + longitude + ", userId: "
+                + userId);
 
         // When
-        ResponseEntity<Map<String, Object>> responseEntity = parkController.getNearestPark(latitude, longitude);
+        ResponseEntity<Map<String, Object>> responseEntity = parkController.getNearestPark(latitude,
+            longitude);
 
         // 로그 출력 - When 단계
         System.out.println("When 단계 - Nearest Park 호출 완료");
@@ -83,19 +92,37 @@ public class ParkControllerTest {
         int page = 0;
         int size = 10;
 
-        ParkResponseDto park1 = new ParkResponseDto(1L, "싸피 뒷뜰", 500, "image_url1");
-        ParkResponseDto park2 = new ParkResponseDto(2L, "동락공원", 1000, "image_url2");
+        // setter 방식으로 변경
+        ParkResponseDto park1 = new ParkResponseDto();
+        park1.setParkId(1L);
+        park1.setParkName("싸피 뒷뜰");
+        park1.setDistance(500);
+        park1.setImageUrl("image_url1");
+
+        ParkResponseDto park2 = new ParkResponseDto();
+        park2.setParkId(2L);
+        park2.setParkName("동락공원");
+        park2.setDistance(1000);
+        park2.setImageUrl("image_url2");
+
         List<ParkResponseDto> parkList = Arrays.asList(park1, park2);
-        ParkListResponseDto parkListResponseDto = new ParkListResponseDto(parkList);
+
+        // setter 방식으로 변경
+        ParkListResponseDto parkListResponseDto = new ParkListResponseDto();
+        parkListResponseDto.setParks(parkList);
 
 //        when(jwtUtil.getUserIdFromToken(token)).thenReturn(userId);
-        when(parkService.getParks(userId, latitude, longitude, page, size)).thenReturn(parkListResponseDto);
+        when(parkService.getParks(userId, latitude, longitude, page, size)).thenReturn(
+            parkListResponseDto);
 
         // 로그 출력 - Given 단계
-        System.out.println("Given 단계 - latitude: " + latitude + ", longitude: " + longitude + ", userId: " + userId + ", page: " + page + ", size: " + size);
+        System.out.println(
+            "Given 단계 - latitude: " + latitude + ", longitude: " + longitude + ", userId: " + userId
+                + ", page: " + page + ", size: " + size);
 
         // When
-        ResponseEntity<Map<String, Object>> responseEntity = parkController.getParks(page, size, latitude, longitude);
+        ResponseEntity<Map<String, Object>> responseEntity = parkController.getParks(page, size,
+            latitude, longitude);
 
         // 로그 출력 - When 단계
         System.out.println("When 단계 - 공원 목록 호출 완료");
@@ -121,7 +148,13 @@ public class ParkControllerTest {
 //        String token = "Bearer mockToken";
         Long parkId = 1L;
         Long userId = 1L;
-        ParkDetailResponseDto parkDetailResponseDto = new ParkDetailResponseDto(1L, "싸피 뒷뜰", "싸피 기숙사 뒷뜰", "image_url", null);
+
+        // setter 방식으로 변경
+        ParkDetailResponseDto parkDetailResponseDto = new ParkDetailResponseDto();
+        parkDetailResponseDto.setParkId(1L);
+        parkDetailResponseDto.setName("싸피 뒷뜰");
+        parkDetailResponseDto.setDescription("싸피 기숙사 뒷뜰");
+        parkDetailResponseDto.setImageUrl("image_url");
 
 //        when(jwtUtil.getUserIdFromToken(token)).thenReturn(userId);
         when(parkService.getParkDetail(parkId)).thenReturn(parkDetailResponseDto);

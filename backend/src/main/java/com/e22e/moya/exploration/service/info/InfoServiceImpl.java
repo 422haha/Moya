@@ -12,6 +12,7 @@ import com.e22e.moya.exploration.dto.info.PositionDto;
 import com.e22e.moya.exploration.dto.info.SpeciesDto;
 import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
 import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
+import com.e22e.moya.exploration.repository.QuestCompletedRepositoryExploration;
 import com.e22e.moya.exploration.service.quest.QuestService;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDate;
@@ -42,12 +43,15 @@ public class InfoServiceImpl implements InfoService {
     private final ParkRepositoryExploration parkRepository;
     private final QuestService questService;
     private final ExplorationRepositoryExploration explorationRepository;
+    private final QuestCompletedRepositoryExploration questCompletedRepository;
 
     public InfoServiceImpl(ParkRepositoryExploration parkRepository, QuestService questService,
-        ExplorationRepositoryExploration explorationRepository) {
+        ExplorationRepositoryExploration explorationRepository,
+        QuestCompletedRepositoryExploration questCompletedRepository) {
         this.parkRepository = parkRepository;
         this.questService = questService;
         this.explorationRepository = explorationRepository;
+        this.questCompletedRepository = questCompletedRepository;
     }
 
     /**
@@ -99,12 +103,40 @@ public class InfoServiceImpl implements InfoService {
      * 탐험 정보 로드 메서드
      *
      * @param explorationId 탐험 id
-     * @param userId
+     * @param userId        사용자 id
+     * @param parkId        공원 id
      */
     @Transactional(readOnly = true)
-    public ExplorationInfoDto getInfo(Long explorationId, long userId) {
+    public ExplorationInfoDto getInfo(Long parkId, Long explorationId, long userId) {
 
-        return null;
+        ExplorationInfoDto infoLoadDto = new ExplorationInfoDto();
+        Park park = parkRepository.findById(parkId)
+            .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
+
+        // 내가 공원에서 발견한 것들
+        List<ParkSpeciesDto> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(parkId,
+            userId);
+        List<SpeciesDto> mySpeciesDto = convertToSpeciesDtos(myDiscoveredSpecies);//내가 공원에서 발견한것들
+
+        // 공원에서 발견할 수 있는 것들 군집
+        List<ParkSpeciesDto> allParkSpecies = parkRepository.findAllSpecies(
+            parkId);
+
+        // 내가 발견한 것 위치는 제외하도록
+        List<ParkSpeciesDto> filteredParkSpecies = filterDiscoveredSpecies(allParkSpecies,
+            myDiscoveredSpecies);
+
+        List<SpeciesDto> allSpeciesDto = convertToSpeciesDtos(filteredParkSpecies);
+        List<NpcDto> npcDtos = getNpcsInPark(park);
+
+        infoLoadDto.setMyDiscoveredSpecies(mySpeciesDto);
+        infoLoadDto.setSpecies(allSpeciesDto);
+        infoLoadDto.setNpcs(npcDtos);
+
+        infoLoadDto.setExplorationId(explorationId);
+        infoLoadDto.setCompletedQuests(
+            questCompletedRepository.countCompletedQuestsByExplorationId(explorationId));
+        return infoLoadDto;
     }
 
     /**

@@ -9,8 +9,4 @@ import java.util.List;
 public class ParkListResponseDto {
 
     private List<ParkResponseDto> parks;
-
-    public ParkListResponseDto(List<ParkResponseDto> parks) {
-        this.parks = parks;
-    }
 }
