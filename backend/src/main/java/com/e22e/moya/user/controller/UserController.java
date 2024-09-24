@@ -83,12 +83,12 @@ public class UserController {
         } catch (IllegalArgumentException e) {
             log.error("사용자 조회 실패: {}", e.getMessage());
             response.put("message", "사용자를 찾을 수 없습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             log.error("사용자 이름 조회 실패: {}", e.getMessage());
             response.put("message", "권한이 없습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         }
     }
