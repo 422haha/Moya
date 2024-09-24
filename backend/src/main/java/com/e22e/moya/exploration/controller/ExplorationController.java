@@ -5,6 +5,7 @@ import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
+import com.e22e.moya.exploration.dto.findRoot.findRootRequestDto;
 import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
@@ -87,10 +88,12 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("공원을 찾을 수 없습니다. : {}", e.getMessage());
             response.put("message", "공원을 찾을 수 없습니다");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
             response.put("message", "탐험에 필요한 정보 불러올 수 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -118,10 +121,12 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("공원을 찾을 수 없습니다. : {}", e.getMessage());
             response.put("message", "공원을 찾을 수 없습니다");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
             response.put("message", "탐험에 필요한 정보 불러올 수 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -147,10 +152,12 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("리소스를 찾을 수 없음 : {}", e.getMessage());
             response.put("message", e.getMessage());
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             log.error("도감에 저장 실패 : {}", e.getMessage());
             response.put("message", "도감에 저장할 수 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
@@ -177,14 +184,17 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("탐험을 찾을 수 없음 : {}", e.getMessage());
             response.put("message", "탐험을 찾을 수 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalArgumentException e) {
             log.error("권한 없음 : {}", e.getMessage());
             response.put("message", "탐험 종료 권한이 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
             log.error("탐험 기록 저장 실패 : {}", e.getMessage());
             response.put("message", "탐험 기록 저장에 실패했습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
 
@@ -209,10 +219,12 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("도전과제 목록을 찾을 수 없음 : {}", e.getMessage());
             response.put("message", e.getMessage());
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
             log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
             response.put("message", "도전과제 목록 조회에 실패했습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -236,15 +248,26 @@ public class ExplorationController {
         } catch (EntityNotFoundException e) {
             log.error("도전과제를 찾을 수 없음 : {}", e.getMessage());
             response.put("message", "퀘스트를 찾을 수 없습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalStateException e) {
             log.error("도전과제 이미 완료됨 : {}", e.getMessage());
             response.put("message", "도전과제가 이미 완료되었습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
             log.error("도전과제 완료 처리 실패 : {}", e.getMessage());
-            response.put("message", "도전과제 완료 처리에 실패했습니다/");
+            response.put("message", "도전과제 완료 처리에 실패했습니다.");
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+//    // 공원 내 길찾기
+//    @GetMapping("/findRoot")
+//    public ResponseEntity<Map<String, Object>> findRoot(
+//        @RequestBody findRootRequestDto findRootRequestDto
+//    ) {
+//
+//    }
 }

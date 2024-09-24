@@ -49,7 +49,7 @@ public class ParkController {
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -87,7 +87,7 @@ public class ParkController {
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -118,7 +118,7 @@ public class ParkController {
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
