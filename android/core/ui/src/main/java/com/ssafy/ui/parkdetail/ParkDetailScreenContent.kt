@@ -89,7 +89,7 @@ fun ParkDetailScreenLoaded(
                     modifier = Modifier
                         .fillMaxWidth()
                 ) {
-                    ImageSection()
+                    state.parkImage?.let { ImageSection(imageUrl = it) }
                     TitleAndDividerSection("공원 소개")
                     DescriptionSection(state.description)
                 }
