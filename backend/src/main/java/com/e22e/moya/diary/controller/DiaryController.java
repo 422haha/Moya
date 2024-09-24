@@ -46,12 +46,12 @@ public class DiaryController {
 
         } catch (EntityNotFoundException e) {
             response.put("message", "최근 탐험이 없습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -83,7 +83,7 @@ public class DiaryController {
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
@@ -114,12 +114,12 @@ public class DiaryController {
 
         } catch (EntityNotFoundException e) {
             response.put("message", "탐험을 찾을 수 없습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (Exception e) {
             response.put("message", "서버 내부 오류가 발생했습니다");
-            response.put("data", null);
+            response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
