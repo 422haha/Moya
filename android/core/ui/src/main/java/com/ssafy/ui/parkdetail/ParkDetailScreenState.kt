@@ -11,6 +11,7 @@ sealed interface ParkDetailScreenState {
     data class Loaded(
         val parkName: String,
         val description: String,
+        val parkImage: String? = null,
         val items: List<EncycGridState> = listOf()
     ) : ParkDetailScreenState
 
