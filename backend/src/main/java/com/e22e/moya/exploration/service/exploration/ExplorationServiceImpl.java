@@ -49,8 +49,10 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final SpeciesPosRepositoryExploration speciesPosRepository;
 
     public ExplorationServiceImpl(UserRepository userRepository,
-        SpeciesRepositoryExploration speciesRepository, DiscoveryRepositoryExploration discoveryRepository,
-        ExplorationRepositoryExploration explorationRepository, ParkSpeciesRepositoryExploration parkSpeciesRepository,
+        SpeciesRepositoryExploration speciesRepository,
+        DiscoveryRepositoryExploration discoveryRepository,
+        ExplorationRepositoryExploration explorationRepository,
+        ParkSpeciesRepositoryExploration parkSpeciesRepository,
         SpeciesPosRepositoryExploration speciesPosRepository) {
         this.userRepository = userRepository;
         this.speciesRepository = speciesRepository;
@@ -164,6 +166,7 @@ public class ExplorationServiceImpl implements ExplorationService {
         exploration.setRoute(lineString);
         exploration.setSteps(endRequestDto.getSteps());
         exploration.setEndTime(LocalDateTime.now());
+        exploration.setCompleted(true);
         explorationRepository.save(exploration); // 기존 정보 저장e
 
         // 저장된 linestring을 바탕으로 PostGIS 사용하여 거리 계산 및 저장

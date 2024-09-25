@@ -10,12 +10,11 @@ import java.util.List;
 public interface DiaryDiscoveryRepositoryDiary extends JpaRepository<Discovery, Long> {
 
     /**
-     * 사용자 ID와 탐험 ID를 사용하여 Discovery 정보 조회
+     * 탐험 ID를 사용하여 Discovery 정보 조회
      *
-     * @param userId 사용자 ID
      * @param explorationId 탐험 ID
      * @return List<Discovery> 탐험에서 수집된 Discovery 목록
      */
-    @Query("SELECT d FROM Discovery d WHERE d.userId = :userId AND d.speciesPos.parkSpecies.park.id = :explorationId")
-    List<Discovery> findByUserIdAndExplorationId(@Param("userId") Long userId, @Param("explorationId") Long explorationId);
+    @Query("SELECT d FROM Discovery d WHERE d.speciesPos.parkSpecies.park.id = :explorationId")
+    List<Discovery> findByExplorationId(@Param("explorationId") Long explorationId);
 }
