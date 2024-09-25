@@ -1,6 +1,7 @@
 package com.ssafy.ar
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -21,7 +22,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -30,6 +33,9 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Config
+import com.google.ar.core.Frame
+import com.google.ar.core.Plane
+import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
@@ -57,6 +63,15 @@ private const val TAG = "ArScreen"
 fun ARSceneComposable(
     onPermissionDenied: () -> Unit
 ) {
+    // Screen Size
+    val configuration = LocalConfiguration.current
+    val screenWidth = configuration.screenWidthDp.dp
+    val screenHeight = configuration.screenHeightDp.dp
+
+    val density = LocalDensity.current
+    val widthPx = with(density) { screenWidth.toPx() }.toInt()
+    val heightPx = with(density) { screenHeight.toPx() }.toInt()
+
     // LifeCycle
     val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
@@ -136,6 +151,7 @@ fun ARSceneComposable(
                 config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
                 config.lightEstimationMode = Config.LightEstimationMode.DISABLED
                 config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
+                config.focusMode = Config.FocusMode.AUTO
 //                config.geospatialMode = Config.GeospatialMode.ENABLED
             },
             cameraNode = cameraNode,
@@ -159,7 +175,11 @@ fun ARSceneComposable(
                     && nearestNPCInfo.shouldPlaceNode
                 ) {
                     nearestNPCInfo.nearestNPC?.id?.let { id ->
-                        viewModel.addAnchorNode(id, frame, childNodes)
+                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx)
+                        if(planeAndPose != null) {
+                            val (plane, pose) = planeAndPose
+                            viewModel.addAnchorNode(plane, pose, id, childNodes)
+                        }
                     }
                 }
             },
@@ -273,6 +293,24 @@ fun ARSceneComposable(
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() }
         )
+    }
+}
+
+private fun findPlaneInView(frame: Frame, width: Int, height: Int): Pair<Plane, Pose>? {
+    val center = android.graphics.PointF(width / 2f, height / 2f)
+    val hits = frame.hitTest(center.x, center.y)
+
+    Log.d("ARPlacement", "Performing hit test. Hits found: ${hits.size}")
+
+    val planeHit = hits.firstOrNull { hit ->
+        val trackable = hit.trackable
+        trackable is Plane && trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING
+    }
+
+    return planeHit?.let { hit ->
+        val plane = hit.trackable as Plane
+        Log.d("ARPlacement", "Plane found - extentX: ${plane.extentX}, extentZ: ${plane.extentZ}")
+        Pair(plane, plane.centerPose)
     }
 }
 

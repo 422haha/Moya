@@ -4,7 +4,8 @@ import android.location.Location
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.google.ar.core.Frame
+import com.google.ar.core.Plane
+import com.google.ar.core.Pose
 import com.ssafy.ar.data.NPCLocation
 import com.ssafy.ar.data.NearestNPCInfo
 import com.ssafy.ar.data.QuestData
@@ -128,13 +129,14 @@ class ARViewModel(
         _nearestNPCInfo.value = nearestNPCInfo
     }
 
-    fun addAnchorNode(npcId: String, frame: Frame, childNodes: SnapshotStateList<Node>) {
+    fun addAnchorNode(plane: Plane, pose: Pose, npcId: String, childNodes: SnapshotStateList<Node>) {
         if (getNpcMarker(npcId) || !placingNodes.add(npcId)) return
 
         viewModelScope.launch {
             nodeManager.placeNode(
-                npcId,
-                frame,
+                plane = plane,
+                pose = pose,
+                anchorId = npcId,
                 childNodes = childNodes,
                 onSuccess = {
                     addQuest(npcId, QuestStatus.WAIT)

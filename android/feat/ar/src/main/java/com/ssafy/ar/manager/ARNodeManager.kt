@@ -3,12 +3,10 @@ package com.ssafy.ar.manager
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
-import com.google.ar.core.Frame
 import com.google.ar.core.Plane
+import com.google.ar.core.Pose
 import com.ssafy.ar.data.QuestData
 import com.ssafy.ar.dummy.scriptNode
-import io.github.sceneview.ar.arcore.createAnchorOrNull
-import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
@@ -33,27 +31,24 @@ class ARNodeManager(
 
     // 평면에 노드 배치
     suspend fun placeNode(
+        plane: Plane,
+        pose: Pose,
         anchorId: String,
-        frame: Frame?,
         childNodes: SnapshotStateList<Node>,
         onSuccess: () -> Unit,
     ) = mutex.withLock {
         if(childNodes.any { it.name == anchorId }) return@withLock
 
-        frame?.getUpdatedPlanes()
-            ?.lastOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
-            ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                val anchorNode = createAnchorNode(
-                    scriptNode[0],
-                    anchor,
-                ).apply { name = anchorId }
+        val anchorNode = createAnchorNode(
+            scriptNode[0],
+            plane.createAnchor(pose),
+        ).apply { name = anchorId }
 
-                childNodes.add(anchorNode)
+        childNodes.add(anchorNode)
 
-                delay(5000)
+        delay(5000)
 
-                onSuccess()
-            }
+        onSuccess()
     }
 
     // 특정 위치에 앵커노드 생성
