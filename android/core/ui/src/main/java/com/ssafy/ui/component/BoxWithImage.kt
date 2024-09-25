@@ -1,6 +1,5 @@
 package com.ssafy.ui.component
 
-import android.util.Log
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -95,7 +94,6 @@ fun BoxWithImage(
                         modifier = Modifier.size(32.dp),
                         tint = LightBackgroundColor
                     )
-                    Log.d("TAG", "state information: $state")
                     Text(
                         text = formatDistance(state.info),
                         color = Color.White,
