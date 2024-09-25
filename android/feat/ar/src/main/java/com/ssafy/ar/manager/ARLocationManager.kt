@@ -28,10 +28,10 @@ class ARLocationManager(
 
     // 위치 추적 시작
     fun startLocationUpdates() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 1000)
+        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
             .setWaitForAccurateLocation(true)
-            .setMinUpdateIntervalMillis(1000)
-            .setMinUpdateDistanceMeters(0f)
+            .setMinUpdateIntervalMillis(3000)
+            .setMinUpdateDistanceMeters(2f)
             .build()
 
         locationCallback = object : LocationCallback() {
@@ -91,8 +91,8 @@ class ARLocationManager(
         nearestDistance: Float?,
         location: Location?
     ): Boolean {
-        return ((location?.accuracy ?: 100.0f) <= 30f
-                && (nearestDistance ?: 100f) <= 30f)
+        return ((location?.accuracy ?: 100.0f) <= 10f
+                && (nearestDistance ?: 100f) <= 5f)
     }
 
     private fun Context.checkLocationPermission(): Boolean {
