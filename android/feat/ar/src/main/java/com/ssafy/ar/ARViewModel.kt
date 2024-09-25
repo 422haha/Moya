@@ -124,6 +124,10 @@ class ARViewModel(
         updateNearestNPC(NearestNPCInfo(npc, distance, isAvailable))
     }
 
+    private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
+        _nearestNPCInfo.value = nearestNPCInfo
+    }
+
     fun addAnchorNode(npcId: String, frame: Frame, childNodes: SnapshotStateList<Node>) {
         if (getNpcMarker(npcId) || !placingNodes.add(npcId)) return
 
@@ -156,10 +160,6 @@ class ARViewModel(
                 parentAnchor = parentAnchorNode,
             )
         }
-    }
-
-    private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
-        _nearestNPCInfo.value = nearestNPCInfo
     }
 
     fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {
