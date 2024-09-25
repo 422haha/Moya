@@ -3,11 +3,13 @@ package com.ssafy.ui.home
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
@@ -25,20 +27,21 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.ssafy.ui.R
 import com.ssafy.ui.component.BoxWithImage
 import com.ssafy.ui.component.BoxWithImageState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.theme.LightBackgroundColor
-import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
-import com.ssafy.ui.theme.SurfaceColor
 
 @Composable
 fun HomeScreenContent(
@@ -56,7 +59,7 @@ fun HomeScreenContent(
                     HomeScreenLoaded(
                         modifier = Modifier.padding(paddingValues),
                         state = homeScreenState,
-                        onIntent = onIntent
+                        onIntent = onIntent,
                     )
                 }
 
@@ -64,9 +67,7 @@ fun HomeScreenContent(
                     ErrorScreen(modifier = Modifier.padding(paddingValues), homeScreenState.message)
                 }
             }
-
-
-        }
+        },
     )
 }
 
@@ -77,32 +78,44 @@ fun HomeScreenLoaded(
     onIntent: (HomeUserIntent) -> Unit = {},
 ) {
     Column(
-        modifier = modifier
-            .fillMaxSize(),
-        verticalArrangement = Arrangement.SpaceEvenly,
+        modifier =
+            modifier
+                .fillMaxSize(),
+        verticalArrangement = Arrangement.Top,
     ) {
-        UserInfo(
-            userName = state.userName,
-            userImage = state.userImage,
-        )
-        HomeBox(
-            text = "나의 모험",
-            SecondaryColor,
-            SecondarySurfaceColor,
-            onClick = { onIntent(HomeUserIntent.OnNavigateToExploreList) },
-            icon = R.drawable.baseline_calendar_month_24,
-            state = state.exploreState
-        )
-        HomeBox(
-            text = "모험을 떠나요",
-            PrimaryColor,
-            SurfaceColor,
-            onClick = { onIntent(HomeUserIntent.OnNavigateToParkList) },
-            icon = R.drawable.baseline_location_on_24,
-            state = state.parkState
+        HomeTopImage(
+            image = "https://cdn.autotribune.co.kr/news/photo/202404/16048_73647_5214.png",
+            desctiption = "Moya와 함께 공원을 탐험해보아요",
         )
     }
 }
+
+@Composable
+fun HomeTopImage(
+    modifier: Modifier = Modifier,
+    image: String?,
+    desctiption: String,
+) {
+    Box(modifier = modifier.fillMaxWidth().height(200.dp)) {
+        AsyncImage(
+            model = image,
+            contentScale = ContentScale.Crop,
+            contentDescription = "홈 상단 이미지",
+            modifier = Modifier.fillMaxSize(),
+            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+        )
+        Text(
+            text = desctiption,
+            fontSize = 24.sp,
+            modifier =
+                Modifier
+                    .align(Alignment.TopStart)
+                    .padding(16.dp),
+        )
+    }
+}
+
+
 
 @Composable
 fun UserInfo(
@@ -112,19 +125,20 @@ fun UserInfo(
     Surface(modifier = Modifier.fillMaxWidth()) {
         Row(modifier = Modifier.padding(8.dp)) {
             Image(
-                //TODO : 이미지 로딩 추가
+                // TODO : 이미지 로딩 추가
                 painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "userImage",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(Color.Gray)
-                    .size(50.dp)
+                modifier =
+                    Modifier
+                        .clip(CircleShape)
+                        .background(Color.Gray)
+                        .size(50.dp),
             )
             Spacer(modifier = Modifier.width(12.dp))
             Text(
                 text = userName,
                 modifier = Modifier.align(Alignment.CenterVertically),
-                fontWeight = FontWeight.Bold
+                fontWeight = FontWeight.Bold,
             )
         }
     }
@@ -140,26 +154,28 @@ fun HomeBox(
     state: BoxWithImageState,
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(8.dp),
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(8.dp),
         shape = RoundedCornerShape(16.dp),
         color = outBoxColor,
-        onClick = onClick
+        onClick = onClick,
     ) {
         Column {
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
-                verticalAlignment = Alignment.CenterVertically
+                verticalAlignment = Alignment.CenterVertically,
             ) {
                 Text(
                     text = text,
-                    modifier = Modifier
-                        .padding(vertical = 20.dp)
-                        .padding(start = 12.dp)
-                        .align(alignment = Alignment.CenterVertically),
-                    color = LightBackgroundColor
+                    modifier =
+                        Modifier
+                            .padding(vertical = 20.dp)
+                            .padding(start = 12.dp)
+                            .align(alignment = Alignment.CenterVertically),
+                    color = LightBackgroundColor,
                 )
                 IconButton(
                     onClick = onClick,
@@ -168,7 +184,7 @@ fun HomeBox(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "Go",
                         tint = LightBackgroundColor,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
                     )
                 }
             }
@@ -178,7 +194,7 @@ fun HomeBox(
                 textColor = outBoxColor,
                 onClick = onClick,
                 icon = icon,
-                state = state
+                state = state,
             )
         }
     }
@@ -188,18 +204,23 @@ fun HomeBox(
 @Composable
 fun HomeScreenPreview() {
     HomeScreenContent(
-        homeScreenState = HomeScreenState.Loaded(
-            userName = "사용자 이름", userImage = null,
-            parkState = BoxWithImageState(
-                title = "동락공원",
-                info = "2024.09.17",
-                image = null
-            ), exploreState = BoxWithImageState(
-                title = "동락공원",
-                info = "500m",
-                image = null
-            )
-        )
+        homeScreenState =
+            HomeScreenState.Loaded(
+                userName = "사용자 이름",
+                userImage = null,
+                parkState =
+                    BoxWithImageState(
+                        title = "동락공원",
+                        info = "2024.09.17",
+                        image = null,
+                    ),
+                exploreState =
+                    BoxWithImageState(
+                        title = "동락공원",
+                        info = "500m",
+                        image = null,
+                    ),
+            ),
     )
 }
 
@@ -207,7 +228,7 @@ fun HomeScreenPreview() {
 @Composable
 fun HomeScreenPreviewLoading() {
     HomeScreenContent(
-        homeScreenState = HomeScreenState.Loading
+        homeScreenState = HomeScreenState.Loading,
     )
 }
 
@@ -215,7 +236,7 @@ fun HomeScreenPreviewLoading() {
 @Composable
 fun HomeScreenPreviewError() {
     HomeScreenContent(
-        homeScreenState = HomeScreenState.Error("error message")
+        homeScreenState = HomeScreenState.Error("error message"),
     )
 }
 
@@ -227,10 +248,11 @@ fun HomeBoxPreview() {
         SecondaryColor,
         SecondarySurfaceColor,
         icon = R.drawable.baseline_calendar_month_24,
-        state = BoxWithImageState(
-            title = "동락공원",
-            info = "2024.09.17",
-            image = null
-        )
+        state =
+            BoxWithImageState(
+                title = "동락공원",
+                info = "2024.09.17",
+                image = null,
+            ),
     )
 }
