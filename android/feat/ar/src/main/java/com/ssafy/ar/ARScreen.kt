@@ -102,7 +102,6 @@ fun ARSceneComposable(
     })
 
     // AR State
-    val npcMarkers by viewModel.npcMarkets.collectAsState()
     val questNodes by viewModel.questNodes.collectAsState()
     val nearestNPCInfo by viewModel.nearestNPCInfo.collectAsState()
     val currentLocation by locationManager.currentLocation.collectAsState()
@@ -273,7 +272,7 @@ fun ARSceneComposable(
                 color = Color.Red
             )
             Text(
-                text = "남은 노드: ${npcMarkers.keys} ",
+                text = "배치된 노드: ${questNodes.keys} ",
                 color = Color.Red
             )
         }
