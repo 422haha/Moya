@@ -11,13 +11,13 @@ VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2'
 -- Parksp
 INSERT INTO park (name, description, image_url)
 VALUES ('싸피 뒷뜰', '싸피 구미 캠퍼스 기숙사에 위치한 공원으로 봄이 되면 예쁜 꽃들이 핀답니다. 가을이 되면 감도 딸 수 있어요',
-        'https://example.com/seoul-forest.jpg'),
+        'https://i.ibb.co/4jww8VF/1.jpg'),
        ('동락공원', '아름다운 낙동강을 끼고 있는 넓은 산책로와 자전거 도로를 갖춘 도심 속 힐링 공간이에요. 산책로와 잔디밭이 있어서 마음껏 뛰어놀 수 있어요.
 공원에는 농구장, 축구장, 배구장, 그리고 롤러스케이트장등 여러 가지 운동 시설도 많이 있어요. 시원한 바닥분수도 있어 시원한 여름을 보낼 수 있어요.
 그리고 무료로 자전거를 대여할 수 있으니 자전거 타는 것도 잊지 마세요. 신나는 동락공원을 꼭 방문해보아요!',
-        'https://example.com/olympic-park.jpg'),
+        'https://i.ibb.co/m5LSDV6/2.jpg'),
        ('환경 연수원', '금오산 도립공원 구역 내에 위치하고 있는 수련 시설로 수생태체험학습장, 야외학습체험장 등등 다양한 학습 공간이 있어요.',
-        'https://example.com/worldcup-park.jpg');
+        'https://i.ibb.co/4TBJ2Bh/3.jpg');
 -- Park Position
 INSERT INTO park_pos (pos, park_id, name)
 VALUES (ST_SetSRID(ST_MakePoint(128.410590, 36.107442), 4326), 1, '정문'),  -- 싸피
@@ -83,12 +83,12 @@ VALUES (ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326), 1), -- 싸피 뒷
 -- 환경 연수원 - 마법사 너구리
 -- Species
 INSERT INTO species (name, scientific_name, description, image_url)
-VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 'https://example.com/squirrel.jpg'),
-       ('왕벚나무', 'Prunus yedoensis', '봄에 아름다운 꽃을 피우는 나무', 'https://example.com/cherry-tree.jpg'),
-       ('잉어', 'Cyprinus carpio', '연못에서 흔히 볼 수 있는 물고기', 'https://example.com/carp.jpg'),
-       ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://example.com/sparrow.jpg'),
-       ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://example.com/maple.jpg'),
-       ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://example.com/frog.jpg');
+VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 'https://i.ibb.co/HnfJcXB/image.jpg'),
+       ('왕벚나무', 'Prunus yedoensis', '봄에 아름다운 꽃을 피우는 나무', 'https://i.ibb.co/ftzKQ97/image.jpg'),
+       ('잉어', 'Cyprinus carpio', '연못에서 흔히 볼 수 있는 물고기', 'https://i.ibb.co/brQGP4d/image.jpg'),
+       ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
+       ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
+       ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
 VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
@@ -176,11 +176,99 @@ VALUES (1),
        (2),
        (3);
 
--- Discovery 데이터 삽입
+-- -- Discovery 데이터 삽입
+-- INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+-- SELECT 1, s.species_id, sp.id, NOW(), 'https://example.com/discovered_squirrel.jpg'
+-- FROM species s
+--          JOIN park_species ps ON s.species_id = ps.species_id
+--          JOIN species_pos sp ON ps.id = sp.park_species_id
+-- WHERE s.name = '청설모'
+--   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
+
+-- Exploration Data Insertion (탐험 데이터 삽입)
+INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate, image_url, route, completed)
+VALUES
+    (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09-23', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.416000 36.107000, 128.416100 36.107100, 128.416200 36.107200)', 4326), true),
+    (1, 2, '2024-09-24 09:00:00', '2024-09-24 11:30:00', 5000, 8000, '2024-09-24', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.402000 36.100000, 128.402100 36.100100, 128.402500 36.095000)', 4326), true),
+    (1, 3, '2024-09-25 14:00:00', '2024-09-25 16:00:00', 3000, 6000, '2024-09-25', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)', 4326), true);
+
+-- Discovery Data Insertion (발견 데이터 삽입)
+-- 청설모 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT 1, s.species_id, sp.id, NOW(), 'https://example.com/discovered_squirrel.jpg'
-FROM species s
-         JOIN park_species ps ON s.species_id = ps.species_id
-         JOIN species_pos sp ON ps.id = sp.park_species_id
-WHERE s.name = '청설모'
+SELECT
+    1,  -- user_id (테스트사용자1)
+    1,  -- species_id ('청설모')
+    sp.id,  -- species_pos_id
+    '2024-09-23 10:30:00',  -- discovery_time
+    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (청설모 이미지)
+FROM
+    species_pos sp
+        JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE
+    ps.park_id = 1  -- '싸피 뒷뜰'
+  AND ps.species_id = 1  -- 청설모
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
+
+-- 왕벚나무 발견 데이터
+INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+SELECT
+    1,  -- user_id (테스트사용자1)
+    2,  -- species_id ('왕벚나무')
+    sp.id,  -- species_pos_id
+    '2024-09-23 11:00:00',  -- discovery_time
+    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (왕벚나무 이미지)
+FROM
+    species_pos sp
+        JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE
+    ps.park_id = 1  -- '싸피 뒷뜰'
+  AND ps.species_id = 2  -- 왕벚나무
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326));
+
+-- 잉어 발견 데이터
+INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+SELECT
+    1,  -- user_id (테스트사용자2)
+    3,  -- species_id ('잉어')
+    sp.id,  -- species_pos_id
+    '2024-09-24 10:15:00',  -- discovery_time
+    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (잉어 이미지)
+FROM
+    species_pos sp
+        JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE
+    ps.park_id = 2  -- 동락공원
+  AND ps.species_id = 3  -- 잉어
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326));
+
+-- 단풍나무 발견 데이터
+INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+SELECT
+    1,  -- user_id (테스트사용자2)
+    5,  -- species_id ('단풍나무')
+    sp.id,  -- species_pos_id
+    '2024-09-24 11:00:00',  -- discovery_time
+    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (단풍나무 이미지)
+FROM
+    species_pos sp
+        JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE
+    ps.park_id = 2  -- 동락공원
+  AND ps.species_id = 5  -- 단풍나무
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326));
+
+-- 개구리 발견 데이터
+INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+SELECT
+    1,  -- user_id (테스트사용자1)
+    6,  -- species_id ('개구리')
+    sp.id,  -- species_pos_id
+    '2024-09-25 15:00:00',  -- discovery_time
+    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (개구리 이미지)
+FROM
+    species_pos sp
+        JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE
+    ps.park_id = 3  -- 환경 연수원
+  AND ps.species_id = 6  -- 개구리
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));
