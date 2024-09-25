@@ -15,6 +15,7 @@ import org.geolatte.geom.LineString;
 import org.geolatte.geom.Point;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 @Service
@@ -31,10 +32,10 @@ public class DiaryServiceImpl implements DiaryService {
      * @return 최근 탐험 정보
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryHomeResponseDto getLatestExploration(Long userId) {
         // 사용자의 가장 최근 탐험 기록을 조회
-        Exploration exploration = explorationRepository.findTopByUserIdOrderByStartTimeDesc(userId);
+        Exploration exploration = explorationRepository.findTopByUserIdAndCompletedTrueOrderByStartTimeDesc(userId);
 
         // 탐험 기록이 없으면 예외 발생
         if (exploration == null) {
@@ -60,12 +61,12 @@ public class DiaryServiceImpl implements DiaryService {
      * @return 탐험 리스트
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryListResponseDto getExplorations(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
 
         List<Exploration> explorations = explorationRepository
-            .findByUserIdOrderByStartTimeDesc(userId, pageRequest)
+            .findByUserIdAndCompletedTrueOrderByStartTimeDesc(userId, pageRequest)
             .getContent();
 
         List<DiaryExplorationDto> explorationDtos = explorations.stream()
@@ -93,9 +94,9 @@ public class DiaryServiceImpl implements DiaryService {
      * @return 탐험 상세 정보
      */
     @Override
-    @Transactional(readOnly = true)
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryDetailResponseDto getExplorationDetail(Long userId, Long explorationId) {
-        // userId와 explorationId를 기반으로 탐험을 조회
+        // explorationId를 기반으로 탐험을 조회
         Exploration exploration = explorationRepository.findByIdAndUserId(explorationId, userId);
 
         // 탐험이 존재하지 않으면 예외 발생
@@ -125,9 +126,8 @@ public class DiaryServiceImpl implements DiaryService {
             responseDto.setRoute(routeDtos);
         }
 
-        // User를 통해 Discovery 정보를 조회
-        List<Discovery> discoveries = discoveryRepository.findByUserIdAndExplorationId(userId,
-            explorationId);
+        // explorationId를 통해 Discovery 정보를 조회
+        List<Discovery> discoveries = discoveryRepository.findByExplorationId(explorationId);
         List<DiaryCollectedDto> collectedDtos = discoveries.stream()
             .map(discovery -> {
                 DiaryCollectedDto dto = new DiaryCollectedDto();
