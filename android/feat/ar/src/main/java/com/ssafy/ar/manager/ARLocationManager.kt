@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -29,8 +28,6 @@ class ARLocationManager(
 
     // 위치 추적 시작
     fun startLocationUpdates() {
-        val locationRequest = createLocationRequest(100f)
-
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
                 locationResult.lastLocation?.let { location ->
@@ -39,16 +36,10 @@ class ARLocationManager(
             }
         }
 
-        if (context.checkLocationPermission()) {
-            fusedLocationClient.requestLocationUpdates(
-                locationRequest,
-                locationCallback!!,
-                Looper.getMainLooper()
-            )
-        }
+        setFusedLocationClient(100f)
     }
 
-    fun updateFusedClient(distance: Float) {
+    fun setFusedLocationClient(distance: Float) {
         if (context.checkLocationPermission()) {
             fusedLocationClient.requestLocationUpdates(
                 createLocationRequest(distance),
@@ -68,6 +59,7 @@ class ARLocationManager(
             .build()
     }
 
+    // 노드와 떨어진 거리마다 우선순위 적용
     private fun getPriorityBasedOnDistance(distance: Float): LocationPriority {
         return when {
             (distance < 100) -> LocationPriority(Priority.PRIORITY_HIGH_ACCURACY, 2f, 3000)

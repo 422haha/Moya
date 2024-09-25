@@ -124,7 +124,7 @@ class ARViewModel(
 
         updateNearestNPC(NearestNPCInfo(npc, distance, isAvailable))
 
-        locationManager.updateFusedClient(distance ?: 100f)
+        locationManager.setFusedLocationClient(distance ?: 100f)
     }
 
     private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
