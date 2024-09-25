@@ -123,6 +123,8 @@ class ARViewModel(
         val isAvailable = locationManager.isAvailableNearestNPC(distance, location)
 
         updateNearestNPC(NearestNPCInfo(npc, distance, isAvailable))
+
+        locationManager.updateFusedClient(distance ?: 100f)
     }
 
     private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {

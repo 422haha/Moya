@@ -12,6 +12,7 @@ import com.google.android.gms.location.LocationCallback
 import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
+import com.ssafy.ar.data.LocationPriority
 import com.ssafy.ar.data.NPCLocation
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -28,11 +29,7 @@ class ARLocationManager(
 
     // 위치 추적 시작
     fun startLocationUpdates() {
-        val locationRequest = LocationRequest.Builder(Priority.PRIORITY_HIGH_ACCURACY, 3000)
-            .setWaitForAccurateLocation(true)
-            .setMinUpdateIntervalMillis(3000)
-            .setMinUpdateDistanceMeters(2f)
-            .build()
+        val locationRequest = createLocationRequest(100f)
 
         locationCallback = object : LocationCallback() {
             override fun onLocationResult(locationResult: LocationResult) {
@@ -48,6 +45,34 @@ class ARLocationManager(
                 locationCallback!!,
                 Looper.getMainLooper()
             )
+        }
+    }
+
+    fun updateFusedClient(distance: Float) {
+        if (context.checkLocationPermission()) {
+            fusedLocationClient.requestLocationUpdates(
+                createLocationRequest(distance),
+                locationCallback!!,
+                Looper.getMainLooper()
+            )
+        }
+    }
+
+    private fun createLocationRequest(distance: Float): LocationRequest {
+        val info = getPriorityBasedOnDistance(distance)
+
+        return LocationRequest.Builder(info.priority, info.millisecond)
+            .setWaitForAccurateLocation(false)
+            .setMinUpdateIntervalMillis(info.millisecond)
+            .setMinUpdateDistanceMeters(info.distance)
+            .build()
+    }
+
+    private fun getPriorityBasedOnDistance(distance: Float): LocationPriority {
+        return when {
+            (distance < 100) -> LocationPriority(Priority.PRIORITY_HIGH_ACCURACY, 2f, 3000)
+            (distance < 1000) -> LocationPriority(Priority.PRIORITY_BALANCED_POWER_ACCURACY, 5f, 10000)
+            else -> LocationPriority(Priority.PRIORITY_LOW_POWER, 5f, 10000)
         }
     }
 
