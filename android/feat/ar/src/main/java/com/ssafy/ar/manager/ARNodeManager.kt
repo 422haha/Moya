@@ -4,9 +4,7 @@ import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
 import com.google.ar.core.Frame
-import com.google.ar.core.HitResult
 import com.google.ar.core.Plane
-import com.google.ar.core.dependencies.f
 import com.ssafy.ar.data.QuestData
 import com.ssafy.ar.dummy.scriptNode
 import io.github.sceneview.ar.arcore.createAnchorOrNull
@@ -17,16 +15,12 @@ import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Size
-import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 private const val kMaxModelInstances = 1
 
@@ -39,31 +33,34 @@ class ARNodeManager(
 
     // 평면에 노드 배치
     suspend fun placeNode(
+        anchorId: String,
         frame: Frame?,
         childNodes: SnapshotStateList<Node>,
-        onSuccess: (String) -> Unit,
+        onSuccess: () -> Unit,
     ) = mutex.withLock {
+        if(childNodes.any { it.name == anchorId }) return@withLock
+
         frame?.getUpdatedPlanes()
             ?.lastOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
             ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                val uuid = UUID.randomUUID().toString()
-
                 val anchorNode = createAnchorNode(
                     scriptNode[0],
                     anchor,
-                ).apply { name = uuid }
+                ).apply { name = anchorId }
 
                 childNodes.add(anchorNode)
 
-                onSuccess(uuid)
+                delay(5000)
+
+                onSuccess()
             }
     }
 
-    // 특정 위치에 앵커노드(+모델노드) 생성
-    private suspend fun createAnchorNode(
+    // 특정 위치에 앵커노드 생성
+    private fun createAnchorNode(
         node: QuestData,
         anchor: Anchor
-    ): AnchorNode = withContext(Dispatchers.Main) {
+    ): AnchorNode {
         val idx = (1..4).random()
 
         val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
@@ -96,27 +93,24 @@ class ARNodeManager(
 
         anchorNode.addChildNode(modelNode)
 
-        anchorNode
+        return anchorNode
     }
 
-    // 모델 노드 업데이트
-    suspend fun updateAnchorNode(
+    // 모델노드 업데이트
+    fun updateAnchorNode(
         prevNode: Node,
         questId: String,
         questModel: String,
         parentAnchor: AnchorNode,
-        modelInstances: MutableMap<String, ModelInstance>
-    ) = withContext(Dispatchers.Main) {
-        parentAnchor.removeChildNode(prevNode).also {
-            val newModelInstance = modelInstances.getOrPut(questId) {
-                modelLoader.createInstancedModel(
-                    questModel,
-                    kMaxModelInstances
-                ).first()
-            }
+    ) {
+        parentAnchor.removeChildNode(prevNode).apply {
+            val modelInstance = modelLoader.createInstancedModel(
+                questModel,
+                kMaxModelInstances
+            ).first()
 
             val newModelNode = ModelNode(
-                modelInstance = newModelInstance,
+                modelInstance = modelInstance,
                 scaleToUnits = 0.5f
             ).apply {
                 name = questId

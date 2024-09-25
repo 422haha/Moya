@@ -1,153 +1,165 @@
 package com.ssafy.ar
 
 import android.location.Location
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.ar.core.Frame
 import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.NearestNPCInfo
+import com.ssafy.ar.data.QuestData
 import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.npcs
 import com.ssafy.ar.manager.ARLocationManager
+import com.ssafy.ar.manager.ARNodeManager
+import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.node.Node
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import java.util.Collections
 
 class ARViewModel(
+    private val nodeManager: ARNodeManager,
     private val locationManager: ARLocationManager,
 ) : ViewModel() {
-    var isPlacingNode = false
 
-    // AR AnchorNode
-    private val _anchorNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
-    val anchorNodes: StateFlow<Map<String, QuestStatus>> = _anchorNodes.asStateFlow()
+    init {
+        viewModelScope.launch {
+            locationManager.currentLocation.collectLatest { location ->
+                location?.let {
+                    operateNearestNPC(location)
+                }
+            }
+        }
+    }
 
-    // AR NPC
-    private val _npcMarketNodes = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
-    val npcMarketNodes: StateFlow<Map<String, NPCLocation>> = _npcMarketNodes.asStateFlow()
+    private val placingNodes = Collections.synchronizedSet(mutableSetOf<String>())
 
-    // 가장 가까운 NPC
-    private val _nearestNPC = MutableStateFlow<NPCLocation?>(null)
-    val nearestNPC: StateFlow<NPCLocation?> = _nearestNPC.asStateFlow()
+    // 모든 NPC 정보
+    private val _npcMarkets = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
+    val npcMarkets = _npcMarkets.asStateFlow()
 
-    // 가장 가까운 NPC와의 거리(m)
-    private val _nearestNPCDistance = MutableStateFlow<Float?>(0f)
-    val nearestNPCDistance: StateFlow<Float?> = _nearestNPCDistance.asStateFlow()
+    // 현재 배치된 퀘스트
+    private val _questNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
+    val questNodes = _questNodes.asStateFlow()
 
-    // 배치 가능한 노드
-    private val _shouldPlaceNode = MutableStateFlow<String?>(null)
-    val shouldPlaceNode: StateFlow<String?> = _shouldPlaceNode.asStateFlow()
+    // 가장 가까운 노드
+    private val _nearestNPCInfo = MutableStateFlow(NearestNPCInfo())
+    val nearestNPCInfo = _nearestNPCInfo.asStateFlow()
 
     // Dialog
     private val _showDialog = MutableStateFlow(false)
-    val showDialog: StateFlow<Boolean> = _showDialog.asStateFlow()
+    val showDialog = _showDialog.asStateFlow()
 
     // Dialog Data
     private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus>>(Pair(0, QuestStatus.WAIT))
     val dialogData: StateFlow<Pair<Int, QuestStatus>> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
-    init {
-        viewModelScope.launch {
-            locationManager.currentLocation.collectLatest { location ->
-                location?.let {
-                    updateNearestNPC(location)
-                }
-            }
-        }
+    fun getQuest(id: String): QuestStatus? {
+        return _questNodes.value[id]
     }
 
-    fun addQuest(id: String, state: QuestStatus) {
-        val updatedMap = _anchorNodes.value.toMutableMap().apply {
+    private fun addQuest(id: String, state: QuestStatus) {
+        val updatedMap = _questNodes.value.toMutableMap().apply {
             put(id, state)
         }
-        _anchorNodes.value = updatedMap
+        _questNodes.value = updatedMap
     }
 
-    fun updateQuestState(id: String, newState: QuestStatus) {
+    fun updateQuest(id: String, newState: QuestStatus) {
         viewModelScope.launch {
-            val updatedMap = _anchorNodes.value.toMutableMap().apply {
+            val updatedMap = _questNodes.value.toMutableMap().apply {
                 this[id] = newState
             }
-            _anchorNodes.value = updatedMap
+            _questNodes.value = updatedMap
         }
     }
 
     fun removeQuest(id: String) {
         viewModelScope.launch {
-            val updatedMap = _anchorNodes.value.toMutableMap().apply {
+            val updatedMap = _questNodes.value.toMutableMap().apply {
                 remove(id)
             }
-            _anchorNodes.value = updatedMap
+            _questNodes.value = updatedMap
         }
     }
 
-    fun getQuestState(id: String): QuestStatus? {
-        return _anchorNodes.value[id]
+    private fun getNpcMarker(id: String): Boolean {
+        return _npcMarkets.value[id]?.isPlace ?: false
     }
 
     fun getAllNpcMarker() {
-        _npcMarketNodes.value = npcs
+        _npcMarkets.value = npcs
     }
 
-    fun removeNpcMarker(id: String) {
-        viewModelScope.launch {
-            val updatedMap = _npcMarketNodes.value.toMutableMap().apply {
-                remove(id)
-            }
-            _npcMarketNodes.value = updatedMap
-        }
-    }
-
-    fun updateIsPlaceNPC(id: String, newIsPlaceValue: Boolean) {
-        _npcMarketNodes.update { currentMap ->
+    private fun updateNpcMarker(id: String) {
+        _npcMarkets.update { currentMap ->
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->
-                    this[id] = npcLocation.copy(isPlace = newIsPlaceValue)
+                    this[id] = npcLocation.copy(isPlace = true)
                 }
             }
         }
     }
 
-    fun getIsPlaceNPC(id: String): Boolean {
-        return _npcMarketNodes.value[id]?.isPlace ?: false
-    }
-
-    private fun updateNearestNPC(location: Location) {
+    private fun removeNpcMarker(id: String) {
         viewModelScope.launch {
-            val nearestNPC = locationManager.findNearestNPC(location, npcMarketNodes.value)
-            _nearestNPC.emit(nearestNPC)
-
-            val nearestDistance =
-                nearestNPC?.let { locationManager.measureNearestNpcDistance(location, it) }
-            _nearestNPCDistance.emit(nearestDistance)
-
-            processLocation(nearestNPC, nearestDistance, location)
+            val updatedMap = _npcMarkets.value.toMutableMap().apply {
+                remove(id)
+            }
+            _npcMarkets.value = updatedMap
         }
     }
 
-    private fun processLocation(
-        nearestNPC: NPCLocation?,
-        nearestDistance: Float?,
-        location: Location?
-    ) {
-        val npcId = nearestNPC?.id ?: ""
-        val isPlaceNPC = getIsPlaceNPC(npcId)
+    private fun operateNearestNPC(location: Location) {
+        val npc = locationManager.findNearestNPC(location, npcMarkets.value)
+        val distance = npc?.let { locationManager.measureNearestNpcDistance(location, it) }
+        val isAvailable = locationManager.isAvailableNearestNPC(distance, location)
 
-        if (npcId.isNotBlank() &&
-            !isPlaceNPC &&
-            (location?.accuracy ?: 100.0f) <= 8f &&
-            (nearestDistance ?: 100f) <= 5f
-        ) {
-            _shouldPlaceNode.value = npcId
-        } else {
-            _shouldPlaceNode.value = null
+        updateNearestNPC(NearestNPCInfo(npc, distance, isAvailable))
+    }
+
+    fun addAnchorNode(npcId: String, frame: Frame, childNodes: SnapshotStateList<Node>) {
+        if (getNpcMarker(npcId) || !placingNodes.add(npcId)) return
+
+        viewModelScope.launch {
+            nodeManager.placeNode(
+                npcId,
+                frame,
+                childNodes = childNodes,
+                onSuccess = {
+                    addQuest(npcId, QuestStatus.WAIT)
+
+                    updateNpcMarker(npcId)
+
+                    updateNearestNPC(NearestNPCInfo())
+                }
+            )
+
+            placingNodes.remove(npcId)
         }
     }
 
-    fun updateShouldPlaceNode(state: String?) {
-        _shouldPlaceNode.value = state
+    fun updateAnchorNode(node: Node,
+                         quest: QuestData,
+                         parentAnchorNode: AnchorNode) {
+        viewModelScope.launch {
+            nodeManager.updateAnchorNode(
+                prevNode = node,
+                questId = quest.id,
+                questModel = quest.model,
+                parentAnchor = parentAnchorNode,
+            )
+        }
+    }
+
+    private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
+        _nearestNPCInfo.value = nearestNPCInfo
     }
 
     fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {

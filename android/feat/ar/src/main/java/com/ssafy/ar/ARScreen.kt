@@ -30,7 +30,6 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Config
-import com.google.ar.core.Frame
 import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
@@ -41,7 +40,6 @@ import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
-import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.rememberCollisionSystem
@@ -51,10 +49,7 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
 
 private const val TAG = "ArScreen"
 
@@ -73,46 +68,34 @@ fun ARSceneComposable(
     val engine = rememberEngine()
     val modelLoader = rememberModelLoader(engine)
     val materialLoader = rememberMaterialLoader(engine)
-    val cameraNode = rememberARCameraNode(engine)
-    val childNodes = rememberNodes()
     val view = rememberView(engine)
     val collisionSystem = rememberCollisionSystem(view)
-    var planeRenderer by remember { mutableStateOf(true) }
-
-    val modelInstances = remember { mutableMapOf<String, ModelInstance>() }
-    var trackingFailureReason by remember {
-        mutableStateOf<TrackingFailureReason?>(null)
-    }
-    var frame by remember { mutableStateOf<Frame?>(null) }
-
-    // Location
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val childNodes = rememberNodes()
+    val cameraNode = rememberARCameraNode(engine)
+    var planeRenderer by remember { mutableStateOf(false) }
+    var trackingFailureReason by remember { mutableStateOf<TrackingFailureReason?>(null) }
 
     // Manager
-    val locationManager =
-        remember { ARLocationManager(context, coroutineScope, fusedLocationClient) }
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+    val locationManager = remember { ARLocationManager(context, fusedLocationClient) }
     val nodeManager = remember { ARNodeManager(engine, modelLoader, materialLoader) }
 
     val viewModel: ARViewModel = viewModel(factory = object : ViewModelProvider.Factory {
         override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ARViewModel(locationManager) as T
+            return ARViewModel(nodeManager, locationManager) as T
         }
     })
 
     // AR State
-    val anchorNodes by viewModel.anchorNodes.collectAsState()
-    val npcMarkers by viewModel.npcMarketNodes.collectAsState()
-    val shouldPlaceNode by viewModel.shouldPlaceNode.collectAsState()
-    val nearestNPC by viewModel.nearestNPC.collectAsState()
-    val nearestNPCDistance by viewModel.nearestNPCDistance.collectAsState()
+    val npcMarkers by viewModel.npcMarkets.collectAsState()
+    val questNodes by viewModel.questNodes.collectAsState()
+    val nearestNPCInfo by viewModel.nearestNPCInfo.collectAsState()
     val currentLocation by locationManager.currentLocation.collectAsState()
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
-    val snackbarHostState = remember { SnackbarHostState() }
-
-    var isPlacingNode = false
+    val snackBarHostState = remember { SnackbarHostState() }
 
     MultiplePermissionsHandler(
         permissions = listOf(
@@ -124,9 +107,13 @@ fun ARSceneComposable(
             hasPermission = true
 
             locationManager.startLocationUpdates()
+
             viewModel.getAllNpcMarker()
         } else {
+            hasPermission = false
+
             onPermissionDenied()
+
             return@MultiplePermissionsHandler
         }
     }
@@ -153,13 +140,9 @@ fun ARSceneComposable(
             },
             cameraNode = cameraNode,
             planeRenderer = planeRenderer,
-            onTrackingFailureChanged = {
-                trackingFailureReason = it
-            },
-            onSessionUpdated = { session, updatedFrame ->
-                frame = updatedFrame
-
-                val desiredPlaneFindingMode = if (shouldPlaceNode != null)
+            onTrackingFailureChanged = { trackingFailureReason = it },
+            onSessionUpdated = { session, frame ->
+                val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlaceNode)
                     Config.PlaneFindingMode.HORIZONTAL
                 else
                     Config.PlaneFindingMode.DISABLED
@@ -172,114 +155,75 @@ fun ARSceneComposable(
                     }
                 }
 
-                if (!isPlacingNode &&
-                    shouldPlaceNode != null &&
-                    updatedFrame.isTrackingPlane()
+                if (frame.isTrackingPlane()
+                    && nearestNPCInfo.shouldPlaceNode
                 ) {
-                    shouldPlaceNode?.let { npcId ->
-                        if (!viewModel.getIsPlaceNPC(npcId)) {
-                            isPlacingNode = true
-                            coroutineScope.launch {
-                                nodeManager.placeNode(
-                                    updatedFrame,
-                                    childNodes = childNodes,
-                                    onSuccess = { uuid ->
-                                        viewModel.addQuest(uuid, QuestStatus.WAIT)
-
-                                        viewModel.updateIsPlaceNPC(npcId, true)
-
-                                        viewModel.removeNpcMarker(npcId)
-
-                                        viewModel.updateShouldPlaceNode(null)
-                                    }
-                                )
-
-                                delay(10000)
-
-                                isPlacingNode = false
-                            }
-                        }
+                    nearestNPCInfo.nearestNPC?.id?.let { id ->
+                        viewModel.addAnchorNode(id, frame, childNodes)
                     }
                 }
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-                    if (node is ModelNode) {
-                        val anchorId = node.parent?.name
+                    if (node is ModelNode || node is ImageNode) {
+                        val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+                        val anchorNode = modelNode?.parent as? AnchorNode
 
-                        if (anchorId != null) {
-                            val nodeId = node.name?.toInt()
+                        val nodeId = modelNode?.name?.toInt()
+                        val anchorId = anchorNode?.name
 
-                            if (nodeId != null) {
-                                val quest = scriptNode[nodeId]
-                                val state = anchorNodes[anchorId]
+                        if (nodeId != null && anchorId != null) {
+                            val quest = scriptNode[nodeId]
+                            val state = questNodes[anchorId]
 
-                                state?.let {
-                                    when (state) {
-                                        // 퀘스트 진행전
-                                        QuestStatus.WAIT -> {
-                                            viewModel.showQuestDialog(
-                                                nodeId, state
-                                            ) { accepted ->
-                                                if (accepted) { // 수락
-                                                    val parentAnchorNode =
-                                                        node.parent as? AnchorNode
-                                                    parentAnchorNode?.let {
-                                                        coroutineScope.launch {
-                                                            withContext(Dispatchers.Main) {
-                                                                nodeManager.updateAnchorNode(
-                                                                    prevNode = node,
-                                                                    questId = quest.id,
-                                                                    questModel = quest.model,
-                                                                    parentAnchor = parentAnchorNode,
-                                                                    modelInstances = modelInstances
-                                                                ).apply {
-                                                                    viewModel.updateQuestState(
-                                                                        anchorId,
-                                                                        QuestStatus.PROGRESS
-                                                                    )
-                                                                }
-                                                            }
-                                                        }
+                            state?.let {
+                                when (state) {
+                                    // 퀘스트 진행전
+                                    QuestStatus.WAIT -> {
+                                        viewModel.showQuestDialog(nodeId, state) { accepted ->
+                                            if (accepted) {
+                                                viewModel.updateQuest(anchorId,
+                                                    QuestStatus.PROGRESS)
+                                                    .apply {
+                                                        viewModel.updateAnchorNode(
+                                                            modelNode,
+                                                            quest,
+                                                            anchorNode
+                                                        )
+                                                    }
+                                            }
+                                        }
+                                    }
+                                    // 퀘스트 진행중
+                                    QuestStatus.PROGRESS -> {
+                                        viewModel.showQuestDialog(nodeId, state) { accepted ->
+                                            if (accepted) {
+                                                // TODO 온디바이스 AI로 검사
+                                                viewModel.updateQuest(
+                                                    anchorId,
+                                                    QuestStatus.COMPLETE
+                                                ).apply {
+                                                    node.childNodes.filterIsInstance<ImageNode>()
+                                                        .firstOrNull()
+                                                        ?.setBitmap("picture/complete.png")
+
+                                                    coroutineScope.launch {
+                                                        snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
                                                     }
                                                 }
                                             }
                                         }
-                                        // 퀘스트 진행중
-                                        QuestStatus.PROGRESS -> {
-                                            viewModel.showQuestDialog(
-                                                nodeId, state
-                                            ) { accepted ->
-                                                if (accepted) { // 완료
-                                                    // TODO 온디바이스 AI로 검사
-                                                    viewModel.updateQuestState(
-                                                        anchorId,
-                                                        QuestStatus.COMPLETE
-                                                    )
-                                                        .apply {
-                                                            node.childNodes.filterIsInstance<ImageNode>()
-                                                                .firstOrNull()
-                                                                ?.setBitmap("picture/complete.png")
-
-                                                            coroutineScope.launch {
-                                                                snackbarHostState.showSnackbar("퀘스트가 완료되었습니다!")
-                                                            }
-                                                        }
-                                                }
-                                            }
-                                        }
-                                        // 퀘스트 완료
-                                        QuestStatus.COMPLETE -> {
-                                            coroutineScope.launch {
-                                                snackbarHostState.showSnackbar(quest.completeMessage)
-                                            }
+                                    }
+                                    // 퀘스트 완료
+                                    QuestStatus.COMPLETE -> {
+                                        coroutineScope.launch {
+                                            snackBarHostState.showSnackbar(quest.completeMessage)
                                         }
                                     }
                                 }
                             }
                         }
                     }
-
                 })
         )
         ArStatusText(
@@ -301,11 +245,11 @@ fun ARSceneComposable(
                 color = Color.Red
             )
             Text(
-                text = "가까운 마커: ${nearestNPC?.id ?: "모니터링중..."} ",
+                text = "가까운 마커: ${nearestNPCInfo.nearestNPC?.id ?: "모니터링중..."} ",
                 color = Color.Red
             )
             Text(
-                text = "마커 거리(m): ${nearestNPCDistance ?: "모니터링중..."} ",
+                text = "마커 거리(m): ${nearestNPCInfo.nearestNPCDistance ?: "모니터링중..."} ",
                 color = Color.Red
             )
             Text(
@@ -315,7 +259,7 @@ fun ARSceneComposable(
         }
 
         SnackbarHost(
-            hostState = snackbarHostState,
+            hostState = snackBarHostState,
             modifier = Modifier.align(Alignment.BottomCenter)
         ) { snackbarData ->
             Snackbar(snackbarData = snackbarData)
@@ -346,10 +290,7 @@ fun ArStatusText(
         fontSize = 28.sp,
         color = Color.White,
         text = (when (trackingFailureReason) {
-            TrackingFailureReason.NONE -> {
-                "위치를 찾고 있어"
-            }
-
+            TrackingFailureReason.NONE -> "위치를 찾고 있어"
             TrackingFailureReason.BAD_STATE -> "지금 내부 상태가\n불안정해"
             TrackingFailureReason.INSUFFICIENT_LIGHT -> "주변이 어두워서\n찾을 수 없어"
             TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"
