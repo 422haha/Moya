@@ -1,5 +1,5 @@
 CREATE
-    EXTENSION IF NOT EXISTS postgis;
+EXTENSION IF NOT EXISTS postgis;
 -- 기본 사용자 추가
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url, locale)
 VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url',
@@ -101,7 +101,7 @@ VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
        (3, 5), -- 8 환경 연수원 - 단풍나무
        (3, 6)
 -- 9 환경 연수원 - 개구리
-ON CONFLICT (park_id, species_id) DO NOTHING;
+    ON CONFLICT (park_id, species_id) DO NOTHING;
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
@@ -186,89 +186,86 @@ VALUES (1),
 --   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
 
 -- Exploration Data Insertion (탐험 데이터 삽입)
-INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate, image_url, route, completed)
-VALUES
-    (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09-23', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.416000 36.107000, 128.416100 36.107100, 128.416200 36.107200)', 4326), true),
-    (1, 2, '2024-09-24 09:00:00', '2024-09-24 11:30:00', 5000, 8000, '2024-09-24', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.402000 36.100000, 128.402100 36.100100, 128.402500 36.095000)', 4326), true),
-    (1, 3, '2024-09-25 14:00:00', '2024-09-25 16:00:00', 3000, 6000, '2024-09-25', 'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp', ST_GeomFromText('LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)', 4326), true);
+INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate,
+                         image_url, route, completed)
+VALUES (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09-23',
+        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        ST_GeomFromText(
+                'LINESTRING(128.416000 36.107000, 128.416100 36.107100, 128.416200 36.107200)',
+                4326), true),
+       (1, 2, '2024-09-24 09:00:00', '2024-09-24 11:30:00', 5000, 8000, '2024-09-24',
+        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        ST_GeomFromText(
+                'LINESTRING(128.402000 36.100000, 128.402100 36.100100, 128.402500 36.095000)',
+                4326), true),
+       (1, 3, '2024-09-25 14:00:00', '2024-09-25 16:00:00', 3000, 6000, '2024-09-25',
+        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        ST_GeomFromText(
+                'LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)',
+                4326), true);
 
 -- Discovery Data Insertion (발견 데이터 삽입)
 -- 청설모 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT
-    1,  -- user_id (테스트사용자1)
-    1,  -- species_id ('청설모')
-    sp.id,  -- species_pos_id
-    '2024-09-23 10:30:00',  -- discovery_time
-    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (청설모 이미지)
-FROM
-    species_pos sp
-        JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE
-    ps.park_id = 1  -- '싸피 뒷뜰'
-  AND ps.species_id = 1  -- 청설모
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
+       1,                                                                                                                                   -- species_id ('청설모')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-23 10:30:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (청설모 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 1    -- '싸피 뒷뜰'
+  AND ps.species_id = 1 -- 청설모
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
 
 -- 왕벚나무 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT
-    1,  -- user_id (테스트사용자1)
-    2,  -- species_id ('왕벚나무')
-    sp.id,  -- species_pos_id
-    '2024-09-23 11:00:00',  -- discovery_time
-    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (왕벚나무 이미지)
-FROM
-    species_pos sp
-        JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE
-    ps.park_id = 1  -- '싸피 뒷뜰'
-  AND ps.species_id = 2  -- 왕벚나무
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
+       2,                                                                                                                                   -- species_id ('왕벚나무')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-23 11:00:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (왕벚나무 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 1    -- '싸피 뒷뜰'
+  AND ps.species_id = 2 -- 왕벚나무
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326));
 
 -- 잉어 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT
-    1,  -- user_id (테스트사용자2)
-    3,  -- species_id ('잉어')
-    sp.id,  -- species_pos_id
-    '2024-09-24 10:15:00',  -- discovery_time
-    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (잉어 이미지)
-FROM
-    species_pos sp
-        JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE
-    ps.park_id = 2  -- 동락공원
-  AND ps.species_id = 3  -- 잉어
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자2)
+       3,                                                                                                                                   -- species_id ('잉어')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-24 10:15:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (잉어 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 2    -- 동락공원
+  AND ps.species_id = 3 -- 잉어
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326));
 
 -- 단풍나무 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT
-    1,  -- user_id (테스트사용자2)
-    5,  -- species_id ('단풍나무')
-    sp.id,  -- species_pos_id
-    '2024-09-24 11:00:00',  -- discovery_time
-    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (단풍나무 이미지)
-FROM
-    species_pos sp
-        JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE
-    ps.park_id = 2  -- 동락공원
-  AND ps.species_id = 5  -- 단풍나무
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자2)
+       5,                                                                                                                                   -- species_id ('단풍나무')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-24 11:00:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (단풍나무 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 2    -- 동락공원
+  AND ps.species_id = 5 -- 단풍나무
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326));
 
 -- 개구리 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT
-    1,  -- user_id (테스트사용자1)
-    6,  -- species_id ('개구리')
-    sp.id,  -- species_pos_id
-    '2024-09-25 15:00:00',  -- discovery_time
-    'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp'  -- image_url (개구리 이미지)
-FROM
-    species_pos sp
-        JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE
-    ps.park_id = 3  -- 환경 연수원
-  AND ps.species_id = 6  -- 개구리
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
+       6,                                                                                                                                   -- species_id ('개구리')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-25 15:00:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (개구리 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 3    -- 환경 연수원
+  AND ps.species_id = 6 -- 개구리
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));

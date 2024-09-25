@@ -49,8 +49,10 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final SpeciesPosRepositoryExploration speciesPosRepository;
 
     public ExplorationServiceImpl(UserRepository userRepository,
-        SpeciesRepositoryExploration speciesRepository, DiscoveryRepositoryExploration discoveryRepository,
-        ExplorationRepositoryExploration explorationRepository, ParkSpeciesRepositoryExploration parkSpeciesRepository,
+        SpeciesRepositoryExploration speciesRepository,
+        DiscoveryRepositoryExploration discoveryRepository,
+        ExplorationRepositoryExploration explorationRepository,
+        ParkSpeciesRepositoryExploration parkSpeciesRepository,
         SpeciesPosRepositoryExploration speciesPosRepository) {
         this.userRepository = userRepository;
         this.speciesRepository = speciesRepository;

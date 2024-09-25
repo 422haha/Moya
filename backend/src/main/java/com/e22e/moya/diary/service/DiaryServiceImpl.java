@@ -35,7 +35,8 @@ public class DiaryServiceImpl implements DiaryService {
     @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryHomeResponseDto getLatestExploration(Long userId) {
         // 사용자의 가장 최근 탐험 기록을 조회
-        Exploration exploration = explorationRepository.findTopByUserIdAndCompletedTrueOrderByStartTimeDesc(userId);
+        Exploration exploration = explorationRepository.findTopByUserIdAndCompletedTrueOrderByStartTimeDesc(
+            userId);
 
         // 탐험 기록이 없으면 예외 발생
         if (exploration == null) {
