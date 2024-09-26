@@ -5,7 +5,6 @@ import com.e22e.moya.exploration.dto.exploration.AddRequestDto;
 import com.e22e.moya.exploration.dto.exploration.AddResponseDto;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
-import com.e22e.moya.exploration.dto.findRoot.findRootRequestDto;
 import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
