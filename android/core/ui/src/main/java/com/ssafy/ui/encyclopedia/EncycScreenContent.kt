@@ -1,6 +1,8 @@
 package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -16,8 +18,11 @@ import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
 import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Clear
 import androidx.compose.material3.FilterChip
 import androidx.compose.material3.FilterChipDefaults
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
@@ -36,7 +41,6 @@ import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.PlantInfo
-import com.ssafy.ui.component.TopBar
 import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
@@ -51,9 +55,6 @@ fun EncycScreenContent(
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
     Scaffold(
-        topBar = {
-            TopBar("도감", onPop = { onIntent(EncycUserIntent.OnPop) })
-        },
         content = { paddingValues ->
             when (encycScreenState) {
                 is EncycScreenState.Loading -> {
@@ -90,7 +91,7 @@ fun EncycScreenLoaded(
             modifier
                 .fillMaxSize(),
     ) {
-        CollectionProgress(progress = state.progress)
+        CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = state.selectedChipIndex,
             onChipSelected = { index ->
@@ -198,35 +199,60 @@ fun EncycGrid(
 }
 
 @Composable
-fun CollectionProgress(progress: Float) {
+fun CollectionProgress(
+    progress: Float,
+    onIntent: (EncycUserIntent) -> Unit = {},
+) {
     Surface(shadowElevation = 8.dp) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier
-                    .fillMaxWidth(),
+                    .fillMaxWidth()
+                    .background(LightBackgroundColor),
         ) {
-            Text(
-                text = "수집률",
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                style = customTypography.titleMedium,
-                modifier =
-                    Modifier
-                        .padding(start = 8.dp)
-                        .padding(top = 8.dp),
-            )
+            Row(
+                modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "도감",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = customTypography.titleMedium,
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp),
+                )
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "onPop",
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 8.dp)
+                            .clickable { onIntent(EncycUserIntent.OnPop) },
+                )
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
-            Text(
-                text = "$progress%",
-                color = Color.Gray,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
                 modifier =
                     Modifier
-                        .align(Alignment.End)
-                        .padding(end = 8.dp),
-            )
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 4.dp)
+                        .fillMaxWidth(),
+            ) {
+                Text(text = "수집률")
+                Spacer(modifier = Modifier.padding(4.dp))
+                Text(
+                    text = "$progress%",
+                    color = Color.Gray,
+                )
+            }
 
             LinearProgressIndicator(
                 progress = { progress / 100 },
