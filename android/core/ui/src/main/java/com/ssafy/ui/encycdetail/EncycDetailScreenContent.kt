@@ -16,6 +16,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -30,7 +32,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -43,7 +44,6 @@ import com.ssafy.ui.R
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
-import com.ssafy.ui.component.TopBar
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.jua
@@ -68,7 +68,28 @@ fun EncycDetailScreenContent(
     }
     Scaffold(
         topBar = {
-            TopBar(text = "능소화", onPop = { onIntent(EncycDetailUserIntent.OnPop) })
+            Box(modifier = Modifier.fillMaxWidth()) {
+                encycDetailState.let { state ->
+                    if (state is EncycDetailScreenState.Loaded && state.data.plantImage != null) {
+                        ImageSection(imageUrl = state.data.plantImage)
+                    } else {
+                        ImageSection(imageUrl = "")
+                    }
+                }
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                    contentDescription = "back",
+                    modifier =
+                        Modifier
+                            .padding(16.dp)
+                            .size(32.dp)
+                            .clickable { onIntent(EncycDetailUserIntent.OnPop) },
+                )
+                ButtonSection(
+                    modifier = Modifier.align(Alignment.BottomEnd).padding(horizontal = 4.dp),
+                    onIntent,
+                )
+            }
         },
         floatingActionButton = {
             if (encycDetailState is EncycDetailScreenState.Loaded) {
@@ -120,12 +141,6 @@ fun EncycDetailScreenLoaded(
             modifier
                 .fillMaxSize(),
     ) {
-        Box {
-            state.data.plantImage?.let { ImageSection(it) }
-            ButtonSection(modifier = Modifier.align(Alignment.BottomCenter), onIntent)
-        }
-        Spacer(modifier = Modifier.height(16.dp))
-
         TitleAndDividerSection("소개")
         DescriptionSection(state.data.description)
         Spacer(modifier = Modifier.height(16.dp))
@@ -138,28 +153,18 @@ fun ImageSection(imageUrl: String) {
         modifier =
             Modifier
                 .fillMaxWidth(),
-        shape = RoundedCornerShape(bottomEnd = 16.dp, bottomStart = 16.dp),
         shadowElevation = 4.dp,
-        color = PrimaryColor,
     ) {
-        Box(
+        AsyncImage(
+            model = imageUrl,
+            contentDescription = "도감 사진",
+            contentScale = ContentScale.Crop,
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .height(250.dp)
-                    .padding(12.dp),
-        ) {
-            AsyncImage(
-                model = imageUrl,
-                contentDescription = "도감 사진",
-                contentScale = ContentScale.Crop,
-                modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .clip(RoundedCornerShape(16.dp)),
-                placeholder = painterResource(id = R.drawable.ic_launcher_background),
-            )
-        }
+                    .height(250.dp),
+            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+        )
     }
 }
 
@@ -187,7 +192,7 @@ fun ButtonSection(
                     .padding(horizontal = 16.dp),
         ) {
             Icon(
-                painter = painterResource(id = R.drawable.ic_launcher_foreground),
+                painter = painterResource(id = R.drawable.flip_image),
                 contentDescription = "도감 사진 보기",
                 tint = PrimaryColor,
                 modifier = Modifier.size(20.dp),
