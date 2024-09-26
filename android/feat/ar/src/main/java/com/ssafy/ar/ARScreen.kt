@@ -184,7 +184,9 @@ fun ARSceneComposable(
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
 
-                            viewModel.addAnchorNode(plane, pose, id, childNodes)
+                            if(!childNodes.any { it.name == id }) {
+                                viewModel.addAnchorNode(plane, pose, id, childNodes)
+                            }
                         }
                     }
                 }
