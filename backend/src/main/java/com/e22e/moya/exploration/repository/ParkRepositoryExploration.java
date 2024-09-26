@@ -3,7 +3,6 @@ package com.e22e.moya.exploration.repository;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.species.ParkSpecies;
-import com.e22e.moya.exploration.dto.info.ParkSpeciesDto;
 import java.util.List;
 import java.util.Optional;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,7 +33,7 @@ public interface ParkRepositoryExploration extends JpaRepository<Park, Long> {
             "JOIN park_species ps ON sp.park_species_id = ps.id " +
             "WHERE d.user_id=:userId AND ps.park_id=:parkId",
         nativeQuery = true)
-    List<ParkSpeciesDto> findMyDiscoveredSpecies(@Param("parkId") Long parkId,
+    List<ParkSpeciesProjection> findMyDiscoveredSpecies(@Param("parkId") Long parkId,
         @Param("userId") Long userId);
 
 
@@ -66,7 +65,7 @@ public interface ParkRepositoryExploration extends JpaRepository<Park, Long> {
             "GROUP BY c.species_id, c.name, c.scientific_name, c.description, c.image_url, c.pos, c.cluster_id "
             +
             "ORDER BY c.species_id, c.cluster_id")
-    List<ParkSpeciesDto> findAllSpecies(
+    List<ParkSpeciesProjection> findAllSpecies(
         @Param("parkId") Long parkId
     );
 }

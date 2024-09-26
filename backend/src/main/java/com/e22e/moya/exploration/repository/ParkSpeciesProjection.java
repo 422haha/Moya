@@ -1,8 +1,8 @@
-package com.e22e.moya.exploration.dto.info;
+package com.e22e.moya.exploration.repository;
 
 import org.geolatte.geom.Point;
 
-public interface ParkSpeciesDto {
+public interface ParkSpeciesProjection {
 
     Long getSpeciesId();
 

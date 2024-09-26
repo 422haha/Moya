@@ -1,8 +1,7 @@
-package com.e22e.moya.exploration.util;
+package com.e22e.moya.common.util;
 
 import io.github.cdimascio.dotenv.Dotenv;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+
 
 import java.net.URISyntaxException;
 import java.net.URL;
@@ -10,11 +9,9 @@ import java.nio.file.FileSystems;
 import java.nio.file.Path;
 import java.nio.file.PathMatcher;
 import java.nio.file.Paths;
-import java.util.Scanner;
 
 /**
- * 유틸리티 메서드 제공
- * API 키 로드
+ * 유틸리티 메서드 제공 API 키 로드
  */
 public class ChatUtils {
 
@@ -29,8 +26,7 @@ public class ChatUtils {
     }
 
     /**
-     * 클래스 경로에서 상대 경로를 받아 Path 객체로 변환
-     * 파일 URL을 Path 객체로 변환
+     * 클래스 경로에서 상대 경로를 받아 Path 객체로 변환 파일 URL을 Path 객체로 변환
      */
     public static Path toPath(String relativePath) {
         try {

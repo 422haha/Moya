@@ -1,9 +1,9 @@
 package com.e22e.moya.exploration.service.chat;
 
-import com.e22e.moya.exploration.util.ChatAssistant;
-import com.e22e.moya.exploration.util.ChatUtils;
 import com.e22e.moya.common.entity.chatting.Chat;
 import com.e22e.moya.common.entity.chatting.Message;
+import com.e22e.moya.common.util.ChatAssistant;
+import com.e22e.moya.common.util.ChatUtils;
 import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
 import com.e22e.moya.exploration.dto.chat.ChatResponseDto;
 import com.e22e.moya.exploration.repository.ChatRepository;
@@ -15,32 +15,23 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.data.document.Document;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.e22e.moya.exploration.util.ChatUtils.glob;
-import static com.e22e.moya.exploration.util.ChatUtils.toPath;
+import static com.e22e.moya.common.util.ChatUtils.glob;
+import static com.e22e.moya.common.util.ChatUtils.toPath;
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
 
-/**
- * ChatService 인터페이스 구현체
- */
+
 @Service
 public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
     private final ChatAssistant assistant; // AI 챗봇과의 상호작용을 관리하는 객체
 
-    /**
-     * OpenAI API 키로 Assistant 객체를 초기화
-     *
-     * @param chatRepository 채팅 데이터 관리 repo
-     */
-    @Autowired
     public ChatServiceImpl(ChatRepository chatRepository) {
         this.chatRepository = chatRepository;
 
@@ -64,8 +55,8 @@ public class ChatServiceImpl implements ChatService {
      * 사용자 메시지 처리, AI 응답 생성, DB 저장
      *
      * @param requestDto 사용자 메시지 DTO
-     * @param chatId 채팅 ID, 이전 대화 내역을 불러오기 위해 사용
-     * @return ChatResponseDto 객체
+     * @param chatId     채팅 ID, 이전 대화 내역을 불러오기 위해 사용
+     * @return ChatResponseDto
      */
     @Override
     @Transactional
