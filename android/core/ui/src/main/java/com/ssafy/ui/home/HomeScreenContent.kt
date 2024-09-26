@@ -89,13 +89,19 @@ fun HomeScreenLoaded(
             )
         }
         item {
-            HorizontalImageCardLayout(state = state.popularParks)
+            HorizontalImageCardLayout(state = state.popularParks, onSelected = { id ->
+                onIntent(HomeUserIntent.OnSelectPopularPark(id))
+            })
         }
         item {
-            VerticalImageCardLayout(state = state.closeParks)
+            VerticalImageCardLayout(state = state.closeParks, onSelected = { id ->
+                onIntent(HomeUserIntent.OnSelectClosePark(id))
+            })
         }
         item {
-            HorizontalCircleCardLayout(state = state.plantInSeason)
+            HorizontalCircleCardLayout(state = state.plantInSeason, onSelected = { id ->
+                onIntent(HomeUserIntent.OnSelectEncyc(id))
+            })
         }
     }
 }

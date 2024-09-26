@@ -10,9 +10,9 @@ sealed interface HomeScreenState {
     data object Loading : HomeScreenState
     @Immutable
     data class Loaded(
-        val popularParks: List<ImageCardWithTitleDescriptionState>,
-        val closeParks: List<ImageCardWithValueState>,
-        val plantInSeason: List<EncycCardState>,
+        val popularParks: List<ImageCardWithTitleDescriptionState> = emptyList(),
+        val closeParks: List<ImageCardWithValueState> = emptyList(),
+        val plantInSeason: List<EncycCardState> = emptyList(),
     ) : HomeScreenState
     @Immutable
     data class Error(
