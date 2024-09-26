@@ -18,7 +18,6 @@ import com.ssafy.ui.encycdetail.ImageSection
 import com.ssafy.ui.encycdetail.TitleAndDividerSection
 import com.ssafy.ui.encyclopedia.EncycGrid
 import com.ssafy.ui.encyclopedia.EncycGridState
-import com.ssafy.ui.theme.PrimaryColor
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
 import me.onebone.toolbar.ScrollStrategy
@@ -34,7 +33,6 @@ fun ParkDetailScreenContent(
         topBar = {
             TopBar(
                 text = if (parkDetailScreenState is ParkDetailScreenState.Loaded) parkDetailScreenState.parkName else "",
-                backgroundColor = PrimaryColor,
                 onPop = { onIntent(ParkDetailUserIntent.OnPop) }
             )
         },
