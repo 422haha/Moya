@@ -14,6 +14,7 @@ import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.ssafy.ar.data.LocationPriority
 import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.NearestNPCInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -26,8 +27,6 @@ class ARLocationManager(
     val currentLocation: StateFlow<Location?> = _currentLocation.asStateFlow()
 
     private var currentPriority: Int = Priority.PRIORITY_PASSIVE
-        private set
-    fun getCurrentPriority(): Int = currentPriority
 
     private var locationCallback: LocationCallback? = null
 
@@ -41,13 +40,13 @@ class ARLocationManager(
             }
         }
 
-        setFusedLocationClient(10f)
+        setFusedLocationClient(100f)
     }
 
     fun setFusedLocationClient(distance: Float) {
         if (context.checkLocationPermission()) {
             val newPriority = getPriorityBasedOnDistance(distance).priority
-            if(getCurrentPriority() != newPriority) {
+            if(currentPriority != newPriority) {
                 currentPriority = newPriority
 
                 val info = createLocationRequest(distance)
@@ -88,8 +87,16 @@ class ARLocationManager(
         locationCallback = null
     }
 
+    fun operateNearestNPC(location: Location, npcMarkers: Map<String, NPCLocation>): NearestNPCInfo {
+        val npc = findNearestNPC(location, npcMarkers)
+        val distance = npc?.let { measureNearestNpcDistance(location, it) }
+        val isAvailable = isAvailableNearestNPC(distance, location)
+
+        return NearestNPCInfo(npc, distance, isAvailable)
+    }
+
     // 가장 가까운 노드와의 거리를 측정
-    fun measureNearestNpcDistance(location: Location, npcLocation: NPCLocation): Float {
+    private fun measureNearestNpcDistance(location: Location, npcLocation: NPCLocation): Float {
         val targetLocation = Location("target").apply {
             latitude = npcLocation.latitude
             longitude = npcLocation.longitude
@@ -99,7 +106,7 @@ class ARLocationManager(
     }
 
     // 가장 가까운 노드를 찾기
-    fun findNearestNPC(
+    private fun findNearestNPC(
         currentLocation: Location,
         npcLocations: Map<String, NPCLocation>
     ): NPCLocation? {
@@ -116,7 +123,7 @@ class ARLocationManager(
     }
 
     // 배치 가능한 거리인지 확인
-    fun isAvailableNearestNPC(
+    private fun isAvailableNearestNPC(
         nearestDistance: Float?,
         location: Location?
     ): Boolean {

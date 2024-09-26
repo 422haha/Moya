@@ -46,8 +46,6 @@ class ARNodeManager(
 
         childNodes.add(anchorNode)
 
-        delay(5000)
-
         onSuccess()
     }
 
