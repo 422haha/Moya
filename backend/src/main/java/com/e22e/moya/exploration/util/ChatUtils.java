@@ -1,4 +1,4 @@
-package com.e22e.moya.chatbot;
+package com.e22e.moya.exploration.util;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import org.slf4j.Logger;

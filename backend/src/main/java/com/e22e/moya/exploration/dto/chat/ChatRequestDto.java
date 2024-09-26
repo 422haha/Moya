@@ -1,4 +1,4 @@
-package com.e22e.moya.chatbot;
+package com.e22e.moya.exploration.dto.chat;
 
 /**
  * 사용자로부터 받은 메시지를 담는 DTO.

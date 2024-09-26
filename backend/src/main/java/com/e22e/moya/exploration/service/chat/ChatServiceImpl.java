@@ -1,7 +1,12 @@
-package com.e22e.moya.chatbot;
+package com.e22e.moya.exploration.service.chat;
 
+import com.e22e.moya.exploration.util.ChatAssistant;
+import com.e22e.moya.exploration.util.ChatUtils;
 import com.e22e.moya.common.entity.chatting.Chat;
 import com.e22e.moya.common.entity.chatting.Message;
+import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
+import com.e22e.moya.exploration.dto.chat.ChatResponseDto;
+import com.e22e.moya.exploration.repository.ChatRepository;
 import dev.langchain4j.model.openai.OpenAiChatModel;
 import dev.langchain4j.rag.content.retriever.ContentRetriever;
 import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
@@ -17,8 +22,8 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.e22e.moya.chatbot.ChatUtils.glob;
-import static com.e22e.moya.chatbot.ChatUtils.toPath;
+import static com.e22e.moya.exploration.util.ChatUtils.glob;
+import static com.e22e.moya.exploration.util.ChatUtils.toPath;
 import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
 
 /**
@@ -28,7 +33,7 @@ import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.load
 public class ChatServiceImpl implements ChatService {
 
     private final ChatRepository chatRepository;
-    private final Assistant assistant; // AI 챗봇과의 상호작용을 관리하는 객체
+    private final ChatAssistant assistant; // AI 챗봇과의 상호작용을 관리하는 객체
 
     /**
      * OpenAI API 키로 Assistant 객체를 초기화
@@ -46,7 +51,7 @@ public class ChatServiceImpl implements ChatService {
         ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.from(embeddingStore);
 
         // Assistant 설정에 ContentRetriever 추가
-        this.assistant = AiServices.builder(Assistant.class)
+        this.assistant = AiServices.builder(ChatAssistant.class)
             .chatLanguageModel(OpenAiChatModel.builder()
                 .apiKey(ChatUtils.OPENAI_API_KEY)
                 .temperature(0.7)  // 응답 민감도 조절

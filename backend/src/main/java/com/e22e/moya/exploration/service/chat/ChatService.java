@@ -1,4 +1,7 @@
-package com.e22e.moya.chatbot;
+package com.e22e.moya.exploration.service.chat;
+
+import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
+import com.e22e.moya.exploration.dto.chat.ChatResponseDto;
 
 public interface ChatService {
     /**
