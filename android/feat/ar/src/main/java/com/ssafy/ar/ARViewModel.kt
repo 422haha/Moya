@@ -144,8 +144,6 @@ class ARViewModel(
                         val nearestNPCInfo = locationManager.operateNearestNPC(it, npcMarkers.value)
 
                         updateNearestNPC(nearestNPCInfo)
-
-                        locationManager.setFusedLocationClient(nearestNPCInfo.distance ?: 100f)
                     }
                 }
             )

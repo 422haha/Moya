@@ -161,7 +161,7 @@ fun ARSceneComposable(
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
                 if(trackingFailureReason == null) {
-                    val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlace || childNodes.any { !it.isVisible })
+                    val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
                         Config.PlaneFindingMode.HORIZONTAL
                     else
                         Config.PlaneFindingMode.DISABLED
@@ -183,8 +183,7 @@ fun ARSceneComposable(
 
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
-                            Log.d(TAG, "ARSceneComposable: ${id}")
-                            
+
                             viewModel.addAnchorNode(plane, pose, id, childNodes)
                         }
                     }
