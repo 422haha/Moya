@@ -58,8 +58,7 @@ public class InfoServiceImpl implements InfoService {
     }
 
     /**
-     * 새 탐험 시작
-     * 초기 탐험 정보 가져오는 메서드
+     * 새 탐험 시작 초기 탐험 정보 가져오는 메서드
      *
      * @param parkId 공원 id
      * @param userId 사용자 id
@@ -71,7 +70,8 @@ public class InfoServiceImpl implements InfoService {
             .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
 
         // 내가 공원에서 발견한 것들
-        List<ParkSpeciesProjection> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(parkId,
+        List<ParkSpeciesProjection> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(
+            parkId,
             userId);
         List<SpeciesDto> mySpeciesDto = convertToSpeciesDtos(myDiscoveredSpecies);//내가 공원에서 발견한것들
 
@@ -121,7 +121,8 @@ public class InfoServiceImpl implements InfoService {
             .orElseThrow(() -> new EntityNotFoundException("공원을 찾을 수 없음"));
 
         // 내가 공원에서 발견한 것들
-        List<ParkSpeciesProjection> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(parkId,
+        List<ParkSpeciesProjection> myDiscoveredSpecies = parkRepository.findMyDiscoveredSpecies(
+            parkId,
             userId);
         List<SpeciesDto> mySpeciesDto = convertToSpeciesDtos(myDiscoveredSpecies);//내가 공원에서 발견한것들
 
@@ -149,7 +150,8 @@ public class InfoServiceImpl implements InfoService {
     /**
      * 내가 발견한 종의 위치와 내가 발견한 종의 모든 위치가 겹치지 않도록
      */
-    private List<ParkSpeciesProjection> filterDiscoveredSpecies(List<ParkSpeciesProjection> allSpecies,
+    private List<ParkSpeciesProjection> filterDiscoveredSpecies(
+        List<ParkSpeciesProjection> allSpecies,
         List<ParkSpeciesProjection> discoveredSpecies) {
         List<ParkSpeciesProjection> filteredSpecies = new ArrayList<>();
         Map<Point<G2D>, Set<Long>> speciesAtPos = new HashMap<>();
@@ -250,6 +252,7 @@ public class InfoServiceImpl implements InfoService {
             PositionDto positionDto = new PositionDto();
             Point<G2D> point = pos.getPos();
             if (point != null) {
+                positionDto.setId(pos.getId());
                 positionDto.setLatitude(point.getPosition().getLat());
                 positionDto.setLongitude(point.getPosition().getLon());
             }
