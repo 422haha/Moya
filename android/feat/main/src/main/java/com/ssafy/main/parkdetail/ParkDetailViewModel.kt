@@ -35,7 +35,7 @@ class ParkDetailViewModel @Inject constructor(
                                     EncycGridState(
                                         plantName = it.speciesName,
                                         plantImage = it.imageUrl,
-                                        isDiscovered = it.discovered
+                                        isDiscovered = true
                                     )
                                 }
                             )
