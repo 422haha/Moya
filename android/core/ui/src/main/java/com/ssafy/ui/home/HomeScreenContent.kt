@@ -13,10 +13,14 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.LazyRow
+import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -38,6 +42,9 @@ import com.ssafy.ui.R
 import com.ssafy.ui.component.BoxWithImage
 import com.ssafy.ui.component.BoxWithImageState
 import com.ssafy.ui.component.ErrorScreen
+import com.ssafy.ui.component.ImageCardWithTitleDescription
+import com.ssafy.ui.component.ImageCardWithValue
+import com.ssafy.ui.component.ImageCardWithValueState
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.SecondaryColor
@@ -114,8 +121,6 @@ fun HomeTopImage(
         )
     }
 }
-
-
 
 @Composable
 fun UserInfo(
@@ -198,6 +203,78 @@ fun HomeBox(
             )
         }
     }
+}
+
+@Composable
+fun HorizontalImageCards(
+    modifier: Modifier = Modifier,
+    state: List<ImageCardWithTitleDescription> = emptyList(),
+    onSelected: (id: Long) -> Unit = {},
+) {
+    LazyRow(modifier = modifier, horizontalArrangement = Arrangement.spacedBy(16.dp)) {
+        items(state) { item ->
+            ImageCardWithTitleDescription(state = item, onClick = onSelected)
+        }
+    }
+}
+
+@Composable
+fun VerticalImageCards(
+    modifier: Modifier = Modifier,
+    state: List<ImageCardWithValueState> = emptyList(),
+    onSelected: (id: Long) -> Unit = {},
+) {
+    LazyColumn(modifier = modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(16.dp)) {
+        item {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                Text("가까운 공원", fontSize = 24.sp, fontWeight = FontWeight.SemiBold)
+                Spacer(modifier = Modifier.weight(1f))
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                    contentDescription = null,
+                )
+            }
+        }
+        items(state){ item ->
+            ImageCardWithValue(state = item, icon = Icons.Filled.LocationOn, onClick = onSelected)
+        }
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun VerticalImageCardsPreview() {
+    VerticalImageCards(
+        state =
+            List(3) {
+                (
+                    ImageCardWithValueState(
+                        id = 1,
+                        title = "동락공원",
+                        value = "99m",
+                        imageUrl = "",
+                    )
+                )
+            },
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun HorizontalImageCardsPreview() {
+    HorizontalImageCards(
+        state =
+            List(5) {
+                (
+                    ImageCardWithTitleDescription(
+                        id = 1,
+                        title = "동락공원",
+                        description = "동락공원은 동락동에 위치한 공원입니다.",
+                        imageUrl = "",
+                    )
+                )
+            },
+    )
 }
 
 @Preview(showBackground = true)
