@@ -27,12 +27,15 @@ fun MainNavigation(
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
             HomeScreen(
-                onNavigateToExploreList = {
-                    navController.navigate(ExploreList)
-                },
                 onNavigateToParkList = {
                     navController.navigate(ParkList)
                 },
+                onNavigateToParkDetail = { id ->
+                    navController.navigate(ParkDetail(itemId = id))
+                },
+                onNavigateToEncyc = { id ->
+                    navController.navigate(EncycDetail(itemId = id))
+                }
             )
         }
         composable<ExploreList> {

@@ -5,7 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -15,6 +15,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -24,13 +25,13 @@ import com.ssafy.ui.R
 @Composable
 fun ImageCardWithTitleDescription(
     modifier: Modifier = Modifier,
-    state: ImageCardWithTitleDescription,
+    state: ImageCardWithTitleDescriptionState,
     onClick: (id: Long) -> Unit = {},
 ) {
     Column(
         modifier =
             modifier
-                .size(height = 240.dp, width = 208.dp)
+                .width(208.dp)
                 .clickable { onClick(state.id) },
     ) {
         AsyncImage(
@@ -55,12 +56,14 @@ fun ImageCardWithTitleDescription(
             text = state.description,
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
+            maxLines = 2,
+            overflow = TextOverflow.Ellipsis
         )
     }
 }
 
 @Immutable
-data class ImageCardWithTitleDescription(
+data class ImageCardWithTitleDescriptionState(
     val id: Long,
     val title: String,
     val description: String,
@@ -72,7 +75,7 @@ data class ImageCardWithTitleDescription(
 fun ImageCardWithTitleDescriptionPreview() {
     ImageCardWithTitleDescription(
         state =
-            ImageCardWithTitleDescription(
+            ImageCardWithTitleDescriptionState(
                 id = 1,
                 title = "동락공원",
                 description = "동락공원은 동락동에 위치한 공원입니다.",

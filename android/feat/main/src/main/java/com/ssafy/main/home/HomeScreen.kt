@@ -12,8 +12,9 @@ import com.ssafy.ui.home.HomeUserIntent
 fun HomeScreen(
     viewModel: HomeScreenViewModel = hiltViewModel(),
     onNavigateToParkList: () -> Unit,
-    onNavigateToExploreList: () -> Unit
-){
+    onNavigateToParkDetail: (id: Long) -> Unit,
+    onNavigateToEncyc: (id: Long) -> Unit,
+) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
@@ -23,11 +24,13 @@ fun HomeScreen(
     HomeScreenContent(
         homeScreenState = uiState,
         onIntent = { intent ->
-            when(intent){
+            when (intent) {
                 is HomeUserIntent.OnNavigateToParkList -> onNavigateToParkList()
-                is HomeUserIntent.OnNavigateToExploreList -> onNavigateToExploreList()
+                is HomeUserIntent.OnSelectPopularPark -> onNavigateToParkDetail(intent.id)
+                is HomeUserIntent.OnSelectClosePark -> onNavigateToParkDetail(intent.id)
+                is HomeUserIntent.OnSelectEncyc -> onNavigateToEncyc(intent.id)
                 else -> viewModel.onIntent(intent)
             }
-        }
+        },
     )
 }
