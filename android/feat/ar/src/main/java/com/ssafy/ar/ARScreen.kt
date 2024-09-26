@@ -158,17 +158,32 @@ fun ARSceneComposable(
             },
             cameraNode = cameraNode,
             planeRenderer = planeRenderer,
+            onSessionResumed = { session ->
+                runCatching {
+                    session.configure(session.config.apply {
+                        setPlaneFindingMode(Config.PlaneFindingMode.HORIZONTAL)
+                    })
+                }
+            },
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
-                val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlaceNode)
-                    Config.PlaneFindingMode.HORIZONTAL
-                else
-                    Config.PlaneFindingMode.DISABLED
+                if(trackingFailureReason == TrackingFailureReason.NONE) {
+                    val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlaceNode)
+                        Config.PlaneFindingMode.HORIZONTAL
+                    else
+                        Config.PlaneFindingMode.DISABLED
 
-                if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                        runCatching {
+                            session.configure(session.config.apply {
+                                setPlaneFindingMode(desiredPlaneFindingMode)
+                            })
+                        }
+                    }
+                } else {
                     runCatching {
                         session.configure(session.config.apply {
-                            setPlaneFindingMode(desiredPlaneFindingMode)
+                            setPlaneFindingMode(Config.PlaneFindingMode.HORIZONTAL)
                         })
                     }
                 }
