@@ -9,6 +9,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
@@ -17,7 +18,6 @@ import com.ssafy.ui.encycdetail.DescriptionSection
 import com.ssafy.ui.encycdetail.ImageSection
 import com.ssafy.ui.encycdetail.TitleAndDividerSection
 import com.ssafy.ui.encyclopedia.EncycGrid
-import com.ssafy.ui.encyclopedia.EncycGridState
 import com.ssafy.ui.theme.PrimaryColor
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -118,9 +118,10 @@ fun ParkDetailScreenPreview() {
             parkName = "동락공원",
             description = "동락공원이예요",
             items = List(20) { index ->
-                EncycGridState(
-                    plantName = "식물 $index",
-                    plantImage = null,
+                EncycCardState(
+                    id = index.toLong(),
+                    name = "식물 $index",
+                    imageUrl = null,
                     isDiscovered = index % 2 == 0
                 )
             }

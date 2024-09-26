@@ -35,108 +35,123 @@ import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
 
 @Immutable
-data class plantInfo(
-    val plantName: String,
-    val plantImage: String?,
-    val isDiscovered: Boolean
+data class EncycCardState(
+    val id: Long,
+    val name: String,
+    val imageUrl: String?,
+    val isDiscovered: Boolean,
 )
 
 @Composable
-fun PlantCard(plantInfo: plantInfo, onClick: () -> Unit = {}) {
+fun EncycCard(
+    state: EncycCardState,
+    onClick: (id: Long) -> Unit = {},
+) {
     Card(
         shape = RoundedCornerShape(8.dp),
         elevation = CardDefaults.cardElevation(4.dp),
-        colors = CardDefaults.cardColors(
-            containerColor = if (plantInfo.isDiscovered) SurfaceColor else GrayColor
-        ),
-        modifier = Modifier
-            .padding(4.dp)
-            .width(160.dp)
-            .height(160.dp),
-        onClick = onClick
+        colors =
+            CardDefaults.cardColors(
+                containerColor = if (state.isDiscovered) SurfaceColor else GrayColor,
+            ),
+        modifier =
+            Modifier
+                .padding(4.dp)
+                .width(160.dp)
+                .height(160.dp),
+        onClick = { onClick(state.id) },
     ) {
         Column(
-            modifier = Modifier
-                .fillMaxHeight(),
+            modifier =
+                Modifier
+                    .fillMaxHeight(),
             horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top
+            verticalArrangement = Arrangement.Top,
         ) {
             AsyncImage(
-                model = plantInfo.plantImage,
+                model = state.imageUrl,
                 contentDescription = "도감 사진",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(120.dp)
-                    .background(LightBackgroundColor)
+                modifier =
+                    Modifier
+                        .fillMaxWidth()
+                        .height(120.dp)
+                        .background(LightBackgroundColor),
             )
 
             Text(
-                text = plantInfo.plantName,
+                text = state.name,
                 fontSize = 14.sp,
-                color = if (plantInfo.isDiscovered) PrimaryColor else DarkGrayColor,
-                modifier = Modifier
-                    .padding(8.dp),
+                color = if (state.isDiscovered) PrimaryColor else DarkGrayColor,
+                modifier =
+                    Modifier
+                        .padding(8.dp),
             )
         }
     }
 }
 
 @Composable
-fun CirclePlantComponent(plantInfo: plantInfo, onClick: () -> Unit = {}) {
+fun EncycCircleCard(
+    state: EncycCardState,
+    onClick: (id: Long) -> Unit = {},
+) {
     Column(
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally,
-        modifier = Modifier.clickable { onClick() }
+        modifier = Modifier.clickable { onClick(state.id) },
     ) {
         AsyncImage(
-            model = plantInfo.plantName,
+            model = state.name,
             contentDescription = "plant",
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
             contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(8.dp)
-                .clip(CircleShape)
-                .size(120.dp)
+            modifier =
+                Modifier
+                    .padding(8.dp)
+                    .clip(CircleShape)
+                    .size(120.dp),
         )
         Spacer(modifier = Modifier.height(8.dp))
-        Text(text = plantInfo.plantName)
+        Text(text = state.name)
     }
-
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PlantCardPreview() {
-    PlantCard(
-        plantInfo(
-            plantName = "능소화",
-            plantImage = "",
-            isDiscovered = true
-        )
+    EncycCard(
+        EncycCardState(
+            id = 1,
+            name = "능소화",
+            imageUrl = "",
+            isDiscovered = true,
+        ),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun PlantCardWithFalsePreview() {
-    PlantCard(
-        plantInfo(
-            plantName = "능소화",
-            plantImage = "",
-            isDiscovered = false
-        )
+    EncycCard(
+        EncycCardState(
+            id = 1,
+            name = "능소화",
+            imageUrl = "",
+            isDiscovered = false,
+        ),
     )
 }
 
 @Preview(showBackground = true)
 @Composable
 fun CirclePlantComponentPreview() {
-    CirclePlantComponent(
-        plantInfo(
-            plantName = "능소화",
-            plantImage = "",
-            isDiscovered = false
-        )
+    EncycCircleCard(
+        EncycCardState(
+            id = 1,
+            name = "능소화",
+            imageUrl = "",
+            isDiscovered = false,
+        ),
     )
 }

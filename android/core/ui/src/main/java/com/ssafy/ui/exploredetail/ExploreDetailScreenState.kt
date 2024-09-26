@@ -1,7 +1,7 @@
 package com.ssafy.ui.exploredetail
 
 import androidx.compose.runtime.Immutable
-import com.ssafy.ui.encyclopedia.EncycGridState
+import com.ssafy.ui.component.EncycCardState
 
 sealed interface ExploreDetailScreenState {
     @Immutable
@@ -9,7 +9,7 @@ sealed interface ExploreDetailScreenState {
     @Immutable
     data class Loaded(
         val exploreDetail: ExploreDetail,
-        val items: List<EncycGridState> = listOf()
+        val items: List<EncycCardState> = listOf()
     ) : ExploreDetailScreenState
     @Immutable
     data class Error(val message: String) : ExploreDetailScreenState
