@@ -46,38 +46,40 @@ fun ParkListScreenContent(
     Scaffold(
         topBar = {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
-                TopBar(text = "공원", PrimaryColor, onPop = { onIntent(ParkListUserIntent.OnPop) } )
+                TopBar(text = "공원", onPop = { onIntent(ParkListUserIntent.OnPop) })
                 IconButton(
                     onClick = { /* TODO 검색기능 */ },
-                    modifier = Modifier.align(Alignment.CenterEnd)
+                    modifier = Modifier.align(Alignment.CenterEnd),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Search,
                         contentDescription = "Search",
-                        tint = Color.White
+                        tint = Color.White,
                     )
                 }
             }
         },
         content = { paddingValues ->
-            when(state) {
+            when (state) {
                 is ParkListScreenState.Loading -> {
                     LoadingScreen(modifier = modifier.padding(paddingValues))
                 }
+
                 is ParkListScreenState.Loaded -> {
                     ParkListScreenLoaded(
                         modifier = modifier.padding(paddingValues),
                         state = state,
-                        onIntent = onIntent
+                        onIntent = onIntent,
                     )
                 }
+
                 is ParkListScreenState.Error -> {
                     ErrorScreen(modifier = modifier.padding(paddingValues), state.message)
                 }
             }
-        }
+        },
     )
 }
 
@@ -88,12 +90,13 @@ fun ParkListScreenLoaded(
     onIntent: (ParkListUserIntent) -> Unit = {},
 ) {
     Column(
-        modifier = modifier
-            .fillMaxWidth()
+        modifier =
+            modifier
+                .fillMaxWidth(),
     ) {
         DateOrLocation(SurfaceColor, PrimaryColor, R.drawable.baseline_my_location_24)
         LazyColumn(
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             items(state.list) { item ->
                 Spacer(modifier = Modifier.height(12.dp))
@@ -114,17 +117,20 @@ fun ParkListScreenLoaded(
 @Composable
 fun HomeDetailScreenPreview() {
     ParkListScreenContent(
-        state = ParkListScreenState.Loaded(
-            list = listOf(
-                BoxWithImageStateWithData(
-                    id = 1,
-                    state = BoxWithImageState(
-                        title = "동락공원",
-                        info = "2024.09.17",
-                        image = null,
-                    )
-                )
-            )
-        )
+        state =
+            ParkListScreenState.Loaded(
+                list =
+                    listOf(
+                        BoxWithImageStateWithData(
+                            id = 1,
+                            state =
+                                BoxWithImageState(
+                                    title = "동락공원",
+                                    info = "2024.09.17",
+                                    image = null,
+                                ),
+                        ),
+                    ),
+            ),
     )
 }
