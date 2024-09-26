@@ -1,11 +1,8 @@
-# 빌드 단계
-FROM maven:3.8.6-openjdk-17 AS build
-WORKDIR /build
-COPY . .
-RUN mvn clean package -DskipTests
-
-# 실행 단계
 FROM openjdk:17-jdk-slim
 WORKDIR /app
-COPY --from=build /build/target/moya-0.0.1-SNAPSHOT.jar app.jar
+RUN ln -sf /usr/share/zoneinfo/Asia/Seoul /etc/localtime
+COPY target/moya-0.0.1-SNAPSHOT.jar app.jar
+COPY .env .env
+COPY src/main/resources/application.properties application.properties
+COPY src/main/resources/application-oauth-kakao.properties application-oauth-kakao.properties
 ENTRYPOINT ["java", "-jar", "app.jar"]
