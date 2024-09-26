@@ -12,15 +12,12 @@ import software.amazon.awssdk.services.s3.presigner.S3Presigner;
 @Configuration
 public class AwsConfig {
 
-    // AWS 액세스 키
     @Value("${cloud.aws.credentials.accessKey}")
     private String accessKey;
 
-    // AWS 시크릿 키
     @Value("${cloud.aws.credentials.secretKey}")
     private String secretKey;
 
-    // AWS 리전
     @Value("${cloud.aws.region.static}")
     private String region;
 
