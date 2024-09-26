@@ -1,88 +1,59 @@
 package com.ssafy.ar.manager
 
-import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
-import com.google.ar.core.Frame
 import com.google.ar.core.Plane
-import com.ssafy.ar.ARViewModel
+import com.google.ar.core.Pose
 import com.ssafy.ar.data.QuestData
-import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.scriptNode
-import io.github.sceneview.ar.arcore.createAnchorOrNull
-import io.github.sceneview.ar.arcore.getUpdatedPlanes
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.math.Position
 import io.github.sceneview.math.Rotation
 import io.github.sceneview.math.Size
-import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
-import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
-import kotlinx.coroutines.withContext
-import java.util.UUID
 
 private const val kMaxModelInstances = 1
 
-private const val TAG = "ARNodeManager"
-class ARNodeManager {
+class ARNodeManager(
+    private val engine: Engine,
+    private val modelLoader: ModelLoader,
+    private val materialLoader: MaterialLoader,
+) {
     private val mutex = Mutex()
 
     // 평면에 노드 배치
-    fun placeNode(
-        npcId: String,
-        viewModel: ARViewModel,
-        frame: Frame?,
-        engine: Engine,
-        modelLoader: ModelLoader,
-        materialLoader: MaterialLoader,
-        modelInstances: MutableMap<String, ModelInstance>,
-        childNodes: SnapshotStateList<Node>
-    ) {
-        if(viewModel.getIsPlaceNPC(npcId)) return
+    suspend fun placeNode(
+        plane: Plane,
+        pose: Pose,
+        anchorId: String,
+        childNodes: SnapshotStateList<Node>,
+        onSuccess: () -> Unit,
+    ) = mutex.withLock {
+        if(childNodes.any { it.name == anchorId }) return@withLock
 
-        frame?.getUpdatedPlanes()
-            ?.firstOrNull { it.type == Plane.Type.HORIZONTAL_UPWARD_FACING }
-            ?.let { it.createAnchorOrNull(it.centerPose) }?.let { anchor ->
-                val anchorNode = createAnchorNode(
-                    scriptNode[0],
-                    engine,
-                    modelLoader,
-                    materialLoader,
-                    modelInstances,
-                    anchor,
-                ).apply {
-                    val uuid = UUID.randomUUID().toString()
+        val anchorNode = createAnchorNode(
+            scriptNode[0],
+            plane.createAnchor(pose),
+        ).apply { name = anchorId }
 
-                    name = uuid
+        childNodes.add(anchorNode)
 
-                    viewModel.addQuest(uuid, QuestStatus.WAIT)
-                    
-                    viewModel.updateIsPlaceNPC(npcId, true)
-                }
+        delay(5000)
 
-                viewModel.removeNpcMarker(npcId)
-
-                viewModel.updateShouldPlaceNode(null)
-
-                childNodes.add(anchorNode)
-            }
+        onSuccess()
     }
 
-    // 특정 위치에 앵커노드(+모델노드) 생성
+    // 특정 위치에 앵커노드 생성
     private fun createAnchorNode(
         node: QuestData,
-        engine: Engine,
-        modelLoader: ModelLoader,
-        materialLoader: MaterialLoader,
-        modelInstances: MutableMap<String, ModelInstance>,
         anchor: Anchor
     ): AnchorNode {
         val idx = (1..4).random()
@@ -120,26 +91,21 @@ class ARNodeManager {
         return anchorNode
     }
 
-    // 모델 노드 업데이트
-    suspend fun updateAnchorNode(
+    // 모델노드 업데이트
+    fun updateAnchorNode(
         prevNode: Node,
         questId: String,
         questModel: String,
         parentAnchor: AnchorNode,
-        modelLoader: ModelLoader,
-        materialLoader: MaterialLoader,
-        modelInstances: MutableMap<String, ModelInstance>,
-    ) = withContext(Dispatchers.Main) {
-        parentAnchor.removeChildNode(prevNode).also {
-            val newModelInstance = modelInstances.getOrPut(questId) {
-                modelLoader.createInstancedModel(
-                    questModel,
-                    kMaxModelInstances
-                ).first()
-            }
+    ) {
+        parentAnchor.removeChildNode(prevNode).apply {
+            val modelInstance = modelLoader.createInstancedModel(
+                questModel,
+                kMaxModelInstances
+            ).first()
 
             val newModelNode = ModelNode(
-                modelInstance = newModelInstance,
+                modelInstance = modelInstance,
                 scaleToUnits = 0.5f
             ).apply {
                 name = questId
