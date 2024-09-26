@@ -57,7 +57,7 @@ class HomeScreenViewModel
 
             viewModelScope.launch {
                 parkRepository
-                    .getParkList(1, 3, longitude, latitude)
+                    .getParkList(1, 3, latitude = latitude, longitude = longitude)
                     .collectLatest { response ->
                         when (response) {
                             is ApiResponse.Success -> {
