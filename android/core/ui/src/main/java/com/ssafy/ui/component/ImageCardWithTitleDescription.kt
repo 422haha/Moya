@@ -1,5 +1,6 @@
-package com.ssafy.ui.home
+package com.ssafy.ui.component
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -21,20 +22,16 @@ import coil.compose.AsyncImage
 import com.ssafy.ui.R
 
 @Composable
-fun PopularParks(
+fun ImageCardWithTitleDescription(
     modifier: Modifier = Modifier,
-    state: List<ParkDescriptionState> = emptyList(),
-    onSelected: (parkId: Long) -> Unit = {},
-) {
-}
-
-@Composable
-fun ParkDescriptionCard(
-    modifier: Modifier = Modifier,
-    state: ParkDescriptionState,
+    state: ImageCardWithTitleDescription,
+    onClick: (id: Long) -> Unit = {},
 ) {
     Column(
-        modifier = modifier.size(height = 240.dp, width = 208.dp),
+        modifier =
+            modifier
+                .size(height = 240.dp, width = 208.dp)
+                .clickable { onClick(state.id) },
     ) {
         AsyncImage(
             modifier =
@@ -49,7 +46,7 @@ fun ParkDescriptionCard(
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
-            text = state.name,
+            text = state.title,
             fontWeight = FontWeight.SemiBold,
             fontSize = 16.sp,
         )
@@ -63,27 +60,21 @@ fun ParkDescriptionCard(
 }
 
 @Immutable
-data class ParkDescriptionState(
-    val id: Int,
-    val name: String,
+data class ImageCardWithTitleDescription(
+    val id: Long,
+    val title: String,
     val description: String,
-    val imageUrl: String,
+    val imageUrl: String? = null,
 )
-
-@Preview
-@Composable
-fun PopularParksPreview() {
-    PopularParks()
-}
 
 @Preview(showBackground = true)
 @Composable
-fun ParkDescriptionCardPreview() {
-    ParkDescriptionCard(
+fun ImageCardWithTitleDescriptionPreview() {
+    ImageCardWithTitleDescription(
         state =
-            ParkDescriptionState(
+            ImageCardWithTitleDescription(
                 id = 1,
-                name = "동락공원",
+                title = "동락공원",
                 description = "동락공원은 동락동에 위치한 공원입니다.",
                 imageUrl = "",
             ),
