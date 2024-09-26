@@ -42,6 +42,7 @@ class HomeScreenViewModel
                                 id = 1,
                                 title = "동락공원",
                                 value = "99m",
+                                imageUrl = null,
                             )
                         },
                     plantInSeason =
@@ -49,7 +50,7 @@ class HomeScreenViewModel
                             EncycCardState(
                                 id = 1,
                                 name = "무궁화",
-                                imageUrl = "",
+                                imageUrl = null,
                                 isDiscovered = true,
                             )
                         },
@@ -68,6 +69,7 @@ class HomeScreenViewModel
                                                 id = it.parkId,
                                                 title = it.parkName,
                                                 value = it.distance.toString(),
+                                                imageUrl = it.imageUrl,
                                             )
                                         }
 
