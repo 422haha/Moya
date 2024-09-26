@@ -1,6 +1,6 @@
 package com.e22e.moya.chatbot;
 
-public interface Assistant {
+public interface ChatAssistant {
 
     String answer(String query);
 }
