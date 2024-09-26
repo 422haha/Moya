@@ -5,6 +5,6 @@ import com.google.android.gms.maps.model.LatLng
 
 @Immutable
 data class NPCLocation(val id: String,
-                       val latLng: LatLng,
-                       val radius: Float = 5f,
-                       val isPlace: Boolean)
+                       val latitude: Double,
+                       val longitude: Double,
+                       val isPlace: Boolean = false)

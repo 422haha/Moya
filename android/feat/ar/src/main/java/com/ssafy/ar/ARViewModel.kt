@@ -1,6 +1,7 @@
 package com.ssafy.ar
 
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +15,8 @@ import com.ssafy.ar.dummy.npcs
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.node.ImageNode
+import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -159,9 +162,20 @@ class ARViewModel(
         viewModelScope.launch {
             nodeManager.updateAnchorNode(
                 prevNode = node,
+                parentAnchor = parentAnchorNode,
                 questId = quest.id,
                 questModel = quest.model,
-                parentAnchor = parentAnchorNode,
+            )
+        }
+    }
+
+    fun updateModelNode(childNode: ImageNode,
+                        parentNode: ModelNode
+    ) {
+        viewModelScope.launch {
+            nodeManager.updateModelNode(
+                childNode = childNode,
+                parentNode = parentNode,
             )
         }
     }

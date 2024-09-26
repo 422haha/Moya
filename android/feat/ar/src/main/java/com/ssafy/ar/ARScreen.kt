@@ -19,6 +19,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
+import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -48,6 +49,7 @@ import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCollisionSystem
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
@@ -56,6 +58,7 @@ import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 import kotlinx.coroutines.launch
+import kotlin.math.sqrt
 
 private const val TAG = "ArScreen"
 
@@ -87,7 +90,7 @@ fun ARSceneComposable(
     val collisionSystem = rememberCollisionSystem(view)
     val childNodes = rememberNodes()
     val cameraNode = rememberARCameraNode(engine)
-    var planeRenderer by remember { mutableStateOf(false) }
+    var planeRenderer by remember { mutableStateOf(true) }
     var trackingFailureReason by remember { mutableStateOf<TrackingFailureReason?>(null) }
 
     // Manager
@@ -175,6 +178,7 @@ fun ARSceneComposable(
                 ) {
                     nearestNPCInfo.nearestNPC?.id?.let { id ->
                         val planeAndPose = findPlaneInView(frame, widthPx, heightPx)
+
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
                             viewModel.addAnchorNode(plane, pose, id, childNodes)
@@ -222,9 +226,12 @@ fun ARSceneComposable(
                                                     anchorId,
                                                     QuestStatus.COMPLETE
                                                 ).apply {
-                                                    node.childNodes.filterIsInstance<ImageNode>()
+                                                    val imageNode = modelNode.childNodes.filterIsInstance<ImageNode>()
                                                         .firstOrNull()
-                                                        ?.setBitmap("picture/complete.png")
+
+                                                    imageNode?.let {
+                                                        viewModel.updateModelNode(imageNode, modelNode)
+                                                    }
 
                                                     coroutineScope.launch {
                                                         snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
@@ -247,7 +254,7 @@ fun ARSceneComposable(
         )
         ArStatusText(
             trackingFailureReason = trackingFailureReason,
-            isEmpty = childNodes.isEmpty()
+            isEmpty = childNodes.isEmpty(),
         )
 
         Column {
@@ -303,7 +310,9 @@ private fun findPlaneInView(frame: Frame, width: Int, height: Int): Pair<Plane, 
 
     val planeHit = hits.firstOrNull { hit ->
         val trackable = hit.trackable
-        trackable is Plane && trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING
+        val distance = calculateDistance(frame.camera.pose, hit.hitPose)
+
+        trackable is Plane && trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING && distance <= 3f
     }
 
     return planeHit?.let { hit ->
@@ -313,10 +322,17 @@ private fun findPlaneInView(frame: Frame, width: Int, height: Int): Pair<Plane, 
     }
 }
 
+private fun calculateDistance(pose1: Pose, pose2: Pose): Float {
+    val dx = pose1.tx() - pose2.tx()
+    val dy = pose1.ty() - pose2.ty()
+    val dz = pose1.tz() - pose2.tz()
+    return sqrt(dx * dx + dy * dy + dz * dz)
+}
+
 @Composable
 fun ArStatusText(
     trackingFailureReason: TrackingFailureReason?,
-    isEmpty: Boolean
+    isEmpty: Boolean,
 ) {
     Text(
         modifier = Modifier
