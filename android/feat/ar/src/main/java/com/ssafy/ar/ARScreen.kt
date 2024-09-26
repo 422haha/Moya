@@ -19,7 +19,6 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -33,6 +32,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
+import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
@@ -45,11 +45,11 @@ import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
+import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
-import io.github.sceneview.node.Node
 import io.github.sceneview.rememberCollisionSystem
 import io.github.sceneview.rememberEngine
 import io.github.sceneview.rememberMaterialLoader
@@ -58,7 +58,6 @@ import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
 import kotlinx.coroutines.launch
-import kotlin.math.sqrt
 
 private const val TAG = "ArScreen"
 
@@ -92,6 +91,7 @@ fun ARSceneComposable(
     val cameraNode = rememberARCameraNode(engine)
     var planeRenderer by remember { mutableStateOf(true) }
     var trackingFailureReason by remember { mutableStateOf<TrackingFailureReason?>(null) }
+    var cframe by remember { mutableStateOf<Frame?>(null) }
 
     // Manager
     val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
@@ -167,19 +167,21 @@ fun ARSceneComposable(
             },
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
+                cframe = frame
+
                 if(trackingFailureReason == TrackingFailureReason.NONE) {
                     val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlaceNode)
                         Config.PlaneFindingMode.HORIZONTAL
                     else
                         Config.PlaneFindingMode.DISABLED
 
-                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        runCatching {
-                            session.configure(session.config.apply {
-                                setPlaneFindingMode(desiredPlaneFindingMode)
-                            })
-                        }
-                    }
+//                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+//                        runCatching {
+//                            session.configure(session.config.apply {
+//                                setPlaneFindingMode(desiredPlaneFindingMode)
+//                            })
+//                        }
+//                    }
                 } else {
                     runCatching {
                         session.configure(session.config.apply {
@@ -192,7 +194,7 @@ fun ARSceneComposable(
                     && nearestNPCInfo.shouldPlaceNode
                 ) {
                     nearestNPCInfo.nearestNPC?.id?.let { id ->
-                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx)
+                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
@@ -317,31 +319,30 @@ fun ARSceneComposable(
     }
 }
 
-private fun findPlaneInView(frame: Frame, width: Int, height: Int): Pair<Plane, Pose>? {
+private fun findPlaneInView(frame: Frame, width: Int, height: Int, camera: Camera): Pair<Plane, Pose>? {
     val center = android.graphics.PointF(width / 2f, height / 2f)
     val hits = frame.hitTest(center.x, center.y)
 
     Log.d("ARPlacement", "Performing hit test. Hits found: ${hits.size}")
 
-    val planeHit = hits.firstOrNull { hit ->
-        val trackable = hit.trackable
-        val distance = calculateDistance(frame.camera.pose, hit.hitPose)
-
-        trackable is Plane && trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING && distance <= 3f
+    val planeHit = hits.firstOrNull {
+        it.isValid (
+            depthPoint = true,
+            point = true,
+            planePoseInPolygon = true,
+            instantPlacementPoint = false,
+            minCameraDistance = Pair(camera, 0.5f),
+            predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+            planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING)
+        )
     }
 
     return planeHit?.let { hit ->
         val plane = hit.trackable as Plane
+        val pose = hit.hitPose
         Log.d("ARPlacement", "Plane found - extentX: ${plane.extentX}, extentZ: ${plane.extentZ}")
-        Pair(plane, plane.centerPose)
+        Pair(plane, pose)
     }
-}
-
-private fun calculateDistance(pose1: Pose, pose2: Pose): Float {
-    val dx = pose1.tx() - pose2.tx()
-    val dy = pose1.ty() - pose2.ty()
-    val dz = pose1.tz() - pose2.tz()
-    return sqrt(dx * dx + dy * dy + dz * dz)
 }
 
 @Composable
