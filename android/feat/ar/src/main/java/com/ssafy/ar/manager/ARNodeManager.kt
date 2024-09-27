@@ -5,10 +5,10 @@ import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
+import com.ssafy.ar.data.ModelType
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.getImageUrl
-import com.ssafy.ar.dummy.ModelType
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader

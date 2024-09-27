@@ -64,30 +64,19 @@ val scripts: Map<Int, ScriptInfo> = mapOf(
 )
 
 val quests: Map<Long, QuestInfo> = mapOf(
-    0L to QuestInfo(0L, 1L, 0, 36.1067967, 128.4162641, questType = 0, speciesId = "",),
-    1L to QuestInfo(1L, 2L, 1, 36.1066985, 128.4161918, questType = 1, speciesId = ""),
-    2L to QuestInfo(2L, 3L, 2, 36.1066493, 128.4163712, questType = 2, speciesId = ""),
-    3L to QuestInfo(3L, 4L, 3, 36.1071543, 128.4165288, questType = 3, speciesId = ""),
-    4L to QuestInfo(4L, 5L, 4, 36.1017196, 128.419904, questType = 0, speciesId = ""),
-    5L to QuestInfo(5L, 6L, 5, 36.101726, 128.4199104, isComplete = QuestState.PROGRESS, questType = 2, speciesId = ""),
+    0L to QuestInfo(0L, 1L, 0, longitude = 36.1067967, latitude = 128.4162641, questType = 0, speciesId = ""),
+    1L to QuestInfo(1L, 2L, 1, longitude =36.1066985,latitude = 128.4161918, questType = 1, speciesId = ""),
+    2L to QuestInfo(2L, 3L, 2, longitude =36.1066493,latitude = 128.4163712, questType = 2, speciesId = ""),
+    3L to QuestInfo(3L, 4L, 3, longitude =36.1071543,latitude = 128.4165288, questType = 3, speciesId = ""),
+    4L to QuestInfo(4L, 5L, 4,longitude = 36.1017196, latitude =128.419904, questType = 0, speciesId = ""),
+    5L to QuestInfo(
+        5L,
+        6L,
+        5,
+        longitude = 36.101726,
+        latitude = 128.4199104,
+        isComplete = QuestState.PROGRESS,
+        questType = 2,
+        speciesId = ""
+    ),
 )
-
-enum class ModelType(val id: Long, val modelUrl: String) {
-    DEFAULT(0L, "models/quest.glb"),
-    BROWN_TURTLE(1L, "models/brownturtle.glb"),
-    CHICK(2L, "models/chick.glb"),
-    MAGIC_RACOON(3L, "models/magicracoon.glb"),
-    OTTER(4L, "models/otter.glb"),
-    PENGUIN(5L, "models/penguin.glb"),
-    RABBIT(6L, "models/rabbit.glb"),
-    RACOON(7L, "models/racoon.glb"),
-    SAILFISH(8L, "models/sailfish.glb"),
-    SWORD_OTTER(9L, "models/swordotter.glb"),
-    TURTLE(10L, "models/turtle.glb"),
-    UNICORN(11L, "models/unicorn.glb"),
-    WISH_OTTER(12L, "models/wishotter.glb");
-
-    companion object {
-        fun fromId(id: Long): ModelType = entries.find { it.id == id } ?: DEFAULT
-    }
-}

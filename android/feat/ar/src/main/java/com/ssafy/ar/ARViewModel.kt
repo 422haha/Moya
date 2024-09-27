@@ -9,11 +9,11 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
+import com.ssafy.ar.data.ModelType
 import com.ssafy.ar.data.ScriptInfo
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.dummy.ModelType
 import com.ssafy.ar.dummy.scripts
 import com.ssafy.ar.dummy.quests
 import com.ssafy.ar.manager.ARLocationManager
