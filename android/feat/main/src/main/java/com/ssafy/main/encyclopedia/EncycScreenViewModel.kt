@@ -39,7 +39,7 @@ class EncycScreenViewModel
                                                     isDiscovered = it.discovered,
                                                 )
                                             },
-                                        progress = body.data.progress,
+                                        progress = body.data.progress.toFloat(),
                                     )
                                 } ?: EncycScreenState.Error("Failed to load initial data")
                             }
