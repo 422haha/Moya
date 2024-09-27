@@ -5,6 +5,7 @@ import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
+import com.e22e.moya.common.entity.quest.QuestStatus;
 import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.repository.ParkSpeciesProjection;
@@ -143,7 +144,8 @@ public class InfoServiceImpl implements InfoService {
 
         infoLoadDto.setExplorationId(explorationId);
         infoLoadDto.setCompletedQuests(
-            questCompletedRepository.countCompletedQuestsByExplorationId(explorationId));
+            questCompletedRepository.countCompletedQuestsByExplorationId(explorationId,
+                QuestStatus.COMPLETE));
         return infoLoadDto;
     }
 
