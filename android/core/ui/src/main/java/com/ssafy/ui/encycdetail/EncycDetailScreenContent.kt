@@ -50,6 +50,7 @@ import com.ssafy.ui.theme.jua
 
 @Immutable
 data class EncycDetail(
+    val plantId: Long,
     val plantName: String,
     val plantImage: String?,
     val description: String,
@@ -309,6 +310,7 @@ fun EncycDetailScreenPreview() {
         encycDetailState =
             EncycDetailScreenState.Loaded(
                 EncycDetail(
+                    plantId = 1,
                     plantName = "능소화",
                     plantImage = null,
                     description = "\"능소화는 중국이 원산인 덩굴나무로 다른 물체에 붙어 올라가 10m까지도 자란다. 추위에 약하여 우리나라에서는 남부지방에서 주로 심어 기르고 있다. 능소화(凌霄花)는 ‘하늘을 능가하는 꽃’이란 뜻이다. 오래 전에 중국에서 들여온 식물로 우리나라에서는 양반들이 이 나무를 아주 좋아해서 ‘양반꽃’이라고도 했으며, 평민들은 이 나무를 함부로 심지 못하게 했다고 한다. 지금은 남부지방을 중심으로 사찰 담장이나 가정집 정원에서 많이 볼 수 있는 관상수가 되었다.\"",

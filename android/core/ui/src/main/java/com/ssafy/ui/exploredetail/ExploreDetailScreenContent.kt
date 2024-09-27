@@ -9,9 +9,6 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyHorizontalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -27,8 +24,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
-import com.ssafy.ui.component.EncycCard
-import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.component.TopBar
@@ -39,6 +34,7 @@ import java.util.Date
 
 @Immutable
 data class ExploreDetail(
+    val id: Long,
     val distance: Float,
     val runningTime: Long,
     val stepCount: Long,
@@ -108,6 +104,7 @@ fun ExploreDetailScreenLoaded(
 //        HorizontalEncyc(onItemClicked = { id ->
 //            onIntent(ExploreDetailUserIntent.OnEncycItemClicked(id))
 //        }, state)
+//        TODO 도감 카드를 lazyrow로 보여주도록
     }
 }
 
@@ -205,31 +202,6 @@ fun TextBox(
     }
 }
 
-//@Composable
-//fun HorizontalEncyc(
-//    onItemClicked: (Long) -> Unit,
-//    state: ExploreDetailScreenState.Loaded,
-//) {
-//    LazyHorizontalGrid(
-//        rows = GridCells.Fixed(1),
-//        modifier =
-//            Modifier
-//                .padding(8.dp)
-//                .background(SecondarySurfaceColor),
-//    ) {
-//        items(8) { index ->
-//            PlantCard(
-//                PlantInfo(
-//                    plantName = state.items[index].plantName,
-//                    plantImage = state.items[index].plantImage,
-//                    isDiscovered = state.items[index].isDiscovered,
-//                ),
-//                onClick = { onItemClicked(index.toLong()) },
-//            )
-//        }
-//    }
-//}
-
 @Preview(showBackground = true)
 @Composable
 fun ExploreScreenPreview() {
@@ -238,6 +210,7 @@ fun ExploreScreenPreview() {
             ExploreDetailScreenState.Loaded(
                 exploreDetail =
                     ExploreDetail(
+                        id = 1,
                         distance = 3.0f,
                         runningTime = 20,
                         stepCount = 100,
