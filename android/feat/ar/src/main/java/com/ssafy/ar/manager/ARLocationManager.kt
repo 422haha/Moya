@@ -86,8 +86,8 @@ class ARLocationManager(
         locationCallback = null
     }
 
-    fun operateNearestNPC(location: Location, npcMarkers: Map<Long, QuestInfo>): NearestNPCInfo {
-        val npc = findNearestNPC(location, npcMarkers)
+    fun operateNearestNPC(location: Location, questInfos: Map<Long, QuestInfo>): NearestNPCInfo {
+        val npc = findNearestNPC(location, questInfos)
         val distance = npc?.let { measureNearestNpcDistance(location, it) }
         val isAvailable = isAvailableNearestNPC(distance, location)
 
@@ -107,9 +107,9 @@ class ARLocationManager(
     // 가장 가까운 노드를 찾기
     private fun findNearestNPC(
         currentLocation: Location,
-        npcLocations: Map<Long, QuestInfo>
+        questInfos: Map<Long, QuestInfo>
     ): QuestInfo? {
-        return npcLocations.values
+        return questInfos.values
             .filter { !it.isPlace }
             .minByOrNull { location ->
             val npcLocation = Location("npc").apply {
@@ -126,7 +126,7 @@ class ARLocationManager(
         nearestDistance: Float?,
         location: Location?
     ): Boolean {
-        return ((location?.accuracy ?: 100.0f) <= 10f
+        return ((location?.accuracy ?: 100.0f) <= 15f
                 && (nearestDistance ?: 100f) <= 10f)
     }
 

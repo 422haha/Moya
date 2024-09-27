@@ -32,11 +32,12 @@ import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.dummy.npcs
+import com.ssafy.ar.data.ScriptInfo
+import com.ssafy.ar.dummy.scripts
 
 @Composable
 fun QuestDialog(
-    idx: Long,
+    script: ScriptInfo,
     state: QuestState,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
@@ -65,7 +66,7 @@ fun QuestDialog(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = npcs[idx]?.name ?: "",
+                    text = script.name,
                     textAlign = TextAlign.Center,
                     style = TextStyle(
                         color = Color.Black,
@@ -86,8 +87,8 @@ fun QuestDialog(
                     ),
                     text = buildAnnotatedString {
                         append(
-                            if (state == QuestState.WAIT) npcs[idx]?.prevDescription ?: ""
-                            else npcs[idx]?.prevCheckDescription
+                            if (state == QuestState.WAIT) script.prevDescription ?: ""
+                            else script.prevCheckDescription
                         )
                         withStyle(
                             style = SpanStyle(
@@ -96,13 +97,13 @@ fun QuestDialog(
                             )
                         ) {
                             append(
-                                if (state == QuestState.WAIT) npcs[idx]?.middleDescription
-                                else npcs[idx]?.middleCheckDescription
+                                if (state == QuestState.WAIT) script.middleDescription
+                                else script.middleCheckDescription
                             )
                         }
                         append(
-                            if (state == QuestState.WAIT) npcs[idx]?.nextDescription
-                            else npcs[idx]?.nextCheckDescription
+                            if (state == QuestState.WAIT) script.nextDescription
+                            else script.nextCheckDescription
                         )
                     },
                 )

@@ -1,12 +1,12 @@
 package com.ssafy.ar.dummy
 
-import com.ssafy.ar.data.ModelInfo
 import com.ssafy.ar.data.QuestInfo
-import com.ssafy.ar.data.NPCInfo
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.data.ScriptInfo
 
-val npcs: Map<Long, NPCInfo> = mapOf(
-    0L to NPCInfo(
-        id = 0L,
+val scripts: Map<Int, ScriptInfo> = mapOf(
+    0 to ScriptInfo(
+        id = 0,
         name = "동물의 부탁",
         questType = 0,
         speciesId = 0,
@@ -19,8 +19,8 @@ val npcs: Map<Long, NPCInfo> = mapOf(
         nextCheckDescription = "를\n벌써 모아온 거야?",
         completeMessage = "고마워! 덕분에 예쁜 집을 지었어!",
     ),
-    1L to NPCInfo(
-        id = 1L,
+    1 to ScriptInfo(
+        id = 1,
         name = "동물의 부탁",
         questType = 0,
         speciesId = 0,
@@ -33,8 +33,8 @@ val npcs: Map<Long, NPCInfo> = mapOf(
         nextCheckDescription = "을\n벌써 모아온 거야?",
         completeMessage = "고마워! 덕분에 무사히 알을 숨겼어!",
     ),
-    2L to NPCInfo(
-        id = 2L,
+    2 to ScriptInfo(
+        id = 2,
         name = "동물의 부탁",
         questType = 0,
         speciesId = 0,
@@ -47,8 +47,8 @@ val npcs: Map<Long, NPCInfo> = mapOf(
         nextCheckDescription = "을 벌써 모아온 거야?",
         completeMessage = "고마워! 덕분에 무사히 마술 공연을 끝냈어!",
     ),
-    3L to NPCInfo(
-        id = 3L,
+    3 to ScriptInfo(
+        id = 3,
         name = "동물의 부탁",
         questType = 0,
         speciesId = 0,
@@ -69,60 +69,25 @@ val quests: Map<Long, QuestInfo> = mapOf(
     2L to QuestInfo(2L, 3L, 2, 36.1066493, 128.4163712, questType = 2, speciesId = ""),
     3L to QuestInfo(3L, 4L, 3, 36.1071543, 128.4165288, questType = 3, speciesId = ""),
     4L to QuestInfo(4L, 5L, 4, 36.1017196, 128.419904, questType = 0, speciesId = ""),
-    5L to QuestInfo(5L, 6L, 5, 36.101726, 128.4199104, questType = 2, speciesId = ""),
+    5L to QuestInfo(5L, 6L, 5, 36.101726, 128.4199104, isComplete = QuestState.PROGRESS, questType = 2, speciesId = ""),
 )
 
-val models: Map<Long, ModelInfo> = mapOf(
-    0L to ModelInfo(
-        id = 0L,
-        modelUrl = "models/quest.glb",
-    ),
-    1L to ModelInfo(
-        id = 1L,
-        modelUrl = "models/brownturtle.glb",
-    ),
-    2L to ModelInfo(
-        id = 2L,
-        modelUrl = "models/chick.glb",
-    ),
-    3L to ModelInfo(
-        id = 3L,
-        modelUrl = "models/magicracoon.glb",
-    ),
-    4L to ModelInfo(
-        id = 4L,
-        modelUrl = "models/otter.glb",
-    ),
-    5L to ModelInfo(
-        id = 5L,
-        modelUrl = "models/penguin.glb",
-    ),
-    6L to ModelInfo(
-        id = 6L,
-        modelUrl = "models/rabbit.glb",
-    ),
-    7L to ModelInfo(
-        id = 7L,
-        modelUrl = "models/racoon.glb",
-    ),
-    8L to ModelInfo(
-        id = 8L,
-        modelUrl = "models/sailfish.glb",
-    ),
-    9L to ModelInfo(
-        id = 9L,
-        modelUrl = "models/swordotter.glb",
-    ),
-    10L to ModelInfo(
-        id = 10L,
-        modelUrl = "models/turtle.glb",
-    ),
-    11L to ModelInfo(
-        id = 11L,
-        modelUrl = "models/unicorn.glb",
-    ),
-    12L to ModelInfo(
-        id = 12L,
-        modelUrl = "models/wishotter.glb",
-    ),
-)
+enum class ModelType(val id: Long, val modelUrl: String) {
+    DEFAULT(0L, "models/quest.glb"),
+    BROWN_TURTLE(1L, "models/brownturtle.glb"),
+    CHICK(2L, "models/chick.glb"),
+    MAGIC_RACOON(3L, "models/magicracoon.glb"),
+    OTTER(4L, "models/otter.glb"),
+    PENGUIN(5L, "models/penguin.glb"),
+    RABBIT(6L, "models/rabbit.glb"),
+    RACOON(7L, "models/racoon.glb"),
+    SAILFISH(8L, "models/sailfish.glb"),
+    SWORD_OTTER(9L, "models/swordotter.glb"),
+    TURTLE(10L, "models/turtle.glb"),
+    UNICORN(11L, "models/unicorn.glb"),
+    WISH_OTTER(12L, "models/wishotter.glb");
+
+    companion object {
+        fun fromId(id: Long): ModelType = entries.find { it.id == id } ?: DEFAULT
+    }
+}

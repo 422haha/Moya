@@ -87,7 +87,7 @@ fun ARSceneComposable(
 
     // AR State
     val questInfos by viewModel.questInfos.collectAsState()
-    val npcInfos by viewModel.npcInfos.collectAsState()
+    val scriptInfos by viewModel.scriptInfos.collectAsState()
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
     val currentLocation by viewModel.locationManager.currentLocation.collectAsState()
 
@@ -108,6 +108,8 @@ fun ARSceneComposable(
             viewModel.locationManager.startLocationUpdates()
 
             viewModel.getAllQuests()
+
+            viewModel.getAllScripts()
         } else {
             hasPermission = false
 
@@ -164,14 +166,14 @@ fun ARSceneComposable(
                             val (plane, pose) = planeAndPose
 
                             if (childNodes.all { it.name != quest.id.toString() }) {
-                                viewModel.addAnchorNode(
+                                viewModel.placeNode(
                                     plane,
                                     pose,
                                     quest,
-                                    childNodes,
                                     engine,
                                     modelLoader,
-                                    materialLoader
+                                    materialLoader,
+                                    childNodes
                                 )
                             }
                         }
@@ -182,71 +184,67 @@ fun ARSceneComposable(
                 onSingleTapConfirmed = { motionEvent, node ->
                     if (node is ModelNode || node is ImageNode) {
                         val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+
                         val anchorNode = modelNode?.parent as? AnchorNode
 
-                        val nodeId = modelNode?.name?.toLong()
                         val anchorId = anchorNode?.name?.toLong()
 
-                        if (nodeId != null && anchorId != null) {
-                            val quest = questInfos[nodeId]
+                        if (anchorId != null) {
+                            val quest = questInfos[anchorId]
 
                             quest?.let {
-                                val state = questInfos[anchorId]?.isComplete
-
-                                state?.let {
-                                    when (state) {
-                                        // 퀘스트 진행전
-                                        QuestState.WAIT -> {
-                                            viewModel.showQuestDialog(nodeId, state) { accepted ->
-                                                if (accepted) {
-                                                    viewModel.updateQuestState(
-                                                        anchorId,
-                                                        QuestState.PROGRESS
-                                                    ).apply {
-                                                            viewModel.updateAnchorNode(
-                                                                modelNode,
-                                                                quest,
-                                                                anchorNode,
-                                                                modelLoader,
-                                                                materialLoader
-                                                            )
-                                                        }
+                                when (val state = quest.isComplete) {
+                                    // 퀘스트 진행전
+                                    QuestState.WAIT -> {
+                                        viewModel.showQuestDialog(scriptInfos[quest.questType], state) { accepted ->
+                                            if (accepted) {
+                                                viewModel.updateQuestState(
+                                                    anchorId,
+                                                    QuestState.PROGRESS
+                                                ).apply {
+                                                    viewModel.updateAnchorNode(
+                                                        quest,
+                                                        modelNode,
+                                                        anchorNode,
+                                                        modelLoader,
+                                                        materialLoader
+                                                    )
                                                 }
                                             }
                                         }
-                                        // 퀘스트 진행중
-                                        QuestState.PROGRESS -> {
-                                            viewModel.showQuestDialog(nodeId, state) { accepted ->
-                                                if (accepted) {
-                                                    // TODO 온디바이스 AI로 검사
-                                                    viewModel.updateQuestState(
-                                                        anchorId,
-                                                        QuestState.COMPLETE
-                                                    ).apply {
-                                                        val imageNode =
-                                                            modelNode.childNodes.filterIsInstance<ImageNode>()
-                                                                .firstOrNull()
+                                    }
+                                    // 퀘스트 진행중
+                                    QuestState.PROGRESS -> {
+                                        viewModel.showQuestDialog(scriptInfos[quest.questType], state) { accepted ->
+                                            if (accepted) {
+                                                // TODO 온디바이스 AI로 검사
+                                                viewModel.updateQuestState(
+                                                    anchorId,
+                                                    QuestState.COMPLETE
+                                                ).apply {
+                                                    val imageNode =
+                                                        modelNode.childNodes.filterIsInstance<ImageNode>()
+                                                            .firstOrNull()
 
-                                                        imageNode?.let {
-                                                            viewModel.updateModelNode(
-                                                                imageNode,
-                                                                modelNode,
-                                                                materialLoader
-                                                            )
-                                                        }
+                                                    imageNode?.let {
+                                                        viewModel.updateModelNode(
+                                                            imageNode,
+                                                            modelNode,
+                                                            materialLoader
+                                                        )
+                                                    }
 
-                                                        coroutineScope.launch {
-                                                            snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
-                                                        }
+                                                    coroutineScope.launch {
+                                                        snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
                                                     }
                                                 }
                                             }
                                         }
-                                        // 퀘스트 완료
-                                        QuestState.COMPLETE -> {
-                                            coroutineScope.launch {
-                                                snackBarHostState.showSnackbar("")
-                                            }
+                                    }
+                                    // 퀘스트 완료
+                                    QuestState.COMPLETE -> {
+                                        coroutineScope.launch {
+                                            snackBarHostState.showSnackbar(scriptInfos[quest.questType]?.completeMessage ?: "")
                                         }
                                     }
                                 }
@@ -260,7 +258,7 @@ fun ARSceneComposable(
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestQuestInfo.shouldPlace,
-                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getQuestState(it) }
+                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
             )
             Text(
                 text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
@@ -294,7 +292,7 @@ fun ARSceneComposable(
 
     if (showDialog) {
         QuestDialog(
-            idx = dialogData.first,
+            script = dialogData.first,
             state = dialogData.second,
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() }
