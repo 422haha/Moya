@@ -32,7 +32,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
-import com.ssafy.ui.explorestart.ExploreStartScreenState
 import com.ssafy.ui.explorestart.Missions
 import com.ssafy.ui.theme.SecondaryColor
 import com.ssafy.ui.theme.SecondarySurfaceColor
@@ -47,17 +46,18 @@ fun ChallengeDialog(
     onDismiss: () -> Unit = {},
 ) {
     Surface(
-        modifier = Modifier
-            .fillMaxWidth(),
+        modifier =
+            Modifier
+                .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
-        color = SecondaryColor
+        color = SecondaryColor,
     ) {
         Column(
             modifier = Modifier.padding(16.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Box(
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
             ) {
                 Text(
                     text = "도전과제",
@@ -65,17 +65,17 @@ fun ChallengeDialog(
                     textAlign = TextAlign.Center,
                     modifier = Modifier.align(Alignment.Center),
                     style = customTypography.displayLarge,
-                    fontSize = 32.sp
+                    fontSize = 32.sp,
                 )
                 IconButton(
                     onClick = { onDismiss() },
-                    modifier = Modifier.align(Alignment.TopEnd)
+                    modifier = Modifier.align(Alignment.TopEnd),
                 ) {
                     Icon(
                         imageVector = Icons.Default.Close,
                         contentDescription = "Close",
                         tint = SecondarySurfaceColor,
-                        modifier = Modifier.size(32.dp)
+                        modifier = Modifier.size(32.dp),
                     )
                 }
             }
@@ -85,7 +85,7 @@ fun ChallengeDialog(
                 ChallengeItem(
                     text = mission.missionTitle,
                     onConfirm = onConfirm,
-                    isSuccess = mission.isSuccess
+                    isSuccess = mission.isSuccess,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
             }
@@ -94,29 +94,39 @@ fun ChallengeDialog(
 }
 
 @Composable
-fun ChallengeItem(text: String, onConfirm: () -> Unit, isSuccess: Boolean) {
+fun ChallengeItem(
+    text: String,
+    onConfirm: () -> Unit,
+    isSuccess: Boolean,
+) {
     Box(
-        modifier = Modifier
-            .clickable { onConfirm() }
-            .fillMaxWidth()
-            .clip(RoundedCornerShape(8.dp))
-            .background(SecondarySurfaceColor)
-            .padding(12.dp)
+        modifier =
+            Modifier
+                .clickable { onConfirm() }
+                .fillMaxWidth()
+                .clip(RoundedCornerShape(8.dp))
+                .background(SecondarySurfaceColor)
+                .padding(12.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
-            modifier = Modifier.fillMaxWidth()
+            modifier = Modifier.fillMaxWidth(),
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    //TODO 이거 성공했으면 star가 보이도록
-                    painter = if (isSuccess) painterResource(id = R.drawable.baseline_star_24) else
-                        painterResource(id = R.drawable.baseline_star_border_24),
+                    // TODO 이거 성공했으면 star가 보이도록
+                    painter =
+                        if (isSuccess) {
+                            painterResource(id = R.drawable.baseline_star_24)
+                        } else {
+                            painterResource(id = R.drawable.baseline_star_border_24)
+                        },
                     contentDescription = "별 모양",
-                    modifier = Modifier
-                        .size(24.dp),
-                    tint = if (isSuccess) StarYellowColor else StarOutlineColor
+                    modifier =
+                        Modifier
+                            .size(24.dp),
+                    tint = if (isSuccess) StarYellowColor else StarOutlineColor,
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(text = text, color = SecondaryColor, fontSize = 16.sp)
@@ -125,7 +135,7 @@ fun ChallengeItem(text: String, onConfirm: () -> Unit, isSuccess: Boolean) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                     contentDescription = "Back",
-                    tint = SecondaryColor
+                    tint = SecondaryColor,
                 )
             }
         }
@@ -136,16 +146,17 @@ fun ChallengeItem(text: String, onConfirm: () -> Unit, isSuccess: Boolean) {
 @Composable
 fun ChallengeDialogPreview() {
     val showDialog = remember { mutableStateOf(true) }
-    val sampleMissions = listOf(
-        Missions("솔방울 선물하기", true),
-        Missions("은행잎 선물하기", false),
-        Missions("단풍잎 5개 모으기", false)
-    )
+    val sampleMissions =
+        listOf(
+            Missions(1, "솔방울 선물하기", true),
+            Missions(2, "은행잎 선물하기", false),
+            Missions(3, "단풍잎 5개 모으기", false),
+        )
 
     if (showDialog.value) {
         ChallengeDialog(
             missions = sampleMissions,
-            onDismiss = { showDialog.value = false }
+            onDismiss = { showDialog.value = false },
         )
     }
 }
