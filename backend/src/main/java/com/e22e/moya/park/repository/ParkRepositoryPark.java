@@ -89,11 +89,13 @@ public interface ParkRepositoryPark extends JpaRepository<Park, Long> {
      * @return 공원 정보
      */
     @Query(value = "SELECT p.id as id, p.name as name, p.image_url as imageUrl, " +
-        "ST_Distance(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) as distance "
+        "MIN(ST_Distance(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography))) as distance "
         +
         "FROM park p " +
-        "WHERE ST_DWithin(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radius) "
+        "JOIN park_pos pp ON p.id = pp.park_id " +
+        "WHERE ST_DWithin(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography), :radius) "
         +
+        "GROUP BY p.id, p.name, p.image_url " +
         "ORDER BY distance",
         nativeQuery = true)
     List<ParkDistanceProjection> findNearParks(@Param("latitude") double latitude,
