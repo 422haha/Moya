@@ -40,6 +40,7 @@ import com.ssafy.ui.component.EncycCard
 import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
+import com.ssafy.ui.theme.DarkGrayColor
 import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
@@ -117,7 +118,7 @@ fun FilterChipComponent(
         label = {
             Text(
                 text = text,
-                color = if (isSelected) LightBackgroundColor else PrimaryColor,
+                color = if (isSelected) LightBackgroundColor else DarkGrayColor,
                 fontWeight = FontWeight.Bold,
             )
         },
@@ -127,11 +128,11 @@ fun FilterChipComponent(
             FilterChipDefaults.filterChipColors(
                 containerColor = if (isSelected) PrimaryColor else LightBackgroundColor,
                 selectedContainerColor = PrimaryColor,
-                labelColor = if (isSelected) LightBackgroundColor else Color.Black,
+                labelColor = if (isSelected) LightBackgroundColor else DarkGrayColor,
             ),
         border =
             if (!isSelected) {
-                BorderStroke(1.dp, Color.Black)
+                BorderStroke(1.dp, DarkGrayColor)
             } else {
                 null
             },
