@@ -16,9 +16,11 @@ import io.github.sceneview.math.Size
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
 
 private const val kMaxModelInstances = 1
 
@@ -59,10 +61,10 @@ class ARNodeManager(
     }
 
     // 앵커노드 생성
-    private fun createAnchorNode(
+    private suspend fun createAnchorNode(
         node: QuestData,
         anchor: Anchor
-    ): AnchorNode {
+    ): AnchorNode = withContext(Dispatchers.Main) {
         val idx = (1..4).random()
 
         val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
@@ -90,16 +92,16 @@ class ARNodeManager(
 
         anchorNode.addChildNode(modelNode)
 
-        return anchorNode
+        anchorNode
     }
 
     // 앵커노드 업데이트
-    fun updateAnchorNode(
+    suspend fun updateAnchorNode(
         prevNode: Node,
         parentAnchor: AnchorNode,
         questId: String,
         questModel: String,
-    ) {
+    ) = withContext(Dispatchers.Main) {
         parentAnchor.removeChildNode(prevNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
                 questModel,
