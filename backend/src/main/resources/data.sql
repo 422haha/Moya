@@ -89,6 +89,17 @@ VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 
        ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
        ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
        ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
+
+-- 동식물의 볼 수 있는 계절 정보 삽입
+INSERT INTO species_seasons (species_id, season)
+VALUES
+    (1, 'SPRING'), (1, 'SUMMER'), (1, 'AUTUMN'), (1, 'WINTER'), -- 청설모: 모든 계절
+    (2, 'SPRING'), -- 왕벚나무: 봄
+    (3, 'SPRING'), (3, 'SUMMER'), (3, 'AUTUMN'), -- 잉어: 봄, 여름, 가을
+    (4, 'SPRING'), (4, 'SUMMER'), (4, 'AUTUMN'), (4, 'WINTER'), -- 참새: 모든 계절
+    (5, 'AUTUMN'), -- 단풍나무: 가을
+    (6, 'SPRING'), (6, 'SUMMER'); -- 개구리: 봄, 여름
+
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
 VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모

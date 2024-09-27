@@ -22,17 +22,21 @@ import com.ssafy.ui.screen.UserProfileEditScreen
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper,
+    sttHelper: STTHelper
 ) {
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
             HomeScreen(
-                onNavigateToExploreList = {
-                    navController.navigate(ExploreList)
-                },
                 onNavigateToParkList = {
                     navController.navigate(ParkList)
                 },
+                onNavigateToParkDetail = { id ->
+                    navController.navigate(ParkDetail(itemId = id))
+                },
+                onNavigateToEncyc = { id ->
+                    navController.navigate(EncycDetail(itemId = id))
+                }
             )
         }
         composable<ExploreList> {

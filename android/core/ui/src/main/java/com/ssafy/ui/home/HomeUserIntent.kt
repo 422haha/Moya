@@ -4,5 +4,16 @@ import com.ssafy.ui.component.UserIntent
 
 sealed interface HomeUserIntent : UserIntent {
     data object OnNavigateToParkList : HomeUserIntent
-    data object OnNavigateToExploreList : HomeUserIntent
+
+    data class OnSelectPopularPark(
+        val id: Long,
+    ) : HomeUserIntent
+
+    data class OnSelectClosePark(
+        val id: Long,
+    ) : HomeUserIntent
+
+    data class OnSelectEncyc(
+        val id: Long,
+    ) : HomeUserIntent
 }
