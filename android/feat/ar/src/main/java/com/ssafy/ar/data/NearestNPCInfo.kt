@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 
 @Immutable
 data class NearestNPCInfo(
-    val nearestNPC: NPCLocation? = null,
-    val nearestNPCDistance: Float? = null,
-    val shouldPlaceNode: Boolean = false
+    val npc: NPCLocation? = null,
+    val distance: Float? = null,
+    val shouldPlace: Boolean = false
 )

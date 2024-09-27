@@ -32,18 +32,21 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.google.android.gms.location.LocationServices
+import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.data.QuestStatus
+import com.ssafy.ar.data.TrackingMessage
 import com.ssafy.ar.dummy.scriptNode
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
+import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.node.ImageNode
@@ -157,13 +160,13 @@ fun ARSceneComposable(
             planeRenderer = planeRenderer,
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
-                val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlaceNode)
-                    Config.PlaneFindingMode.HORIZONTAL
-                else
-                    Config.PlaneFindingMode.DISABLED
+                if(trackingFailureReason == null) {
+                    val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
+                        Config.PlaneFindingMode.HORIZONTAL
+                    else
+                        Config.PlaneFindingMode.DISABLED
 
-                if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                    runCatching {
+                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
                         session.configure(session.config.apply {
                             setPlaneFindingMode(desiredPlaneFindingMode)
                         })
@@ -171,13 +174,17 @@ fun ARSceneComposable(
                 }
 
                 if (frame.isTrackingPlane()
-                    && nearestNPCInfo.shouldPlaceNode
+                    && nearestNPCInfo.shouldPlace
                 ) {
-                    nearestNPCInfo.nearestNPC?.id?.let { id ->
-                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx)
+                    nearestNPCInfo.npc?.id?.let { id ->
+                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
-                            viewModel.addAnchorNode(plane, pose, id, childNodes)
+
+                            if(childNodes.all { it.name != id }) {
+                                viewModel.addAnchorNode(plane, pose, id, childNodes)
+                            }
                         }
                     }
                 }
@@ -222,9 +229,12 @@ fun ARSceneComposable(
                                                     anchorId,
                                                     QuestStatus.COMPLETE
                                                 ).apply {
-                                                    node.childNodes.filterIsInstance<ImageNode>()
+                                                    val imageNode = modelNode.childNodes.filterIsInstance<ImageNode>()
                                                         .firstOrNull()
-                                                        ?.setBitmap("picture/complete.png")
+
+                                                    imageNode?.let {
+                                                        viewModel.updateModelNode(imageNode, modelNode)
+                                                    }
 
                                                     coroutineScope.launch {
                                                         snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
@@ -245,12 +255,13 @@ fun ARSceneComposable(
                     }
                 })
         )
-        ArStatusText(
-            trackingFailureReason = trackingFailureReason,
-            isEmpty = childNodes.isEmpty()
-        )
 
         Column {
+            ArStatusText(
+                trackingFailureReason = trackingFailureReason,
+                isAvailable = nearestNPCInfo.shouldPlace,
+                isPlace = nearestNPCInfo.npc?.id?.let { viewModel.getNpcMarker(it) }
+            )
             Text(
                 text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
                 color = Color.White
@@ -264,15 +275,15 @@ fun ARSceneComposable(
                 color = Color.Red
             )
             Text(
-                text = "가까운 마커: ${nearestNPCInfo.nearestNPC?.id ?: "모니터링중..."} ",
+                text = "생성된 미션: ${questNodes.keys} ",
                 color = Color.Red
             )
             Text(
-                text = "마커 거리(m): ${nearestNPCInfo.nearestNPCDistance ?: "모니터링중..."} ",
+                text = "가까운 미션: ${nearestNPCInfo.npc?.id ?: "모니터링중..."} ",
                 color = Color.Red
             )
             Text(
-                text = "배치된 노드: ${questNodes.keys} ",
+                text = "미션까지 거리: ${nearestNPCInfo.distance?.let { "%.2fm".format(it) } ?: "모니터링중..."} ",
                 color = Color.Red
             )
         }
@@ -295,49 +306,55 @@ fun ARSceneComposable(
     }
 }
 
-private fun findPlaneInView(frame: Frame, width: Int, height: Int): Pair<Plane, Pose>? {
+private fun findPlaneInView(frame: Frame, width: Int, height: Int, camera: Camera): Pair<Plane, Pose>? {
     val center = android.graphics.PointF(width / 2f, height / 2f)
     val hits = frame.hitTest(center.x, center.y)
 
-    Log.d("ARPlacement", "Performing hit test. Hits found: ${hits.size}")
-
-    val planeHit = hits.firstOrNull { hit ->
-        val trackable = hit.trackable
-        trackable is Plane && trackable.type == Plane.Type.HORIZONTAL_UPWARD_FACING
+    val planeHit = hits.firstOrNull {
+        it.isValid (
+            depthPoint = true,
+            point = true,
+            planePoseInPolygon = true,
+            instantPlacementPoint = false,
+            minCameraDistance = Pair(camera, 0.5f),
+            predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+            planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING)
+        )
     }
 
     return planeHit?.let { hit ->
         val plane = hit.trackable as Plane
-        Log.d("ARPlacement", "Plane found - extentX: ${plane.extentX}, extentZ: ${plane.extentZ}")
-        Pair(plane, plane.centerPose)
+        val pose = hit.hitPose
+        Pair(plane, pose)
     }
 }
 
 @Composable
 fun ArStatusText(
     trackingFailureReason: TrackingFailureReason?,
-    isEmpty: Boolean
+    isAvailable: Boolean,
+    isPlace: Boolean?
 ) {
+    Log.d(TAG, "ArStatusText: $trackingFailureReason ${isAvailable} $isPlace")
+    
     Text(
         modifier = Modifier
             .systemBarsPadding()
             .fillMaxWidth()
             .padding(top = 16.dp, start = 32.dp, end = 32.dp),
         textAlign = TextAlign.Center,
-        fontSize = 28.sp,
+        fontSize = 20.sp,
         color = Color.White,
-        text = (when (trackingFailureReason) {
-            TrackingFailureReason.NONE -> "위치를 찾고 있어"
-            TrackingFailureReason.BAD_STATE -> "지금 내부 상태가\n불안정해"
-            TrackingFailureReason.INSUFFICIENT_LIGHT -> "주변이 어두워서\n찾을 수 없어"
-            TrackingFailureReason.EXCESSIVE_MOTION -> "너무 빨리 움직이면\n찾을 수 없어"
-            TrackingFailureReason.INSUFFICIENT_FEATURES -> "주변이 막혀 있어서\n찾을 수 없어"
-            TrackingFailureReason.CAMERA_UNAVAILABLE -> "카메라를 사용할 수 없어"
+        text = when {
+            trackingFailureReason != TrackingFailureReason.NONE && trackingFailureReason != null ->
+                TrackingMessage.fromTrackingFailureReason(trackingFailureReason).message
             else -> {
-                if (isEmpty) "친구가 놀라지 않게\n주변을 천천히 둘러봐!"
-                else "클릭해서 미션을 확인해 봐!"
+                if(isAvailable && isPlace != null && !isPlace)
+                    TrackingMessage.SEARCH_AROUND.message
+                else
+                    TrackingMessage.EMPTY.message
             }
-        })
+        }
     )
 }
 

@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.EncyclopediaRepository
-import com.ssafy.ui.encyclopedia.EncycGridState
+import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.encyclopedia.EncycScreenState
 import com.ssafy.ui.encyclopedia.EncycUserIntent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -33,9 +33,10 @@ class EncycScreenViewModel
                                     EncycScreenState.Loaded(
                                         items =
                                             body.data.species.map {
-                                                EncycGridState(
-                                                    plantName = it.speciesName,
-                                                    plantImage = it.imageUrl,
+                                                EncycCardState(
+                                                    id = it.speciesId,
+                                                    name = it.speciesName,
+                                                    imageUrl = it.imageUrl,
                                                     isDiscovered = it.discovered,
                                                 )
                                             },

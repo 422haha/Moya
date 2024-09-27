@@ -28,7 +28,6 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.Immutable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.remember
@@ -41,10 +40,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.ssafy.ui.component.EncycCard
+import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
-import com.ssafy.ui.component.PlantCard
-import com.ssafy.ui.component.PlantInfo
+import com.ssafy.ui.theme.DarkGrayColor
 import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
@@ -98,7 +98,7 @@ fun EncycScreenLoaded(
             modifier
                 .fillMaxSize(),
     ) {
-        CollectionProgress(progress = state.progress.toFloat(), onIntent = onIntent)
+        CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = selectedChipIndex,
             onChipSelected = { index ->
@@ -125,7 +125,7 @@ fun FilterChipComponent(
         label = {
             Text(
                 text = text,
-                color = if (isSelected) LightBackgroundColor else Color.Black,
+                color = if (isSelected) LightBackgroundColor else DarkGrayColor,
                 fontWeight = FontWeight.Bold,
             )
         },
@@ -135,11 +135,11 @@ fun FilterChipComponent(
             FilterChipDefaults.filterChipColors(
                 containerColor = if (isSelected) PrimaryColor else LightBackgroundColor,
                 selectedContainerColor = PrimaryColor,
-                labelColor = if (isSelected) LightBackgroundColor else Color.Black,
+                labelColor = if (isSelected) LightBackgroundColor else DarkGrayColor,
             ),
         border =
             if (!isSelected) {
-                BorderStroke(1.dp, Color.Black)
+                BorderStroke(1.dp, DarkGrayColor)
             } else {
                 null
             },
@@ -171,16 +171,9 @@ fun FilterChips(
     }
 }
 
-@Immutable
-data class EncycGridState(
-    val plantName: String,
-    val plantImage: String?,
-    val isDiscovered: Boolean,
-)
-
 @Composable
 fun EncycGrid(
-    items: List<EncycGridState>,
+    items: List<EncycCardState>,
     modifier: Modifier = Modifier,
     onItemClicked: (Long) -> Unit,
 ) {
@@ -193,13 +186,14 @@ fun EncycGrid(
                 .heightIn(min = 200.dp),
     ) {
         itemsIndexed(items) { index, item ->
-            PlantCard(
-                PlantInfo(
-                    plantName = item.plantName,
-                    plantImage = item.plantImage,
+            EncycCard(
+                EncycCardState(
+                    id = item.id,
+                    name = item.name,
+                    imageUrl = item.imageUrl,
                     isDiscovered = item.isDiscovered,
                 ),
-                onClick = { onItemClicked(index.toLong()) },
+                onClick = { onItemClicked(index.toLong()) }
             )
         }
     }
@@ -283,14 +277,17 @@ fun EncycScreenPreview() {
     EncycScreenContent(
         encycScreenState =
             EncycScreenState.Loaded(
+                selectedChipIndex = 0,
                 items =
                     List(8) { index ->
-                        EncycGridState(
-                            plantName = "식물 $index",
-                            plantImage = null,
+                        EncycCardState(
+                            id = 1,
+                            name = "식물 $index",
+                            imageUrl = null,
                             isDiscovered = index % 2 == 0,
                         )
                     },
+                progress = 60.0f,
             ),
     )
 }
