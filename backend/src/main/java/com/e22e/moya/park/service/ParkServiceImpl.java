@@ -121,7 +121,7 @@ public class ParkServiceImpl implements ParkService {
     }
 
     /**
-     * 사용자 위치를 기준으로 공원 목록을 반환합니다.
+     * 사용자 위치를 기준으로 공원 목록을 반환
      *
      * @param latitude  사용자 위도
      * @param longitude 사용자 경도
