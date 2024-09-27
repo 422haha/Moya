@@ -31,13 +31,13 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
-import com.ssafy.ar.data.QuestStatus
-import com.ssafy.ar.dummy.scriptNode
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.dummy.npcs
 
 @Composable
 fun QuestDialog(
-    idx: Int,
-    state: QuestStatus,
+    idx: Long,
+    state: QuestState,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -65,7 +65,7 @@ fun QuestDialog(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = scriptNode[idx].title,
+                    text = npcs[idx]?.name ?: "",
                     textAlign = TextAlign.Center,
                     style = TextStyle(
                         color = Color.Black,
@@ -86,8 +86,8 @@ fun QuestDialog(
                     ),
                     text = buildAnnotatedString {
                         append(
-                            if (state == QuestStatus.WAIT) scriptNode[idx].prevDescription
-                            else scriptNode[idx].prevCheckDescription
+                            if (state == QuestState.WAIT) npcs[idx]?.prevDescription ?: ""
+                            else npcs[idx]?.prevCheckDescription
                         )
                         withStyle(
                             style = SpanStyle(
@@ -96,13 +96,13 @@ fun QuestDialog(
                             )
                         ) {
                             append(
-                                if (state == QuestStatus.WAIT) scriptNode[idx].middleDescription
-                                else scriptNode[idx].middleCheckDescription
+                                if (state == QuestState.WAIT) npcs[idx]?.middleDescription
+                                else npcs[idx]?.middleCheckDescription
                             )
                         }
                         append(
-                            if (state == QuestStatus.WAIT) scriptNode[idx].nextDescription
-                            else scriptNode[idx].nextCheckDescription
+                            if (state == QuestState.WAIT) npcs[idx]?.nextDescription
+                            else npcs[idx]?.nextCheckDescription
                         )
                     },
                 )
@@ -136,7 +136,7 @@ fun QuestDialog(
                         ) {
                         Text(
                             text =
-                            if (state == QuestStatus.WAIT) "거절"
+                            if (state == QuestState.WAIT) "거절"
                             else "취소",
                             textAlign = TextAlign.Center,
                             style = TextStyle(
@@ -168,7 +168,7 @@ fun QuestDialog(
                     ) {
                         Text(
                             text =
-                            if (state == QuestStatus.WAIT) "수락"
+                            if (state == QuestState.WAIT) "수락"
                             else "확인",
                             textAlign = TextAlign.Center,
                             style = TextStyle(
