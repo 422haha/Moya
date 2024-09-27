@@ -31,7 +31,7 @@ class MainActivity : ComponentActivity() {
         setContent {
             MoyaTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    MainNavigation(ttsHelper = ttsHelper)
+                    MainNavigation(ttsHelper = ttsHelper, sttHelper = sttHelper)
                 }
             }
         }

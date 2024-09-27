@@ -22,6 +22,7 @@ import com.ssafy.ui.screen.UserProfileEditScreen
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper,
+    sttHelper: STTHelper
 ) {
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
