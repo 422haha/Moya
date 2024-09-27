@@ -46,12 +46,19 @@ class ARNodeManager(
 
         childNodes.add(anchorNode)
 
-        delay(5000)
-
         onSuccess()
     }
 
-    // 특정 위치에 앵커노드 생성
+    private fun createImageNode(stateUrl: String): ImageNode {
+        return ImageNode(
+            materialLoader = materialLoader,
+            imageFileLocation = stateUrl,
+            size = Size(0.35f, 0.35f),
+            center = Position(0f, 0.67f, 0f)
+        )
+    }
+
+    // 앵커노드 생성
     private fun createAnchorNode(
         node: QuestData,
         anchor: Anchor
@@ -77,12 +84,7 @@ class ARNodeManager(
             rotation = Rotation(0f, 180f, 0f)
         }
 
-        val imageNode = ImageNode(
-            materialLoader = materialLoader,
-            imageFileLocation = "picture/wait.png",
-            size = Size(0.35f, 0.35f),
-            center = Position(0f, 0.65f, 0f)
-        )
+        val imageNode = createImageNode("picture/wait.png")
 
         modelNode.addChildNode(imageNode)
 
@@ -91,12 +93,12 @@ class ARNodeManager(
         return anchorNode
     }
 
-    // 모델노드 업데이트
+    // 앵커노드 업데이트
     fun updateAnchorNode(
         prevNode: Node,
+        parentAnchor: AnchorNode,
         questId: String,
         questModel: String,
-        parentAnchor: AnchorNode,
     ) {
         parentAnchor.removeChildNode(prevNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
@@ -113,16 +115,23 @@ class ARNodeManager(
                 rotation = prevNode.worldRotation
             }
 
-            val imageNode = ImageNode(
-                materialLoader = materialLoader,
-                imageFileLocation = "picture/progress.png",
-                size = Size(0.35f, 0.35f),
-                center = Position(0f, 0.67f, 0f)
-            )
+            val imageNode = createImageNode("picture/progress.png",)
 
             newModelNode.addChildNode(imageNode)
 
             parentAnchor.addChildNode(newModelNode)
+        }
+    }
+
+    // 모델노드 업데이트
+    fun updateModelNode(
+        childNode: ImageNode,
+        parentNode: ModelNode,
+    ) {
+        parentNode.removeChildNode(childNode).apply {
+            val imageNode = createImageNode("picture/complete.png",)
+
+            parentNode.addChildNode(imageNode)
         }
     }
 }

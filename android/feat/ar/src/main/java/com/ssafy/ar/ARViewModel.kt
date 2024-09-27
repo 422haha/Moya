@@ -1,6 +1,5 @@
 package com.ssafy.ar
 
-import android.location.Location
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,6 +13,8 @@ import com.ssafy.ar.dummy.npcs
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.node.ImageNode
+import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -32,7 +33,11 @@ class ARViewModel(
         viewModelScope.launch {
             locationManager.currentLocation.collectLatest { location ->
                 location?.let {
-                    operateNearestNPC(location)
+                    val nearestNPCInfo = locationManager.operateNearestNPC(location, npcMarkers.value)
+
+                    updateNearestNPC(nearestNPCInfo)
+
+                    locationManager.setFusedLocationClient(nearestNPCInfo.distance ?: 100f)
                 }
             }
         }
@@ -41,8 +46,8 @@ class ARViewModel(
     private val placingNodes = Collections.synchronizedSet(mutableSetOf<String>())
 
     // 모든 NPC 정보
-    private val _npcMarkets = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
-    val npcMarkets = _npcMarkets.asStateFlow()
+    private val _npcMarkers = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
+    val npcMarkers = _npcMarkers.asStateFlow()
 
     // 현재 배치된 퀘스트
     private val _questNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
@@ -90,16 +95,16 @@ class ARViewModel(
         }
     }
 
-    private fun getNpcMarker(id: String): Boolean {
-        return _npcMarkets.value[id]?.isPlace ?: false
+    fun getNpcMarker(id: String): Boolean {
+        return _npcMarkers.value[id]?.isPlace ?: false
     }
 
     fun getAllNpcMarker() {
-        _npcMarkets.value = npcs
+        _npcMarkers.value = npcs
     }
 
     private fun updateNpcMarker(id: String) {
-        _npcMarkets.update { currentMap ->
+        _npcMarkers.update { currentMap ->
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->
                     this[id] = npcLocation.copy(isPlace = true)
@@ -110,21 +115,11 @@ class ARViewModel(
 
     private fun removeNpcMarker(id: String) {
         viewModelScope.launch {
-            val updatedMap = _npcMarkets.value.toMutableMap().apply {
+            val updatedMap = _npcMarkers.value.toMutableMap().apply {
                 remove(id)
             }
-            _npcMarkets.value = updatedMap
+            _npcMarkers.value = updatedMap
         }
-    }
-
-    private fun operateNearestNPC(location: Location) {
-        val npc = locationManager.findNearestNPC(location, npcMarkets.value)
-        val distance = npc?.let { locationManager.measureNearestNpcDistance(location, it) }
-        val isAvailable = locationManager.isAvailableNearestNPC(distance, location)
-
-        updateNearestNPC(NearestNPCInfo(npc, distance, isAvailable))
-
-        locationManager.setFusedLocationClient(distance ?: 100f)
     }
 
     private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
@@ -145,7 +140,11 @@ class ARViewModel(
 
                     updateNpcMarker(npcId)
 
-                    updateNearestNPC(NearestNPCInfo())
+                    locationManager.currentLocation.value?.let {
+                        val nearestNPCInfo = locationManager.operateNearestNPC(it, npcMarkers.value)
+
+                        updateNearestNPC(nearestNPCInfo)
+                    }
                 }
             )
 
@@ -159,9 +158,20 @@ class ARViewModel(
         viewModelScope.launch {
             nodeManager.updateAnchorNode(
                 prevNode = node,
+                parentAnchor = parentAnchorNode,
                 questId = quest.id,
                 questModel = quest.model,
-                parentAnchor = parentAnchorNode,
+            )
+        }
+    }
+
+    fun updateModelNode(childNode: ImageNode,
+                        parentNode: ModelNode
+    ) {
+        viewModelScope.launch {
+            nodeManager.updateModelNode(
+                childNode = childNode,
+                parentNode = parentNode,
             )
         }
     }
