@@ -1,6 +1,5 @@
 package com.ssafy.ar.dummy
 
-import com.google.android.gms.maps.model.LatLng
 import com.ssafy.ar.data.NPCLocation
 import com.ssafy.ar.data.QuestData
 
