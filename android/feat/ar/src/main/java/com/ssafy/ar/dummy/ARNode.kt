@@ -74,5 +74,5 @@ val npcs: Map<String, NPCLocation> = mapOf(
     "Location4" to NPCLocation("Location4", 36.1017196, 128.419904),
     "Location5" to NPCLocation("Location5", 36.101726, 128.4199104),
     "Location6" to NPCLocation("Location6", 36.1071543, 128.4165288),
-    "Location7" to NPCLocation("Location7", 6.1071598, 128.4165313)
+    "Location7" to NPCLocation("Location7", 36.1071598, 128.4165313)
 )

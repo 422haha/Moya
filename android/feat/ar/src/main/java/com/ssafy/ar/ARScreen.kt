@@ -167,11 +167,9 @@ fun ARSceneComposable(
                         Config.PlaneFindingMode.DISABLED
 
                     if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        runCatching {
-                            session.configure(session.config.apply {
-                                setPlaneFindingMode(desiredPlaneFindingMode)
-                            })
-                        }
+                        session.configure(session.config.apply {
+                            setPlaneFindingMode(desiredPlaneFindingMode)
+                        })
                     }
                 }
 
