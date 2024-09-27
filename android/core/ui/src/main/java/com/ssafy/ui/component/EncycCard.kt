@@ -43,55 +43,47 @@ fun EncycCard(
     state: EncycCardState,
     onClick: (id: Long) -> Unit = {},
 ) {
-    Card(
-        shape = RoundedCornerShape(8.dp),
-        elevation = CardDefaults.cardElevation(4.dp),
-        colors =
-            CardDefaults.cardColors(
-                containerColor = if (state.isDiscovered) SurfaceColor else GrayColor,
-            ),
+    Box(
         modifier =
             Modifier
-                .padding(4.dp)
-                .width(160.dp)
-                .height(160.dp),
-        onClick = { onClick(state.id) },
+                .padding(8.dp)
+                .size(160.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .clickable { onClick(state.id) },
     ) {
-        Column(
+        AsyncImage(
+            model = state.imageUrl,
+            contentDescription = "도감 사진",
+            contentScale = ContentScale.Crop,
             modifier =
                 Modifier
-                    .fillMaxHeight(),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Top,
+                    .fillMaxWidth()
+                    .background(LightBackgroundColor),
+        )
+
+        Surface(
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .align(Alignment.BottomCenter),
+            color =
+                if (state.isDiscovered) {
+                    SurfaceColor.copy(alpha = 0.5f)
+                } else {
+                    Color.Black.copy(alpha = 0.5f)
+                },
         ) {
-            AsyncImage(
-                model = state.imageUrl,
-                contentDescription = "도감 사진",
-                contentScale = ContentScale.Crop,
+            Box(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(120.dp)
-                        .background(LightBackgroundColor),
-            )
-
-        Surface(
-            modifier = Modifier
-                .fillMaxWidth()
-                .align(Alignment.BottomCenter),
-            color = if (plantInfo.isDiscovered) SurfaceColor.copy(alpha = 0.5f)
-            else Color.Black.copy(alpha = 0.5f)
-        ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(8.dp),
-                contentAlignment = Alignment.Center
+                        .padding(8.dp),
+                contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = plantInfo.plantName,
+                    text = state.name,
                     fontSize = 14.sp,
-                    color = if (plantInfo.isDiscovered) Color.Black else LightBackgroundColor
+                    color = if (state.isDiscovered) Color.Black else LightBackgroundColor,
                 )
             }
         }

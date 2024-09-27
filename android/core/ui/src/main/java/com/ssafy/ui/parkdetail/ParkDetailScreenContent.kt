@@ -25,8 +25,6 @@ import com.ssafy.ui.encycdetail.DescriptionSection
 import com.ssafy.ui.encycdetail.ImageSection
 import com.ssafy.ui.encycdetail.TitleAndDividerSection
 import com.ssafy.ui.encyclopedia.EncycGrid
-import com.ssafy.ui.theme.PrimaryColor
-import com.ssafy.ui.encyclopedia.EncycGridState
 import com.ssafy.ui.theme.customTypography
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
