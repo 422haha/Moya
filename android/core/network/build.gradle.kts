@@ -3,6 +3,7 @@ import java.util.Properties
 plugins {
     alias(libs.plugins.module.android.library)
     alias(libs.plugins.module.hilt)
+    alias(libs.plugins.kotlin.serialization)
 }
 
 val properties = Properties()
@@ -23,5 +24,6 @@ android {
 
 dependencies {
     implementation(libs.bundles.network)
+    implementation(project(":core:model"))
     implementation(project(":core:datastore"))
 }

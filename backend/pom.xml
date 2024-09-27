@@ -184,6 +184,44 @@
       <scope>test</scope>
     </dependency>
 
+    <!-- Langchain -->
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-open-ai-spring-boot-starter</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-open-ai</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-easy-rag</artifactId>
+      <version>0.34.0</version>
+      <exclusions>
+        <exclusion>
+          <groupId>org.apache.logging.log4j</groupId>
+          <artifactId>log4j-api</artifactId>
+        </exclusion>
+      </exclusions>
+    </dependency>
+
+    <dependency>
+      <groupId>dev.langchain4j</groupId>
+      <artifactId>langchain4j-cohere</artifactId>
+      <version>0.34.0</version>
+    </dependency>
+
+
   </dependencies>
 
   <build>
@@ -255,6 +293,12 @@
             </configuration>
           </execution>
         </executions>
+      </plugin>
+      <!-- SonarQube 플러그인 -->
+      <plugin>
+        <groupId>org.sonarsource.scanner.maven</groupId>
+        <artifactId>sonar-maven-plugin</artifactId>
+        <version>3.9.1.2184</version>
       </plugin>
     </plugins>
   </build>

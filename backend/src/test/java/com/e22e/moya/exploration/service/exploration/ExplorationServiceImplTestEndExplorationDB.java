@@ -6,8 +6,8 @@ import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.exploration.dto.exploration.EndRequestDto;
 import com.e22e.moya.exploration.dto.exploration.EndResponseDto;
-import com.e22e.moya.exploration.repository.ExplorationRepository;
-import com.e22e.moya.exploration.repository.ParkRepository;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
+import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -28,10 +28,10 @@ class ExplorationServiceImplTestEndExplorationDB {
     private ExplorationService explorationService;
 
     @Autowired
-    private ParkRepository parkRepository;
+    private ParkRepositoryExploration parkRepository;
 
     @Autowired
-    private ExplorationRepository explorationRepository;
+    private ExplorationRepositoryExploration explorationRepository;
 
 
     @Test

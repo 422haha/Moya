@@ -58,7 +58,8 @@ public class Exploration {
     @Exclude
     private List<QuestCompleted> questCompleted = new ArrayList<>();
 
-    // boolean completed = false;
+    @Column(name = "completed", nullable = false)
+    private boolean completed = false;
 
     //getter, setter
 
@@ -159,4 +160,11 @@ public class Exploration {
         this.questCompleted = questCompleted;
     }
 
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
+    }
 }

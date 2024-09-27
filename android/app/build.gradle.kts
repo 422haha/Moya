@@ -23,6 +23,8 @@ android {
         }
 
         buildConfigField("Boolean", "DEBUG", properties["DEBUG"] as String)
+        buildConfigField("String", "NAVER_CLIENT_ID", "\"${properties["NAVER_CLIENT_ID"]}\"")
+        manifestPlaceholders["NAVER_CLIENT_ID"] = properties["NAVER_CLIENT_ID"] as String
     }
 
     buildTypes {
@@ -57,21 +59,16 @@ android {
 
 dependencies {
 
-    implementation(libs.androidx.core.ktx)
-    implementation(libs.androidx.lifecycle.runtime.ktx)
-    implementation(libs.androidx.activity.compose)
-    implementation(platform(libs.androidx.compose.bom))
-
     //compose-navigation
     implementation(libs.androidx.navigation.compose)
 
     //serialization
     implementation(libs.kotlinx.serialization.core)
 
-    implementation(project(":core:ui"))
+    implementation(project(":feat:ar"))
+    implementation("io.github.sceneview:arsceneview:2.2.1")
+    implementation("com.google.android.gms:play-services-location:21.0.1")
 
-    testImplementation(libs.junit)
-    androidTestImplementation(libs.androidx.junit)
-    androidTestImplementation(libs.androidx.espresso.core)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
+    implementation(project(":feat:main"))
+    implementation(project(":core:ui"))
 }

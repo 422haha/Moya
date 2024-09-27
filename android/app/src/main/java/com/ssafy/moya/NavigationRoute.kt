@@ -12,19 +12,22 @@ object ParkList
 object ExploreList
 
 @Serializable
-data class ExploreDetail(val itemId: Int)
+data class ExploreDetail(val itemId: Long)
 
 @Serializable
-data class ParkDetail(val itemId: Int)
+data class ParkDetail(val itemId: Long)
 
 @Serializable
 object Encyc
 
 @Serializable
-data class EncycDetail(val itemId: Int)
+data class EncycDetail(val itemId: Long)
 
 @Serializable
-object ExploreStart
+data class ExploreStart(val parkId: Long)
+
+@Serializable
+object ARCamera
 
 //TODO 나중에 dataclass로 수정하고 userId 전송하도록
 @Serializable
