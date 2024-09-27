@@ -4,7 +4,7 @@ import androidx.compose.runtime.Immutable
 import com.google.android.gms.maps.model.LatLng
 
 @Immutable
-data class NPCLocation(val id: String,
+data class NPCLocation(val id: Long,
                        val latitude: Double,
                        val longitude: Double,
                        val isPlace: Boolean = false)

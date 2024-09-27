@@ -1,8 +1,13 @@
 package com.ssafy.ar
 
+import android.content.Context
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.google.android.filament.Engine
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.ssafy.ar.data.NPCLocation
@@ -12,7 +17,13 @@ import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.dummy.npcs
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.network.repository.ExplorationRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.loaders.MaterialLoader
+import io.github.sceneview.loaders.ModelLoader
+import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
@@ -23,14 +34,24 @@ import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.Collections
+import javax.inject.Inject
 
-class ARViewModel(
-    private val nodeManager: ARNodeManager,
-    private val locationManager: ARLocationManager,
+@HiltViewModel
+class ARViewModel @Inject constructor(
+    @ApplicationContext private val context: Context,
+    private val explorationRepository: ExplorationRepository
 ) : ViewModel() {
+
+    private lateinit var nodeManager: ARNodeManager
+    lateinit var locationManager: ARLocationManager
+    private lateinit var fusedLocationClient: FusedLocationProviderClient
 
     init {
         viewModelScope.launch {
+            fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+            locationManager = ARLocationManager(context, fusedLocationClient)
+            nodeManager = ARNodeManager()
+
             locationManager.currentLocation.collectLatest { location ->
                 location?.let {
                     val nearestNPCInfo = locationManager.operateNearestNPC(location, npcMarkers.value)
@@ -43,14 +64,14 @@ class ARViewModel(
         }
     }
 
-    private val placingNodes = Collections.synchronizedSet(mutableSetOf<String>())
+    private val placingNodes = Collections.synchronizedSet(mutableSetOf<Long>())
 
     // 모든 NPC 정보
-    private val _npcMarkers = MutableStateFlow<Map<String, NPCLocation>>(emptyMap())
+    private val _npcMarkers = MutableStateFlow<Map<Long, NPCLocation>>(emptyMap())
     val npcMarkers = _npcMarkers.asStateFlow()
 
     // 현재 배치된 퀘스트
-    private val _questNodes = MutableStateFlow<Map<String, QuestStatus>>(emptyMap())
+    private val _questNodes = MutableStateFlow<Map<Long, QuestStatus>>(emptyMap())
     val questNodes = _questNodes.asStateFlow()
 
     // 가장 가까운 노드
@@ -66,18 +87,18 @@ class ARViewModel(
     val dialogData: StateFlow<Pair<Int, QuestStatus>> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
-    fun getQuest(id: String): QuestStatus? {
+    fun getQuest(id: Long): QuestStatus? {
         return _questNodes.value[id]
     }
 
-    private fun addQuest(id: String, state: QuestStatus) {
+    private fun addQuest(id: Long, state: QuestStatus) {
         val updatedMap = _questNodes.value.toMutableMap().apply {
             put(id, state)
         }
         _questNodes.value = updatedMap
     }
 
-    fun updateQuest(id: String, newState: QuestStatus) {
+    fun updateQuest(id: Long, newState: QuestStatus) {
         viewModelScope.launch {
             val updatedMap = _questNodes.value.toMutableMap().apply {
                 this[id] = newState
@@ -86,7 +107,7 @@ class ARViewModel(
         }
     }
 
-    fun removeQuest(id: String) {
+    fun removeQuest(id: Long) {
         viewModelScope.launch {
             val updatedMap = _questNodes.value.toMutableMap().apply {
                 remove(id)
@@ -95,7 +116,7 @@ class ARViewModel(
         }
     }
 
-    fun getNpcMarker(id: String): Boolean {
+    fun getNpcMarker(id: Long): Boolean {
         return _npcMarkers.value[id]?.isPlace ?: false
     }
 
@@ -103,7 +124,7 @@ class ARViewModel(
         _npcMarkers.value = npcs
     }
 
-    private fun updateNpcMarker(id: String) {
+    private fun updateNpcMarker(id: Long) {
         _npcMarkers.update { currentMap ->
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->
@@ -113,7 +134,7 @@ class ARViewModel(
         }
     }
 
-    private fun removeNpcMarker(id: String) {
+    private fun removeNpcMarker(id: Long) {
         viewModelScope.launch {
             val updatedMap = _npcMarkers.value.toMutableMap().apply {
                 remove(id)
@@ -126,7 +147,14 @@ class ARViewModel(
         _nearestNPCInfo.value = nearestNPCInfo
     }
 
-    fun addAnchorNode(plane: Plane, pose: Pose, npcId: String, childNodes: SnapshotStateList<Node>) {
+    fun addAnchorNode(plane:
+                      Plane,
+                      pose: Pose,
+                      npcId: Long,
+                      childNodes: SnapshotStateList<Node>,
+                      engine: Engine,
+                      modelLoader: ModelLoader,
+                      materialLoader: MaterialLoader) {
         if (getNpcMarker(npcId) || !placingNodes.add(npcId)) return
 
         viewModelScope.launch {
@@ -135,6 +163,9 @@ class ARViewModel(
                 pose = pose,
                 anchorId = npcId,
                 childNodes = childNodes,
+                engine = engine,
+                modelLoader = modelLoader,
+                materialLoader = materialLoader,
                 onSuccess = {
                     addQuest(npcId, QuestStatus.WAIT)
 
@@ -154,24 +185,30 @@ class ARViewModel(
 
     fun updateAnchorNode(node: Node,
                          quest: QuestData,
-                         parentAnchorNode: AnchorNode) {
+                         parentAnchorNode: AnchorNode,
+                         modelLoader: ModelLoader,
+                         materialLoader: MaterialLoader) {
         viewModelScope.launch {
             nodeManager.updateAnchorNode(
                 prevNode = node,
                 parentAnchor = parentAnchorNode,
                 questId = quest.id,
                 questModel = quest.model,
+                modelLoader = modelLoader,
+                materialLoader = materialLoader
             )
         }
     }
 
     fun updateModelNode(childNode: ImageNode,
-                        parentNode: ModelNode
+                        parentNode: ModelNode,
+                        materialLoader: MaterialLoader
     ) {
         viewModelScope.launch {
             nodeManager.updateModelNode(
                 childNode = childNode,
                 parentNode = parentNode,
+                materialLoader = materialLoader
             )
         }
     }

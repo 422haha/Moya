@@ -66,12 +66,11 @@ val scriptNode: MutableList<QuestData> = mutableListOf(
     )
 )
 
-val npcs: Map<String, NPCLocation> = mapOf(
-    "Location1" to NPCLocation("Location1", 36.1067967, 128.4162641),
-    "Location2" to NPCLocation("Location2", 36.1066985, 128.4161918),
-    "Location3" to NPCLocation("Location3", 36.1066493, 128.4163712),
-    "Location4" to NPCLocation("Location4", 36.1017196, 128.419904),
-    "Location5" to NPCLocation("Location5", 36.101726, 128.4199104),
-    "Location6" to NPCLocation("Location6", 36.1071543, 128.4165288),
-    "Location7" to NPCLocation("Location7", 36.1071598, 128.4165313)
+val npcs: Map<Long, NPCLocation> = mapOf(
+    1L to NPCLocation(1L, 36.1067967, 128.4162641),
+    2L to NPCLocation(2L, 36.1066985, 128.4161918),
+    3L to NPCLocation(3L, 36.1066493, 128.4163712),
+    4L to NPCLocation(4L, 36.1071543, 128.4165288),
+    5L to NPCLocation(5L, 36.1017196, 128.419904),
+    6L to NPCLocation(6L, 36.101726, 128.4199104),
 )

@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -87,7 +86,7 @@ class ARLocationManager(
         locationCallback = null
     }
 
-    fun operateNearestNPC(location: Location, npcMarkers: Map<String, NPCLocation>): NearestNPCInfo {
+    fun operateNearestNPC(location: Location, npcMarkers: Map<Long, NPCLocation>): NearestNPCInfo {
         val npc = findNearestNPC(location, npcMarkers)
         val distance = npc?.let { measureNearestNpcDistance(location, it) }
         val isAvailable = isAvailableNearestNPC(distance, location)
@@ -108,7 +107,7 @@ class ARLocationManager(
     // 가장 가까운 노드를 찾기
     private fun findNearestNPC(
         currentLocation: Location,
-        npcLocations: Map<String, NPCLocation>
+        npcLocations: Map<Long, NPCLocation>
     ): NPCLocation? {
         return npcLocations.values
             .filter { !it.isPlace }

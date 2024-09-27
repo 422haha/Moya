@@ -24,34 +24,36 @@ import kotlinx.coroutines.withContext
 
 private const val kMaxModelInstances = 1
 
-class ARNodeManager(
-    private val engine: Engine,
-    private val modelLoader: ModelLoader,
-    private val materialLoader: MaterialLoader,
-) {
+class ARNodeManager {
     private val mutex = Mutex()
 
     // 평면에 노드 배치
     suspend fun placeNode(
         plane: Plane,
         pose: Pose,
-        anchorId: String,
+        anchorId: Long,
         childNodes: SnapshotStateList<Node>,
+        engine: Engine,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader,
         onSuccess: () -> Unit,
     ) = mutex.withLock {
-        if(childNodes.any { it.name == anchorId }) return@withLock
+        if(childNodes.any { it.name == anchorId.toString() }) return@withLock
 
         val anchorNode = createAnchorNode(
             scriptNode[0],
             plane.createAnchor(pose),
-        ).apply { name = anchorId }
+            engine,
+            modelLoader,
+            materialLoader
+        ).apply { name = anchorId.toString() }
 
         childNodes.add(anchorNode)
 
         onSuccess()
     }
 
-    private fun createImageNode(stateUrl: String): ImageNode {
+    private fun createImageNode(stateUrl: String, materialLoader: MaterialLoader): ImageNode {
         return ImageNode(
             materialLoader = materialLoader,
             imageFileLocation = stateUrl,
@@ -63,7 +65,10 @@ class ARNodeManager(
     // 앵커노드 생성
     private suspend fun createAnchorNode(
         node: QuestData,
-        anchor: Anchor
+        anchor: Anchor,
+        engine: Engine,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader
     ): AnchorNode = withContext(Dispatchers.Main) {
         val idx = (1..4).random()
 
@@ -86,7 +91,7 @@ class ARNodeManager(
             rotation = Rotation(0f, 180f, 0f)
         }
 
-        val imageNode = createImageNode("picture/wait.png")
+        val imageNode = createImageNode("picture/wait.png", materialLoader)
 
         modelNode.addChildNode(imageNode)
 
@@ -101,6 +106,8 @@ class ARNodeManager(
         parentAnchor: AnchorNode,
         questId: String,
         questModel: String,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader
     ) = withContext(Dispatchers.Main) {
         parentAnchor.removeChildNode(prevNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
@@ -117,7 +124,7 @@ class ARNodeManager(
                 rotation = prevNode.worldRotation
             }
 
-            val imageNode = createImageNode("picture/progress.png",)
+            val imageNode = createImageNode("picture/progress.png", materialLoader)
 
             newModelNode.addChildNode(imageNode)
 
@@ -129,9 +136,10 @@ class ARNodeManager(
     fun updateModelNode(
         childNode: ImageNode,
         parentNode: ModelNode,
+        materialLoader: MaterialLoader
     ) {
         parentNode.removeChildNode(childNode).apply {
-            val imageNode = createImageNode("picture/complete.png",)
+            val imageNode = createImageNode("picture/complete.png", materialLoader)
 
             parentNode.addChildNode(imageNode)
         }

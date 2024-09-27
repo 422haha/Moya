@@ -28,10 +28,7 @@ import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationServices
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
@@ -41,8 +38,6 @@ import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.data.QuestStatus
 import com.ssafy.ar.data.TrackingMessage
 import com.ssafy.ar.dummy.scriptNode
-import com.ssafy.ar.manager.ARLocationManager
-import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
@@ -76,7 +71,6 @@ fun ARSceneComposable(
     val heightPx = with(density) { screenHeight.toPx() }.toInt()
 
     // LifeCycle
-    val context = LocalContext.current
     val coroutineScope = rememberCoroutineScope()
 
     // Permission
@@ -93,21 +87,13 @@ fun ARSceneComposable(
     var planeRenderer by remember { mutableStateOf(false) }
     var trackingFailureReason by remember { mutableStateOf<TrackingFailureReason?>(null) }
 
-    // Manager
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val locationManager = remember { ARLocationManager(context, fusedLocationClient) }
-    val nodeManager = remember { ARNodeManager(engine, modelLoader, materialLoader) }
 
-    val viewModel: ARViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ARViewModel(nodeManager, locationManager) as T
-        }
-    })
+    val viewModel: ARViewModel = hiltViewModel()
 
     // AR State
     val questNodes by viewModel.questNodes.collectAsState()
     val nearestNPCInfo by viewModel.nearestNPCInfo.collectAsState()
-    val currentLocation by locationManager.currentLocation.collectAsState()
+    val currentLocation by viewModel.locationManager.currentLocation.collectAsState()
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
@@ -123,7 +109,7 @@ fun ARSceneComposable(
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
 
-            locationManager.startLocationUpdates()
+            viewModel.locationManager.startLocationUpdates()
 
             viewModel.getAllNpcMarker()
         } else {
@@ -182,8 +168,16 @@ fun ARSceneComposable(
                         if(planeAndPose != null) {
                             val (plane, pose) = planeAndPose
 
-                            if(childNodes.all { it.name != id }) {
-                                viewModel.addAnchorNode(plane, pose, id, childNodes)
+                            if(childNodes.all { it.name != id.toString() }) {
+                                viewModel.addAnchorNode(
+                                    plane,
+                                    pose,
+                                    id,
+                                    childNodes,
+                                    engine,
+                                    modelLoader,
+                                    materialLoader
+                                )
                             }
                         }
                     }
@@ -196,7 +190,7 @@ fun ARSceneComposable(
                         val anchorNode = modelNode?.parent as? AnchorNode
 
                         val nodeId = modelNode?.name?.toInt()
-                        val anchorId = anchorNode?.name
+                        val anchorId = anchorNode?.name?.toLong()
 
                         if (nodeId != null && anchorId != null) {
                             val quest = scriptNode[nodeId]
@@ -214,7 +208,9 @@ fun ARSceneComposable(
                                                         viewModel.updateAnchorNode(
                                                             modelNode,
                                                             quest,
-                                                            anchorNode
+                                                            anchorNode,
+                                                            modelLoader,
+                                                            materialLoader
                                                         )
                                                     }
                                             }
@@ -233,7 +229,10 @@ fun ARSceneComposable(
                                                         .firstOrNull()
 
                                                     imageNode?.let {
-                                                        viewModel.updateModelNode(imageNode, modelNode)
+                                                        viewModel.updateModelNode(
+                                                            imageNode,
+                                                            modelNode,
+                                                            materialLoader)
                                                     }
 
                                                     coroutineScope.launch {
@@ -260,7 +259,7 @@ fun ARSceneComposable(
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestNPCInfo.shouldPlace,
-                isPlace = nearestNPCInfo.npc?.id?.let { viewModel.getNpcMarker(it) }
+                isPlace = nearestNPCInfo.npc?.id?.let { viewModel.getNpcMarker(it.toLong()) }
             )
             Text(
                 text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
