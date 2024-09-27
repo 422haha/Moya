@@ -101,7 +101,7 @@ public class InfoServiceImpl implements InfoService {
         explorationStartDto.setExplorationId(exploration.getId());
         questService.generateNewQuests(exploration);
 
-        popularParkService.incrementParkPopularity(parkId);
+        popularParkService.increaseParkPopularity(parkId);
 
         return explorationStartDto;
     }
