@@ -53,6 +53,7 @@ data class EncycDetail(
     val plantName: String,
     val plantImage: String?,
     val description: String,
+    val userPhoto: String? = null,
 )
 
 @Composable
