@@ -12,7 +12,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.ssafy.ar.data.LocationPriority
-import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -86,7 +86,7 @@ class ARLocationManager(
         locationCallback = null
     }
 
-    fun operateNearestNPC(location: Location, npcMarkers: Map<Long, NPCLocation>): NearestNPCInfo {
+    fun operateNearestNPC(location: Location, npcMarkers: Map<Long, QuestInfo>): NearestNPCInfo {
         val npc = findNearestNPC(location, npcMarkers)
         val distance = npc?.let { measureNearestNpcDistance(location, it) }
         val isAvailable = isAvailableNearestNPC(distance, location)
@@ -95,7 +95,7 @@ class ARLocationManager(
     }
 
     // 가장 가까운 노드와의 거리를 측정
-    private fun measureNearestNpcDistance(location: Location, npcLocation: NPCLocation): Float {
+    private fun measureNearestNpcDistance(location: Location, npcLocation: QuestInfo): Float {
         val targetLocation = Location("target").apply {
             latitude = npcLocation.latitude
             longitude = npcLocation.longitude
@@ -107,8 +107,8 @@ class ARLocationManager(
     // 가장 가까운 노드를 찾기
     private fun findNearestNPC(
         currentLocation: Location,
-        npcLocations: Map<Long, NPCLocation>
-    ): NPCLocation? {
+        npcLocations: Map<Long, QuestInfo>
+    ): QuestInfo? {
         return npcLocations.values
             .filter { !it.isPlace }
             .minByOrNull { location ->

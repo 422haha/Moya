@@ -5,8 +5,11 @@ import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
-import com.ssafy.ar.data.QuestData
-import com.ssafy.ar.dummy.scriptNode
+import com.ssafy.ar.data.NPCInfo
+import com.ssafy.ar.data.QuestInfo
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.dummy.models
+import com.ssafy.ar.dummy.npcs
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
@@ -17,7 +20,6 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
@@ -31,22 +33,22 @@ class ARNodeManager {
     suspend fun placeNode(
         plane: Plane,
         pose: Pose,
-        anchorId: Long,
+        questInfo: QuestInfo,
         childNodes: SnapshotStateList<Node>,
         engine: Engine,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader,
         onSuccess: () -> Unit,
     ) = mutex.withLock {
-        if(childNodes.any { it.name == anchorId.toString() }) return@withLock
+        if(childNodes.any { it.name == questInfo.id.toString() }) return@withLock
 
         val anchorNode = createAnchorNode(
-            scriptNode[0],
+            questInfo,
             plane.createAnchor(pose),
             engine,
             modelLoader,
             materialLoader
-        ).apply { name = anchorId.toString() }
+        ).apply { name = questInfo.id.toString() }
 
         childNodes.add(anchorNode)
 
@@ -64,22 +66,20 @@ class ARNodeManager {
 
     // 앵커노드 생성
     private suspend fun createAnchorNode(
-        node: QuestData,
+        questInfo: QuestInfo,
         anchor: Anchor,
         engine: Engine,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
     ): AnchorNode = withContext(Dispatchers.Main) {
-        val idx = (1..4).random()
+        val questId = if(questInfo.isComplete != QuestState.WAIT) questInfo.npcId else 0
 
-        val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
-            isPositionEditable = false
-            isRotationEditable = false
-            isScaleEditable = false
-        }
+        val url = models[questId]?.modelUrl ?: "models/quest.glb"
+
+        val imageNode = createImageNode("picture/wait.png", materialLoader)
 
         val modelInstance = modelLoader.createInstancedModel(
-            node.model,
+            url,
             kMaxModelInstances
         ).first()
 
@@ -87,11 +87,15 @@ class ARNodeManager {
             modelInstance = modelInstance,
             scaleToUnits = 0.5f
         ).apply {
-            name = idx.toString()
+            name = questInfo.id.toString()
             rotation = Rotation(0f, 180f, 0f)
         }
 
-        val imageNode = createImageNode("picture/wait.png", materialLoader)
+        val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
+            isPositionEditable = false
+            isRotationEditable = false
+            isScaleEditable = false
+        }
 
         modelNode.addChildNode(imageNode)
 
@@ -104,7 +108,7 @@ class ARNodeManager {
     suspend fun updateAnchorNode(
         prevNode: Node,
         parentAnchor: AnchorNode,
-        questId: String,
+        questId: Long,
         questModel: String,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
@@ -119,7 +123,7 @@ class ARNodeManager {
                 modelInstance = modelInstance,
                 scaleToUnits = 0.5f
             ).apply {
-                name = questId
+                name = questId.toString()
                 position = prevNode.worldPosition
                 rotation = prevNode.worldRotation
             }

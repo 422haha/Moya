@@ -1,7 +1,6 @@
 package com.ssafy.ar
 
 import android.content.Context
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -10,11 +9,13 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
-import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.NPCInfo
+import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
-import com.ssafy.ar.data.QuestData
-import com.ssafy.ar.data.QuestStatus
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.dummy.models
 import com.ssafy.ar.dummy.npcs
+import com.ssafy.ar.dummy.quests
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.network.repository.ExplorationRepository
@@ -23,7 +24,6 @@ import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
-import io.github.sceneview.model.ModelInstance
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
@@ -43,18 +43,19 @@ class ARViewModel @Inject constructor(
 ) : ViewModel() {
 
     private lateinit var nodeManager: ARNodeManager
-    lateinit var locationManager: ARLocationManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
+    lateinit var locationManager: ARLocationManager
 
     init {
         viewModelScope.launch {
+            nodeManager = ARNodeManager()
+
             fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
             locationManager = ARLocationManager(context, fusedLocationClient)
-            nodeManager = ARNodeManager()
 
             locationManager.currentLocation.collectLatest { location ->
                 location?.let {
-                    val nearestNPCInfo = locationManager.operateNearestNPC(location, npcMarkers.value)
+                    val nearestNPCInfo = locationManager.operateNearestNPC(location, questInfos.value)
 
                     updateNearestNPC(nearestNPCInfo)
 
@@ -66,125 +67,97 @@ class ARViewModel @Inject constructor(
 
     private val placingNodes = Collections.synchronizedSet(mutableSetOf<Long>())
 
-    // 모든 NPC 정보
-    private val _npcMarkers = MutableStateFlow<Map<Long, NPCLocation>>(emptyMap())
-    val npcMarkers = _npcMarkers.asStateFlow()
+    // 모든 퀘스트 정보
+    private val _questInfos = MutableStateFlow<Map<Long, QuestInfo>>(emptyMap())
+    val questInfos = _questInfos.asStateFlow()
 
-    // 현재 배치된 퀘스트
-    private val _questNodes = MutableStateFlow<Map<Long, QuestStatus>>(emptyMap())
-    val questNodes = _questNodes.asStateFlow()
+    // 모든 NPC 스크립트 정보
+    private val _npcInfos = MutableStateFlow<Map<Long, NPCInfo>>(emptyMap())
+    val npcInfos = _npcInfos.asStateFlow()
 
     // 가장 가까운 노드
-    private val _nearestNPCInfo = MutableStateFlow(NearestNPCInfo())
-    val nearestNPCInfo = _nearestNPCInfo.asStateFlow()
+    private val _nearestQuestInfo = MutableStateFlow(NearestNPCInfo())
+    val nearestQuestInfo = _nearestQuestInfo.asStateFlow()
 
     // Dialog
     private val _showDialog = MutableStateFlow(false)
     val showDialog = _showDialog.asStateFlow()
 
     // Dialog Data
-    private val _dialogData = MutableStateFlow<Pair<Int, QuestStatus>>(Pair(0, QuestStatus.WAIT))
-    val dialogData: StateFlow<Pair<Int, QuestStatus>> = _dialogData
+    private val _dialogData = MutableStateFlow<Pair<Long, QuestState>>(Pair(0, QuestState.WAIT))
+    val dialogData: StateFlow<Pair<Long, QuestState>> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
-    fun getQuest(id: Long): QuestStatus? {
-        return _questNodes.value[id]
+    fun getQuestState(id: Long): Boolean? {
+        return _questInfos.value[id]?.isPlace
     }
 
-    private fun addQuest(id: Long, state: QuestStatus) {
-        val updatedMap = _questNodes.value.toMutableMap().apply {
-            put(id, state)
-        }
-        _questNodes.value = updatedMap
-    }
+    fun getAllNPCs() {
+        _npcInfos.value = npcs
 
-    fun updateQuest(id: Long, newState: QuestStatus) {
         viewModelScope.launch {
-            val updatedMap = _questNodes.value.toMutableMap().apply {
-                this[id] = newState
-            }
-            _questNodes.value = updatedMap
+            // TODO. 퀘스트 정보 불러오기
         }
     }
 
-    fun removeQuest(id: Long) {
-        viewModelScope.launch {
-            val updatedMap = _questNodes.value.toMutableMap().apply {
-                remove(id)
-            }
-            _questNodes.value = updatedMap
+    fun getAllQuests() {
+        _questInfos.value = quests
+        
+        viewModelScope.launch { 
+            // TODO. 퀘스트 정보 불러오기
         }
     }
 
-    fun getNpcMarker(id: Long): Boolean {
-        return _npcMarkers.value[id]?.isPlace ?: false
-    }
-
-    fun getAllNpcMarker() {
-        _npcMarkers.value = npcs
-    }
-
-    private fun updateNpcMarker(id: Long) {
-        _npcMarkers.update { currentMap ->
+    fun updateQuestState(id: Long, state: QuestState) {
+        _questInfos.update { currentMap ->
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->
-                    this[id] = npcLocation.copy(isPlace = true)
+                    this[id] = npcLocation.copy(isComplete = state)
                 }
             }
         }
     }
 
-    private fun removeNpcMarker(id: Long) {
-        viewModelScope.launch {
-            val updatedMap = _npcMarkers.value.toMutableMap().apply {
-                remove(id)
-            }
-            _npcMarkers.value = updatedMap
-        }
-    }
-
-    private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
-        _nearestNPCInfo.value = nearestNPCInfo
+    fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
+        _nearestQuestInfo.value = nearestNPCInfo
     }
 
     fun addAnchorNode(plane:
                       Plane,
                       pose: Pose,
-                      npcId: Long,
+                      questInfo: QuestInfo,
                       childNodes: SnapshotStateList<Node>,
                       engine: Engine,
                       modelLoader: ModelLoader,
                       materialLoader: MaterialLoader) {
-        if (getNpcMarker(npcId) || !placingNodes.add(npcId)) return
+        if (getQuestState(questInfo.npcId) == true || !placingNodes.add(questInfo.npcId)) return
 
         viewModelScope.launch {
             nodeManager.placeNode(
                 plane = plane,
                 pose = pose,
-                anchorId = npcId,
+                questInfo = questInfo,
                 childNodes = childNodes,
                 engine = engine,
                 modelLoader = modelLoader,
                 materialLoader = materialLoader,
                 onSuccess = {
-                    addQuest(npcId, QuestStatus.WAIT)
-
-                    updateNpcMarker(npcId)
+                    updateQuestState(questInfo.npcId, QuestState.WAIT)
 
                     locationManager.currentLocation.value?.let {
-                        val nearestNPCInfo = locationManager.operateNearestNPC(it, npcMarkers.value)
+                        val nearestNPCInfo = locationManager.operateNearestNPC(it, questInfos.value)
 
                         updateNearestNPC(nearestNPCInfo)
                     }
                 }
             )
 
-            placingNodes.remove(npcId)
+            placingNodes.remove(questInfo.npcId)
         }
     }
 
     fun updateAnchorNode(node: Node,
-                         quest: QuestData,
+                         quest: QuestInfo,
                          parentAnchorNode: AnchorNode,
                          modelLoader: ModelLoader,
                          materialLoader: MaterialLoader) {
@@ -193,7 +166,7 @@ class ARViewModel @Inject constructor(
                 prevNode = node,
                 parentAnchor = parentAnchorNode,
                 questId = quest.id,
-                questModel = quest.model,
+                questModel = models[quest.npcId]?.modelUrl ?: "models/quest.glb",
                 modelLoader = modelLoader,
                 materialLoader = materialLoader
             )
@@ -213,7 +186,7 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun showQuestDialog(index: Int, state: QuestStatus, callback: (Boolean) -> Unit) {
+    fun showQuestDialog(index: Long, state: QuestState, callback: (Boolean) -> Unit) {
         _dialogData.value = Pair(index, state)
         _showDialog.value = true
         dialogCallback = callback
@@ -221,14 +194,14 @@ class ARViewModel @Inject constructor(
 
     fun onDialogConfirm() {
         _showDialog.value = false
-        _dialogData.value = Pair(0, QuestStatus.WAIT)
+        _dialogData.value = Pair(0, QuestState.WAIT)
         dialogCallback?.invoke(true)
         dialogCallback = null
     }
 
     fun onDialogDismiss() {
         _showDialog.value = false
-        _dialogData.value = Pair(0, QuestStatus.WAIT)
+        _dialogData.value = Pair(0, QuestState.WAIT)
         dialogCallback?.invoke(false)
         dialogCallback = null
     }
