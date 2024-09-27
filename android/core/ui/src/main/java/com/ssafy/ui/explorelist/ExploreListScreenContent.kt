@@ -49,7 +49,6 @@ fun ExploreListScreenContent(
             ) {
                 TopBar(
                     text = "나의 모험",
-                    SecondaryColor,
                     onPop = { onIntent(ExploreListUserIntent.OnPop) })
                 IconButton(
                     onClick = { /* TODO 검색 기능 */ },

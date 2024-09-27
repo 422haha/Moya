@@ -4,6 +4,7 @@ import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.park.ParkPos;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
@@ -78,4 +79,24 @@ public interface ParkRepositoryPark extends JpaRepository<Park, Long> {
         +
         "LIMIT 1", nativeQuery = true)
     Optional<ParkPos> findNearestEntrance(Long parkId, double latitude, double longitude);
+
+    /**
+     * 사용자 위치 근처의 공원 추출
+     *
+     * @param latitude  사용자 위도
+     * @param longitude 사용자 경도
+     * @param radius    탐색 반경
+     * @return 공원 정보
+     */
+    @Query(value = "SELECT p.id as id, p.name as name, p.image_url as imageUrl, " +
+        "ST_Distance(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) as distance "
+        +
+        "FROM park p " +
+        "WHERE ST_DWithin(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radius) "
+        +
+        "ORDER BY distance",
+        nativeQuery = true)
+    List<ParkDistanceProjection> findNearParks(@Param("latitude") double latitude,
+        @Param("longitude") double longitude,
+        @Param("radius") double radius);
 }

@@ -56,7 +56,6 @@ fun ExploreDetailScreenContent(
         topBar = {
             TopBar(
                 text = "동락공원",
-                SecondaryColor,
                 onPop = { onIntent(ExploreDetailUserIntent.OnPop) },
             )
         },
@@ -106,9 +105,9 @@ fun ExploreDetailScreenLoaded(
             contentScale = ContentScale.Crop,
         )
         ExploreInfo(state)
-        HorizontalEncyc(onItemClicked = { id ->
-            onIntent(ExploreDetailUserIntent.OnEncycItemClicked(id))
-        }, state)
+//        HorizontalEncyc(onItemClicked = { id ->
+//            onIntent(ExploreDetailUserIntent.OnEncycItemClicked(id))
+//        }, state)
     }
 }
 
@@ -206,31 +205,30 @@ fun TextBox(
     }
 }
 
-@Composable
-fun HorizontalEncyc(
-    onItemClicked: (Long) -> Unit,
-    state: ExploreDetailScreenState.Loaded,
-) {
-    LazyHorizontalGrid(
-        rows = GridCells.Fixed(1),
-        modifier =
-            Modifier
-                .padding(8.dp)
-                .background(SecondarySurfaceColor),
-    ) {
-        items(state.items) { item ->
-            EncycCard(
-                EncycCardState(
-                    id = item.id,
-                    name = item.name,
-                    imageUrl = item.imageUrl,
-                    isDiscovered = item.isDiscovered,
-                ),
-                onClick = { onItemClicked(item.id) },
-            )
-        }
-    }
-}
+//@Composable
+//fun HorizontalEncyc(
+//    onItemClicked: (Long) -> Unit,
+//    state: ExploreDetailScreenState.Loaded,
+//) {
+//    LazyHorizontalGrid(
+//        rows = GridCells.Fixed(1),
+//        modifier =
+//            Modifier
+//                .padding(8.dp)
+//                .background(SecondarySurfaceColor),
+//    ) {
+//        items(8) { index ->
+//            PlantCard(
+//                PlantInfo(
+//                    plantName = state.items[index].plantName,
+//                    plantImage = state.items[index].plantImage,
+//                    isDiscovered = state.items[index].isDiscovered,
+//                ),
+//                onClick = { onItemClicked(index.toLong()) },
+//            )
+//        }
+//    }
+//}
 
 @Preview(showBackground = true)
 @Composable
@@ -246,15 +244,14 @@ fun ExploreScreenPreview() {
                         registerCount = 8,
                         date = Date(),
                     ),
-                items =
-                    List(8) { index ->
-                        EncycCardState(
-                            id = index.toLong(),
-                            name = "식물 $index",
-                            imageUrl = null,
-                            isDiscovered = true,
-                        )
-                    },
+//                items =
+//                    List(8) { index ->
+//                        EncycGridState(
+//                            plantName = "식물 $index",
+//                            plantImage = null,
+//                            isDiscovered = true,
+//                        )
+//                    },
             ),
     )
 }

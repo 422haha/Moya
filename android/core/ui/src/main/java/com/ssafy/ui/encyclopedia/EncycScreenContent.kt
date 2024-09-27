@@ -24,6 +24,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.Immutable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -31,11 +32,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.ssafy.ui.component.EncycCard
-import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.LoadingScreen
+import com.ssafy.ui.component.PlantCard
 import com.ssafy.ui.component.TopBar
+import com.ssafy.ui.component.plantInfo
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.StarYellowColor
@@ -50,9 +51,6 @@ fun EncycScreenContent(
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
     Scaffold(
-        topBar = {
-            TopBar("도감", PrimaryColor, onPop = { onIntent(EncycUserIntent.OnPop) })
-        },
         content = { paddingValues ->
             when (encycScreenState) {
                 is EncycScreenState.Loading -> {
@@ -89,6 +87,7 @@ fun EncycScreenLoaded(
             modifier
                 .fillMaxSize(),
     ) {
+        CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = state.selectedChipIndex,
             onChipSelected = { index ->
@@ -100,7 +99,6 @@ fun EncycScreenLoaded(
             modifier = Modifier.weight(1f),
             onItemClicked = { onIntent(EncycUserIntent.OnItemSelect(it)) },
         )
-        CollectionProgress(progress = state.progress)
     }
 }
 
@@ -124,13 +122,13 @@ fun FilterChipComponent(
         shape = RoundedCornerShape(16.dp),
         colors =
             FilterChipDefaults.filterChipColors(
-                containerColor = if (isSelected) PrimaryColor else SurfaceColor,
+                containerColor = if (isSelected) PrimaryColor else LightBackgroundColor,
                 selectedContainerColor = PrimaryColor,
-                labelColor = if (isSelected) LightBackgroundColor else PrimaryColor,
+                labelColor = if (isSelected) LightBackgroundColor else Color.Black,
             ),
         border =
             if (!isSelected) {
-                BorderStroke(1.dp, PrimaryColor)
+                BorderStroke(1.dp, Color.Black)
             } else {
                 null
             },
@@ -147,7 +145,7 @@ fun FilterChips(
         modifier =
             Modifier
                 .fillMaxWidth()
-                .padding(horizontal = 16.dp)
+                .padding(horizontal = 8.dp)
                 .padding(top = 8.dp),
     ) {
         chipLabels.forEachIndexed { index, label ->
@@ -174,8 +172,7 @@ fun EncycGrid(
         modifier =
             modifier
                 .fillMaxHeight()
-                .heightIn(min = 200.dp)
-                .padding(horizontal = 8.dp),
+                .heightIn(min = 200.dp),
     ) {
         itemsIndexed(items) { index, item ->
             EncycCard(
@@ -185,54 +182,80 @@ fun EncycGrid(
                     imageUrl = item.imageUrl,
                     isDiscovered = item.isDiscovered,
                 ),
-                onClick = { onItemClicked(index.toLong()) },
+                onClick = { onItemClicked(index.toLong()) }
             )
         }
     }
 }
 
 @Composable
-fun CollectionProgress(progress: Float) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
-        modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(40.dp)
-                .background(PrimaryColor),
-    ) {
-        Text(
-            text = "수집률",
-            fontSize = 16.sp,
-            color = LightBackgroundColor,
-            modifier = Modifier.padding(start = 8.dp),
-        )
-
-        Row(
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.Center,
+fun CollectionProgress(
+    progress: Float,
+    onIntent: (EncycUserIntent) -> Unit = {},
+) {
+    Surface(shadowElevation = 8.dp) {
+        Column(
+            horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 8.dp),
+                    .background(LightBackgroundColor),
         ) {
+            Row(
+                modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Text(
+                    text = "도감",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    style = customTypography.titleMedium,
+                    modifier =
+                        Modifier
+                            .padding(start = 8.dp),
+                )
+                Icon(
+                    imageVector = Icons.Default.Clear,
+                    contentDescription = "onPop",
+                    modifier =
+                        Modifier
+                            .padding(horizontal = 8.dp)
+                            .clickable { onIntent(EncycUserIntent.OnPop) },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.End,
+                modifier =
+                    Modifier
+                        .padding(horizontal = 8.dp)
+                        .padding(bottom = 4.dp)
+                        .fillMaxWidth(),
+            ) {
+                Text(text = "수집률")
+                Spacer(modifier = Modifier.padding(4.dp))
+                Text(
+                    text = "$progress%",
+                    color = Color.Gray,
+                )
+            }
+
             LinearProgressIndicator(
                 progress = { progress / 100 },
                 modifier =
                     Modifier
-                        .fillMaxWidth(0.8f)
+                        .fillMaxWidth()
                         .height(8.dp)
+                        .padding(horizontal = 8.dp)
                         .clip(RoundedCornerShape(4.dp)),
-                color = StarYellowColor,
+                color = PrimaryColor,
+                trackColor = GrayColor,
             )
-
-            Spacer(modifier = Modifier.width(8.dp))
-
-            Text(
-                text = "$progress%",
-                fontWeight = FontWeight.Bold,
-                color = LightBackgroundColor,
-            )
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }

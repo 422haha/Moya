@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.util;
+package com.e22e.moya.common.util;
 
 public interface ChatAssistant {
 
