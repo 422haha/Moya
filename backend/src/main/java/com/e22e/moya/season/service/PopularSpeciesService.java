@@ -12,4 +12,6 @@ public interface PopularSpeciesService {
     List<ParkDistanceDto> getParksBySpecies(Long speciesId, double latitude, double longitude);
 
     void incrementSpeciesPopularity(Long speciesId);
+
+    void decreaseSpeciesPopularity();
 }
