@@ -96,6 +96,7 @@ public class ExplorationController {
         }
     }
 
+    // 탐험중 정보 로드
     @GetMapping("{parkId}/load/{explorationId}")
     public ResponseEntity<Map<String, Object>> loadExploration(
         //        @RequestHeader("Authorization") String token,
@@ -215,17 +216,43 @@ public class ExplorationController {
             return ResponseEntity.ok().body(response);
 
         } catch (EntityNotFoundException e) {
-            log.error("도전과제 목록을 찾을 수 없음 : {}", e.getMessage());
+            log.error("도전과제 목록을 찾을 수 없음 :", e);
             response.put("message", e.getMessage());
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
-            log.error("도전과제 목록 조회 실패 : {}", e.getMessage());
+            log.error("도전과제 목록 조회 실패", e);
             response.put("message", "도전과제 목록 조회에 실패했습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    // 도전과제 상태 변경
+    @GetMapping("/quest/{questId}/start")
+    public ResponseEntity<Map<String, Object>> changeStatus(
+        @PathVariable Long questId) {
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+            questService.changeStatus(questId);
+
+            response.put("message", "도전과제 상태 변경 완료");
+            response.put("data", new Object[]{});
+            return ResponseEntity.ok().body(response);
+        } catch (EntityNotFoundException e) {
+            log.error("도전과제 찾을 수 없음 :", e);
+            response.put("message", e.getMessage());
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+        } catch (Exception e) {
+            log.error("도전과제 조회 실패", e);
+            response.put("message", "도전과제 목록 조회에 실패했습니다.");
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 
     // 도전과제 성공 처리
     @PostMapping("/{explorationId}/quest/{questId}/complete")
@@ -244,20 +271,21 @@ public class ExplorationController {
             return ResponseEntity.ok().body(response);
 
         } catch (EntityNotFoundException e) {
-            log.error("도전과제를 찾을 수 없음 : {}", e.getMessage());
+            log.error("도전과제를 찾을 수 없음", e);
             response.put("message", "퀘스트를 찾을 수 없습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalStateException e) {
-            log.error("도전과제 이미 완료됨 : {}", e.getMessage());
+            log.error("도전과제 이미 완료됨", e);
             response.put("message", "도전과제가 이미 완료되었습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
         } catch (Exception e) {
-            log.error("도전과제 완료 처리 실패 : {}", e.getMessage());
+            log.error("도전과제 완료 처리 실패", e);
             response.put("message", "도전과제 완료 처리에 실패했습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
 }
