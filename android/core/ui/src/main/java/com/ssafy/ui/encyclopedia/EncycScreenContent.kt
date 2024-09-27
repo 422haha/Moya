@@ -29,6 +29,10 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.Immutable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -54,6 +58,7 @@ fun EncycScreenContent(
     encycScreenState: EncycScreenState,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
+    var selectedChipIndex by remember { mutableIntStateOf(0) }
     Scaffold(
         content = { paddingValues ->
             when (encycScreenState) {
@@ -65,6 +70,7 @@ fun EncycScreenContent(
                     EncycScreenLoaded(
                         modifier = modifier.padding(paddingValues),
                         state = encycScreenState,
+                        selectedChipIndex = selectedChipIndex,
                         onIntent = onIntent,
                     )
                 }
@@ -84,6 +90,7 @@ fun EncycScreenContent(
 fun EncycScreenLoaded(
     modifier: Modifier,
     state: EncycScreenState.Loaded,
+    selectedChipIndex: Int,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
     Column(
@@ -91,9 +98,9 @@ fun EncycScreenLoaded(
             modifier
                 .fillMaxSize(),
     ) {
-        CollectionProgress(progress = state.progress, onIntent = onIntent)
+        CollectionProgress(progress = state.progress.toFloat(), onIntent = onIntent)
         FilterChips(
-            selectedChipIndex = state.selectedChipIndex,
+            selectedChipIndex = selectedChipIndex,
             onChipSelected = { index ->
                 onIntent(EncycUserIntent.OnChipSelected(index))
             },
@@ -276,7 +283,6 @@ fun EncycScreenPreview() {
     EncycScreenContent(
         encycScreenState =
             EncycScreenState.Loaded(
-                selectedChipIndex = 0,
                 items =
                     List(8) { index ->
                         EncycGridState(
@@ -285,7 +291,6 @@ fun EncycScreenPreview() {
                             isDiscovered = index % 2 == 0,
                         )
                     },
-                progress = 60.0f,
             ),
     )
 }
