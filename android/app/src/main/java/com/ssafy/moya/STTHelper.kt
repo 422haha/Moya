@@ -11,9 +11,9 @@ import javax.inject.Singleton
 @Singleton
 class STTHelper
     @Inject
-    constructor(
-        private var sttLauncher: ActivityResultLauncher<Intent>,
-    ) {
+    constructor() {
+        private lateinit var sttLauncher: ActivityResultLauncher<Intent>
+
         fun setLauncher(launcher: ActivityResultLauncher<Intent>) {
             this.sttLauncher = launcher
         }

@@ -16,6 +16,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
+import com.ssafy.ui.component.EncycCardState
 import androidx.compose.ui.unit.dp
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
@@ -24,7 +25,6 @@ import com.ssafy.ui.encycdetail.DescriptionSection
 import com.ssafy.ui.encycdetail.ImageSection
 import com.ssafy.ui.encycdetail.TitleAndDividerSection
 import com.ssafy.ui.encyclopedia.EncycGrid
-import com.ssafy.ui.encyclopedia.EncycGridState
 import com.ssafy.ui.theme.customTypography
 import me.onebone.toolbar.CollapsingToolbar
 import me.onebone.toolbar.CollapsingToolbarScaffold
@@ -146,19 +146,18 @@ fun ParkDetailScreenLoaded(
 @Composable
 fun ParkDetailScreenPreview() {
     ParkDetailScreenContent(
-        parkDetailScreenState =
-            ParkDetailScreenState.Loaded(
-                parkName = "동락공원",
-                description = "동락공원이예요",
-                items =
-                    List(20) { index ->
-                        EncycGridState(
-                            plantName = "식물 $index",
-                            plantImage = null,
-                            isDiscovered = index % 2 == 0,
-                        )
-                    },
-            ),
-        onIntent = {},
+        parkDetailScreenState = ParkDetailScreenState.Loaded(
+            parkName = "동락공원",
+            description = "동락공원이예요",
+            items = List(20) { index ->
+                EncycCardState(
+                    id = index.toLong(),
+                    name = "식물 $index",
+                    imageUrl = null,
+                    isDiscovered = index % 2 == 0
+                )
+            }
+        ),
+        onIntent = {}
     )
 }

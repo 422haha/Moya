@@ -1,7 +1,7 @@
 package com.ssafy.ui.parkdetail
 
 import androidx.compose.runtime.Immutable
-import com.ssafy.ui.encyclopedia.EncycGridState
+import com.ssafy.ui.component.EncycCardState
 
 sealed interface ParkDetailScreenState {
     @Immutable
@@ -12,9 +12,11 @@ sealed interface ParkDetailScreenState {
         val parkName: String,
         val description: String,
         val parkImage: String? = null,
-        val items: List<EncycGridState> = listOf()
+        val items: List<EncycCardState> = listOf(),
     ) : ParkDetailScreenState
 
     @Immutable
-    data class Error(val message: String) : ParkDetailScreenState
+    data class Error(
+        val message: String,
+    ) : ParkDetailScreenState
 }

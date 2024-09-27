@@ -4,7 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ParkRepository
-import com.ssafy.ui.encyclopedia.EncycGridState
+import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.parkdetail.ParkDetailScreenState
 import com.ssafy.ui.parkdetail.ParkDetailUserIntent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -32,9 +32,10 @@ class ParkDetailViewModel @Inject constructor(
                                 description = body.description,
                                 parkImage = body.imageUrl,
                                 items = body.species.map {
-                                    EncycGridState(
-                                        plantName = it.speciesName,
-                                        plantImage = it.imageUrl,
+                                    EncycCardState(
+                                        id = it.speciesId,
+                                        name = it.speciesName,
+                                        imageUrl = it.imageUrl,
                                         isDiscovered = true
                                     )
                                 }
