@@ -131,7 +131,7 @@ fun ARSceneComposable(
                     }
                 config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
                 config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-                config.lightEstimationMode = Config.LightEstimationMode.DISABLED
+                config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
                 config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
                 config.focusMode = Config.FocusMode.AUTO
 //                config.geospatialMode = Config.GeospatialMode.ENABLED
