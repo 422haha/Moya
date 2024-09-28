@@ -260,9 +260,9 @@ fun ARSceneComposable(
         Column {
             CustomCard(
                 imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)?.getImageResource() ?: 0,
-                title = "가까운 미션: ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
+                title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                 state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
-                distanceText = "거리: ${
+                distanceText = "${
                     nearestQuestInfo.distance?.let { if(it > 10.0f) "%.2f m".format(it) else "수행 가능" } ?: "검색중.."
                 } ")
 

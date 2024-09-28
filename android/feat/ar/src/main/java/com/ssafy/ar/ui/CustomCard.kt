@@ -71,6 +71,14 @@ fun CustomCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
+                    text = distanceText,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = Color.Gray,
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
                     text = state.type,
                     style = MaterialTheme.typography.bodyMedium,
                     color = when(state) {
@@ -78,14 +86,6 @@ fun CustomCard(
                         QuestState.PROGRESS -> Color.Red
                         QuestState.COMPLETE -> Color(0xFF2DB400)
                     },
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
-                )
-                Spacer(modifier = Modifier.height(4.dp))
-                Text(
-                    text = distanceText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = Color.Gray,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
