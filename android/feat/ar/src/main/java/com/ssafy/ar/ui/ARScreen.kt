@@ -93,7 +93,6 @@ fun ARSceneComposable(
     val questInfos by viewModel.questInfos.collectAsState()
     val scriptInfos by viewModel.scriptInfos.collectAsState()
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
-    val currentLocation by viewModel.locationManager.currentLocation.collectAsState()
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
