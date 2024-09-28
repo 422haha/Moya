@@ -1,4 +1,4 @@
-package com.ssafy.ar
+package com.ssafy.ar.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
@@ -33,7 +33,6 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.ScriptInfo
-import com.ssafy.ar.dummy.scripts
 
 @Composable
 fun QuestDialog(

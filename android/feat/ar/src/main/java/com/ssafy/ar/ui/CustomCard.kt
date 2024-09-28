@@ -1,4 +1,4 @@
-package com.ssafy.ar
+package com.ssafy.ar.ui
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -24,7 +24,6 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import com.google.ar.core.dependencies.h
 
 @Composable
 fun CustomCard(

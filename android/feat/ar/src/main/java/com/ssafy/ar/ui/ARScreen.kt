@@ -1,13 +1,11 @@
-package com.ssafy.ar
+package com.ssafy.ar.ui
 
 import android.Manifest
-import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
@@ -15,7 +13,6 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -25,20 +22,19 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
+import com.ssafy.ar.ARViewModel
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.QuestType
 import com.ssafy.ar.data.TrackingMessage
@@ -190,7 +186,7 @@ fun ARSceneComposable(
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-                    if (node is ModelNode || node is ImageNode) {
+                    if (node is ModelNode || node?.parent is ModelNode) {
                         val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
 
                         val anchorNode = modelNode?.parent as? AnchorNode
@@ -275,19 +271,6 @@ fun ARSceneComposable(
                 isAvailable = nearestQuestInfo.shouldPlace,
                 isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
             )
-
-            Text(
-                text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
-                color = Color.White
-            )
-            Text(
-                text = "경도: ${currentLocation?.longitude ?: "모니터링중..."} ",
-                color = Color.White
-            )
-            Text(
-                text = "정확도: ${currentLocation?.accuracy ?: "모니터링중..."} ",
-                color = Color.Red
-            )
         }
 
         SnackbarHost(
@@ -334,34 +317,5 @@ private fun findPlaneInView(
         val pose = hit.hitPose
         Pair(plane, pose)
     }
-}
-
-@Composable
-fun ArStatusText(
-    trackingFailureReason: TrackingFailureReason?,
-    isAvailable: Boolean,
-    isPlace: Boolean?
-) {
-    Text(
-        modifier = Modifier
-            .systemBarsPadding()
-            .fillMaxWidth()
-            .padding(top = 16.dp, start = 32.dp, end = 32.dp),
-        textAlign = TextAlign.Center,
-        fontSize = 20.sp,
-        color = Color.White,
-        style = MaterialTheme.typography.titleMedium,
-        text = when {
-            trackingFailureReason != TrackingFailureReason.NONE && trackingFailureReason != null ->
-                TrackingMessage.fromTrackingFailureReason(trackingFailureReason).message
-
-            else -> {
-                if (isAvailable && isPlace != null && !isPlace)
-                    TrackingMessage.SEARCH_AROUND.message
-                else
-                    TrackingMessage.EMPTY.message
-            }
-        }
-    )
 }
 
