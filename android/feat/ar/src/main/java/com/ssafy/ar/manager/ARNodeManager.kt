@@ -61,7 +61,7 @@ class ARNodeManager {
             materialLoader = materialLoader,
             imageFileLocation = state.getImageUrl(),
             size = Size(0.35f, 0.35f),
-            center = Position(0f, 0.67f, 0f)
+            center = Position(0f, 0.8f, 0f)
         )
     }
 
