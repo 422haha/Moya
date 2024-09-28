@@ -91,6 +91,8 @@ class ARNodeManager {
             scaleToUnits = 0.5f
         ).apply {
             name = id.toString()
+            isShadowCaster = false
+            isShadowReceiver = false
             rotation = Rotation(0f, 180f, 0f)
         }
 
