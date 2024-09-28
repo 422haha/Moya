@@ -70,13 +70,15 @@ val quests: Map<Long, QuestInfo> = mapOf(
     3L to QuestInfo(3L, 4L, 3, latitude =36.1071543,longitude = 128.4165288, questType = 3, speciesId = ""),
     4L to QuestInfo(4L, 5L, 4,latitude = 36.1017196, longitude =128.419904, questType = 0, speciesId = ""),
     5L to QuestInfo(
-        5L,
-        6L,
-        5,
+        id = 5L,
+        npcId = 6L,
+        npcPosId = 5,
+        questType = 2,
         latitude = 36.101726,
         longitude = 128.4199104,
+        speciesId = "",
+        speciesName = "",
         isComplete = QuestState.PROGRESS,
-        questType = 2,
-        speciesId = ""
+        isPlace = false,
     ),
 )
