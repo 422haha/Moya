@@ -18,18 +18,21 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.ssafy.ar.data.QuestState
 
 @Composable
 fun CustomCard(
     imageUrl: Int,
     title: String,
-    subtitle: String,
+    state: QuestState,
+    distanceText: String,
     modifier: Modifier = Modifier
 ) {
     Card(
@@ -41,7 +44,8 @@ fun CustomCard(
         Row(
             modifier = Modifier
                 .padding(20.dp)
-                .height(IntrinsicSize.Min)
+                .height(IntrinsicSize.Min),
+            verticalAlignment = Alignment.CenterVertically
         ) {
             Image(
                 painter = painterResource(id = imageUrl),
@@ -67,7 +71,19 @@ fun CustomCard(
                 )
                 Spacer(modifier = Modifier.height(4.dp))
                 Text(
-                    text = subtitle,
+                    text = state.type,
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = when(state) {
+                        QuestState.WAIT -> Color.Blue
+                        QuestState.PROGRESS -> Color.Red
+                        QuestState.COMPLETE -> Color(0xFF2DB400)
+                    },
+                    maxLines = 2,
+                    overflow = TextOverflow.Ellipsis
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Text(
+                    text = distanceText,
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color.Gray,
                     maxLines = 2,

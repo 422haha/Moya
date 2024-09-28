@@ -20,8 +20,10 @@ fun QuestType.getImageResource(): Int {
     }
 }
 
-enum class QuestState {
-    WAIT, PROGRESS, COMPLETE
+enum class QuestState(val type: String) {
+    WAIT("시작 가능"), 
+    PROGRESS("진행중"), 
+    COMPLETE("완료")
 }
 
 fun QuestState.getImageUrl(): String {
