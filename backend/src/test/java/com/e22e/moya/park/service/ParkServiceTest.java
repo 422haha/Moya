@@ -1,4 +1,4 @@
-package com.e22e.moya.park;
+package com.e22e.moya.park.service;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -7,7 +7,6 @@ import com.e22e.moya.park.dto.ParkListResponseDto;
 import com.e22e.moya.park.dto.ParkResponseDto;
 import com.e22e.moya.park.repository.ParkDistanceProjection;
 import com.e22e.moya.park.repository.ParkRepositoryPark;
-import com.e22e.moya.park.service.ParkServiceImpl;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;

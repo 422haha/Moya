@@ -45,6 +45,7 @@ playServicesLocation = "21.3.0"
 #toolbar
 toolbar-compose = "2.3.5"
 playServicesMaps = "19.0.0"
+pagingCommonAndroid = "3.3.2"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -101,6 +102,7 @@ naver-map-compose = { group = "io.github.fornewid", name = "naver-map-compose", 
 #toolbar
 toolbar-compose = { group = "me.onebone", name = "toolbar-compose", version.ref = "toolbar-compose" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
+androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]

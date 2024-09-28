@@ -1,5 +1,9 @@
 package com.e22e.moya.exploration.service.quest;
 
+import static com.e22e.moya.common.entity.quest.QuestStatus.COMPLETE;
+import static com.e22e.moya.common.entity.quest.QuestStatus.PROGRESS;
+import static com.e22e.moya.common.entity.quest.QuestStatus.WAIT;
+
 import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
@@ -40,7 +44,8 @@ public class QuestServiceImpl implements QuestService {
     private final Random random = new Random();
 
     public QuestServiceImpl(QuestRepositoryExploration questRepository,
-        QuestCompletedRepositoryExploration questCompletedRepository, ParkRepositoryExploration parkRepository,
+        QuestCompletedRepositoryExploration questCompletedRepository,
+        ParkRepositoryExploration parkRepository,
         SpeciesRepositoryExploration speciesRepository) {
         this.questRepository = questRepository;
         this.questCompletedRepository = questCompletedRepository;
@@ -96,7 +101,7 @@ public class QuestServiceImpl implements QuestService {
                 questCompleted.setExploration(exploration);
                 questCompleted.setSpeciesId(randomSpecies.getId());
                 questCompleted.setNpcPos(randomNpcPos);
-                questCompleted.setCompleted(false);
+                questCompleted.setStatus(WAIT);
                 questCompletedRepository.save(questCompleted);
 
                 log.info("퀘스트 생성: 퀘스트 타입: {}, 동식물 이름: {}, NPC 위치: {}",
@@ -117,8 +122,8 @@ public class QuestServiceImpl implements QuestService {
     @Transactional(readOnly = true)
     public QuestListResponseDto getQuestList(long userId, Long explorationId) {
 
-        List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationUserIdAndExplorationId(
-            userId, explorationId);
+        List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationId(
+            explorationId);
 
         if (explorationQuestList.isEmpty()) {
             throw new EntityNotFoundException("도전과제를 찾을 수 없습니다.");
@@ -133,7 +138,7 @@ public class QuestServiceImpl implements QuestService {
             // npc 정보 조회
             NpcPos npcPos = questList.getNpcPos();
             questDTO.setNpcId(npcPos.getParkNpc().getNpc().getId());
-            questDTO.setNpcName(npcPos.getParkNpc().getNpc().getName());
+            questDTO.setNpcPosId(npcPos.getId());
 
             // npc 위치 정보 조회
             Point<G2D> point = npcPos.getPos();
@@ -148,7 +153,7 @@ public class QuestServiceImpl implements QuestService {
                 .orElseThrow(() -> new EntityNotFoundException("동식물을 찾을 수 없습니다."));
             questDTO.setSpeciesName(species.getName());
 
-            questDTO.setCompleted(questList.isCompleted());
+            questDTO.setCompleted(questList.getStatus().name());
 
             questDTOList.add(questDTO);
         }
@@ -168,11 +173,7 @@ public class QuestServiceImpl implements QuestService {
         QuestCompleted questCompleted = questCompletedRepository.findById(questId)
             .orElseThrow(() -> new EntityNotFoundException("도전과제를 찾을 수 없음"));
 
-        if (questCompleted.isCompleted()) {
-            throw new IllegalStateException("도전과제가 이미 완료됨");
-        }
-
-        questCompleted.setCompleted(true);
+        questCompleted.setStatus(COMPLETE);
         questCompleted.setCompletedAt(LocalDateTime.now());
 
         questCompletedRepository.save(questCompleted);
@@ -180,10 +181,24 @@ public class QuestServiceImpl implements QuestService {
         log.info("도전과제 완료: {}", questId);
 
         int nOfCompletedQuests = questCompletedRepository.countCompletedQuestsByExplorationId(
-            explorationId);
+            explorationId, COMPLETE);
 
         return new QuestCompleteResponseDto(questCompleted.getCompletedAt(), nOfCompletedQuests);
 
+    }
+
+    /**
+     * 탐험 진행 처리
+     *
+     * @param questId 퀘스트 id
+     */
+    @Override
+    public void changeStatus(Long questId) {
+        QuestCompleted quest = questCompletedRepository.findById(questId)
+            .orElseThrow(() -> new EntityNotFoundException("도전과제를 찾을 수 없음"));
+        quest.setStatus(PROGRESS);
+        questCompletedRepository.save(quest);
+        log.info("탐험 진행중으로 상태변경 완료: {}", questId);
     }
 
 }

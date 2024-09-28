@@ -7,6 +7,7 @@ import com.e22e.moya.diary.repository.DiaryDiscoveryRepositoryDiary;
 import com.e22e.moya.diary.repository.DiaryExplorationRepositoryDiary;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
+import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
@@ -61,8 +62,6 @@ public class DiaryServiceImpl implements DiaryService {
      * @param size   페이지 크기
      * @return 탐험 리스트
      */
-    @Override
-    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryListResponseDto getExplorations(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
 
@@ -75,8 +74,28 @@ public class DiaryServiceImpl implements DiaryService {
                 DiaryExplorationDto dto = new DiaryExplorationDto();
                 dto.setExplorationId(exploration.getId());
                 dto.setParkName(exploration.getPark().getName());
-                dto.setExplorationDate(exploration.getStartDate());
+                dto.setStartTime(exploration.getStartTime());
+                dto.setDistance(exploration.getDistance());
+
+                // 공원의 이미지 URL 설정
                 dto.setImageUrl(exploration.getPark().getImageUrl());
+
+                // 수집된 동식물 수
+                List<Discovery> discoveries = discoveryRepository.findByExplorationId(exploration.getId());
+                dto.setCollectedCount(discoveries.size());
+
+                // 소요 시간 계산
+                if (exploration.getEndTime() != null && exploration.getStartTime() != null) {
+                    long duration = Duration.between(exploration.getStartTime(), exploration.getEndTime()).toMinutes();
+                    dto.setDuration((int) duration);
+                } else {
+                    dto.setDuration(0);
+                }
+
+                // 퀘스트 완료 수
+                int questCompletedCount = exploration.getQuestCompleted().size();
+                dto.setQuestCompletedCount(questCompletedCount);
+
                 return dto;
             })
             .collect(Collectors.toList());

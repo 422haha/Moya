@@ -5,7 +5,8 @@ import com.e22e.moya.park.dto.ParkListResponseDto;
 import com.e22e.moya.park.dto.ParkResponseDto;
 import com.e22e.moya.park.service.ParkService;
 import com.e22e.moya.common.util.JwtUtil;
-import lombok.RequiredArgsConstructor;
+import com.e22e.moya.park.service.PopularParkService;
+import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -15,11 +16,18 @@ import java.util.Map;
 
 @RestController
 @RequestMapping("/park")
-@RequiredArgsConstructor
 public class ParkController {
 
+    private final PopularParkService popularParkService;
     private final ParkService parkService;
     private final JwtUtil jwtUtil;
+
+    public ParkController(PopularParkService popularParkService, ParkService parkService,
+        JwtUtil jwtUtil) {
+        this.popularParkService = popularParkService;
+        this.parkService = parkService;
+        this.jwtUtil = jwtUtil;
+    }
 
     /**
      * 홈 화면에서 가장 가까운 공원 정보를 반환
@@ -122,4 +130,36 @@ public class ParkController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
+
+    /**
+     * 내 주변 인기 공원
+     *
+     * @param latitude  위도
+     * @param longitude 경도
+     * @return 가장 가까운 공원 정보
+     */
+    @GetMapping("/home/famous")
+    public ResponseEntity<Map<String, Object>> getPopularPark(
+        @RequestParam("latitude") double latitude,
+        @RequestParam("longitude") double longitude) {
+
+        Map<String, Object> response = new HashMap<>();
+
+        try {
+
+            // 내 주변 인기 공원 조회
+            List<ParkResponseDto> parkResponse = popularParkService.getPopularParksNearby(latitude,
+                longitude);
+
+            response.put("message", "조회 성공");
+            response.put("data", parkResponse);
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            response.put("message", "서버 내부 오류가 발생했습니다: " + e.getMessage());
+            response.put("data", new Object[]{});
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
+    }
+
 }

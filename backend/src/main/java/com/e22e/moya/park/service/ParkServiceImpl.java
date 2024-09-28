@@ -2,6 +2,7 @@ package com.e22e.moya.park.service;
 
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.park.dto.ParkDetailResponseDto;
+import com.e22e.moya.park.dto.ParkDistanceDto;
 import com.e22e.moya.park.dto.ParkListResponseDto;
 import com.e22e.moya.park.dto.ParkResponseDto;
 import com.e22e.moya.park.dto.SpeciesDto;
@@ -117,5 +118,30 @@ public class ParkServiceImpl implements ParkService {
         responseDto.setSpecies(speciesDtos);
 
         return responseDto;
+    }
+
+    /**
+     * 사용자 위치를 기준으로 공원 목록을 반환
+     *
+     * @param latitude  사용자 위도
+     * @param longitude 사용자 경도
+     * @return 공원 목록
+     */
+    @Override
+    public List<ParkDistanceDto> getParksByLocation(double latitude, double longitude) {
+        // 사용자 위치에서 5km 이내의 공원 목록 조회
+        List<ParkDistanceProjection> parkProjections = parkRepositoryPark.findNearParks(latitude,
+            longitude, 5000);
+
+        return parkProjections.stream()
+            .map(park -> {
+                ParkDistanceDto dto = new ParkDistanceDto();
+                dto.setParkId(park.getId());
+                dto.setParkName(park.getName());
+                dto.setImageUrl(park.getImageUrl());
+                dto.setDistance(park.getDistance());
+                return dto;
+            })
+            .collect(Collectors.toList());
     }
 }

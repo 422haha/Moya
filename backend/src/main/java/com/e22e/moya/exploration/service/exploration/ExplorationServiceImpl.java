@@ -16,6 +16,7 @@ import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
 import com.e22e.moya.exploration.repository.ParkSpeciesRepositoryExploration;
 import com.e22e.moya.exploration.repository.SpeciesPosRepositoryExploration;
 import com.e22e.moya.exploration.repository.SpeciesRepositoryExploration;
+import com.e22e.moya.season.service.PopularSpeciesService;
 import com.e22e.moya.user.repository.UserRepository;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
@@ -33,12 +34,6 @@ import org.springframework.transaction.annotation.Transactional;
 
 @Slf4j
 @Service
-/*
- *탐험 진행용 서비스.
- * - 탐험중 촬영한 사진 도감에 등록
- * - 탐험 종료 및 기록 저장
- *
- */
 public class ExplorationServiceImpl implements ExplorationService {
 
     private final UserRepository userRepository;
@@ -47,19 +42,22 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final ExplorationRepositoryExploration explorationRepository;
     private final ParkSpeciesRepositoryExploration parkSpeciesRepository;
     private final SpeciesPosRepositoryExploration speciesPosRepository;
+    private final PopularSpeciesService popularSpeciesService;
 
     public ExplorationServiceImpl(UserRepository userRepository,
         SpeciesRepositoryExploration speciesRepository,
         DiscoveryRepositoryExploration discoveryRepository,
         ExplorationRepositoryExploration explorationRepository,
         ParkSpeciesRepositoryExploration parkSpeciesRepository,
-        SpeciesPosRepositoryExploration speciesPosRepository) {
+        SpeciesPosRepositoryExploration speciesPosRepository,
+        PopularSpeciesService popularSpeciesService) {
         this.userRepository = userRepository;
         this.speciesRepository = speciesRepository;
         this.discoveryRepository = discoveryRepository;
         this.explorationRepository = explorationRepository;
         this.parkSpeciesRepository = parkSpeciesRepository;
         this.speciesPosRepository = speciesPosRepository;
+        this.popularSpeciesService = popularSpeciesService;
     }
 
     /**
@@ -124,6 +122,9 @@ public class ExplorationServiceImpl implements ExplorationService {
         // 현재 탐험에 discovery 추가
         exploration.getDiscoveries().add(discovery);
         explorationRepository.save(exploration);
+
+        // Redis에서 인기 동식물 업데이트
+        popularSpeciesService.incrementSpeciesPopularity(species.getId());
 
         AddResponseDto responseDto = new AddResponseDto();
         responseDto.setSpeciesId(species.getId());
