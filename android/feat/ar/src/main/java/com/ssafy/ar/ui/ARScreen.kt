@@ -1,7 +1,6 @@
 package com.ssafy.ar.ui
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -208,6 +207,10 @@ fun ARSceneComposable(
                                                         modelLoader,
                                                         materialLoader
                                                     )
+
+                                                    viewModel.locationManager.currentLocation.value?.let {
+                                                        viewModel.updateNearestNPC(it)
+                                                    }
                                                 }
                                             }
                                         }
@@ -224,9 +227,9 @@ fun ARSceneComposable(
                                                     anchorId,
                                                     QuestState.COMPLETE
                                                 ).apply {
-                                                    val imageNode =
-                                                        modelNode.childNodes.filterIsInstance<ImageNode>()
-                                                            .firstOrNull()
+                                                    val imageNode = modelNode.childNodes
+                                                        .filterIsInstance<ImageNode>()
+                                                        .firstOrNull()
 
                                                     imageNode?.let {
                                                         viewModel.updateModelNode(
@@ -234,6 +237,10 @@ fun ARSceneComposable(
                                                             modelNode,
                                                             materialLoader
                                                         )
+                                                    }
+
+                                                    viewModel.locationManager.currentLocation.value?.let {
+                                                        viewModel.updateNearestNPC(it)
                                                     }
 
                                                     coroutineScope.launch {

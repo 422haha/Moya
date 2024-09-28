@@ -1,7 +1,7 @@
 package com.ssafy.ar
 
 import android.content.Context
-import android.util.Log
+import android.location.Location
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -11,12 +11,12 @@ import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.ssafy.ar.data.ModelType
-import com.ssafy.ar.data.ScriptInfo
-import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
+import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.dummy.scripts
+import com.ssafy.ar.data.ScriptInfo
 import com.ssafy.ar.dummy.quests
+import com.ssafy.ar.dummy.scripts
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.network.ApiResponse
@@ -56,14 +56,7 @@ class ARViewModel @Inject constructor(
             locationManager = ARLocationManager(context, fusedLocationClient)
 
             locationManager.currentLocation.collectLatest { location ->
-                location?.let {
-                    val nearestNPCInfo =
-                        locationManager.operateNearestNPC(location, questInfos.value)
-
-                    updateNearestNPC(nearestNPCInfo)
-
-                    locationManager.setFusedLocationClient(nearestNPCInfo.distance ?: 100f)
-                }
+                updateNearestNPC(location)
             }
         }
     }
@@ -159,7 +152,17 @@ class ARViewModel @Inject constructor(
     }
 
     private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
-        _nearestQuestInfo.value = nearestNPCInfo
+
+    }
+
+    fun updateNearestNPC(location: Location?) {
+        location?.let {
+            val nearestNPCInfo = locationManager.operateNearestNPC(it, questInfos.value)
+
+            _nearestQuestInfo.value = nearestNPCInfo
+
+            locationManager.setFusedLocationClient(nearestNPCInfo.distance ?: 100f)
+        }
     }
 
     fun placeNode(
@@ -186,9 +189,7 @@ class ARViewModel @Inject constructor(
                     updateIsPlaceQuest(questInfo.id, true)
 
                     locationManager.currentLocation.value?.let {
-                        val nearestNPCInfo = locationManager.operateNearestNPC(it, questInfos.value)
-
-                        updateNearestNPC(nearestNPCInfo)
+                        updateNearestNPC(it)
                     }
                 }
             )
