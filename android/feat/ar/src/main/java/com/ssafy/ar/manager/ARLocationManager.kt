@@ -14,6 +14,7 @@ import com.google.android.gms.location.Priority
 import com.ssafy.ar.data.LocationPriority
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
+import com.ssafy.ar.data.QuestState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -110,7 +111,7 @@ class ARLocationManager(
         questInfos: Map<Long, QuestInfo>
     ): QuestInfo? {
         return questInfos.values
-            .filter { !it.isPlace }
+            .filter { it.isComplete != QuestState.COMPLETE }
             .minByOrNull { location ->
             val npcLocation = Location("npc").apply {
                 latitude = location.latitude
