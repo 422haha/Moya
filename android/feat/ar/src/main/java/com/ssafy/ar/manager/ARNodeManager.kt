@@ -67,7 +67,7 @@ class ARNodeManager {
 
     // 앵커노드 생성
     private suspend fun createAnchorNode(
-        questId: Long,
+        id: Long,
         questState: QuestState,
         npcId: Long,
         anchor: Anchor,
@@ -90,7 +90,7 @@ class ARNodeManager {
             modelInstance = modelInstance,
             scaleToUnits = 0.5f
         ).apply {
-            name = questId.toString()
+            name = id.toString()
             rotation = Rotation(0f, 180f, 0f)
         }
 
@@ -109,7 +109,7 @@ class ARNodeManager {
 
     // 앵커노드 업데이트 (시작전 -> 진행중)
     suspend fun updateAnchorNode(
-        questId: Long,
+        id: Long,
         questModel: String,
         childNode: ModelNode,
         parentNode: AnchorNode,
@@ -126,7 +126,7 @@ class ARNodeManager {
                 modelInstance = modelInstance,
                 scaleToUnits = 0.5f
             ).apply {
-                name = questId.toString()
+                name = id.toString()
                 position = childNode.worldPosition
                 rotation = childNode.worldRotation
             }

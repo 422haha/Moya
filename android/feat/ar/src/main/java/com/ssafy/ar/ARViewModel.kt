@@ -210,8 +210,8 @@ class ARViewModel @Inject constructor(
     ) {
         viewModelScope.launch {
             nodeManager.updateAnchorNode(
-                questId = questInfo.id,
-                questModel = getModelUrl(questInfo.id),
+                id = questInfo.id,
+                questModel = getModelUrl(questInfo.npcId),
                 childNode = childNode,
                 parentNode = parentNode,
                 modelLoader = modelLoader,
