@@ -15,6 +15,7 @@ import com.ssafy.main.explorestart.ExploreStartScreen
 import com.ssafy.main.login.LoginScreen
 import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
+import com.ssafy.moya.navigation.MainBottomNavigation
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -26,7 +27,7 @@ fun MainNavigation(
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
-            SubNavigation(
+            MainBottomNavigation(
                 onNavigateToParkList = {
                     navController.navigate(ParkList)
                 },
