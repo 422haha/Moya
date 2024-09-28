@@ -1,17 +1,21 @@
 package com.ssafy.ar
 
 import android.Manifest
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.layout.systemBarsPadding
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.SideEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -21,12 +25,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
@@ -34,7 +40,9 @@ import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.data.QuestType
 import com.ssafy.ar.data.TrackingMessage
+import com.ssafy.ar.data.getImageResource
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
@@ -255,11 +263,19 @@ fun ARSceneComposable(
         )
 
         Column {
+            CustomCard(
+                imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)?.getImageResource() ?: 0,
+                title = "가까운 미션: ${nearestQuestInfo.npc?.id ?: "검색중..."} ",
+                subtitle = "거리: ${
+                    nearestQuestInfo.distance?.let { if(it > 10.0f) "%.2f m".format(it) else "수행 가능" } ?: "검색중..."
+                } ")
+
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestQuestInfo.shouldPlace,
                 isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
             )
+
             Text(
                 text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
                 color = Color.White
@@ -270,14 +286,6 @@ fun ARSceneComposable(
             )
             Text(
                 text = "정확도: ${currentLocation?.accuracy ?: "모니터링중..."} ",
-                color = Color.Red
-            )
-            Text(
-                text = "가까운 미션: ${nearestQuestInfo.npc?.id ?: "모니터링중..."} ",
-                color = Color.Red
-            )
-            Text(
-                text = "미션까지 거리: ${nearestQuestInfo.distance?.let { "%.2fm".format(it) } ?: "모니터링중..."} ",
                 color = Color.Red
             )
         }
@@ -342,6 +350,7 @@ fun ArStatusText(
         textAlign = TextAlign.Center,
         fontSize = 20.sp,
         color = Color.White,
+        style = MaterialTheme.typography.titleMedium,
         text = when {
             trackingFailureReason != TrackingFailureReason.NONE && trackingFailureReason != null ->
                 TrackingMessage.fromTrackingFailureReason(trackingFailureReason).message

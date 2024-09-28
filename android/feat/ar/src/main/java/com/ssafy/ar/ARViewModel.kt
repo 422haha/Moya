@@ -105,7 +105,7 @@ class ARViewModel @Inject constructor(
         _scriptInfos.value = scripts
     }
 
-    fun updateIsPlaceQuest(id: Long, state: Boolean) {
+    private fun updateIsPlaceQuest(id: Long, state: Boolean) {
         _questInfos.update { currentMap ->
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->

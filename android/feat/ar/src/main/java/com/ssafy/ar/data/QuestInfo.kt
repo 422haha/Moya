@@ -1,6 +1,24 @@
 package com.ssafy.ar.data
 
 import androidx.compose.runtime.Immutable
+import com.ssafy.ar.R
+
+enum class QuestType(val type: Int) {
+    MAPLE(0), GINKGO(1), CONE(2), ARROW(3);
+
+    companion object {
+        fun fromInt(value: Int): QuestType? = entries.find { it.type == value }
+    }
+}
+
+fun QuestType.getImageResource(): Int {
+    return when (this) {
+        QuestType.MAPLE -> R.drawable.maple
+        QuestType.GINKGO -> R.drawable.ginkgo
+        QuestType.CONE -> R.drawable.cone
+        QuestType.ARROW -> R.drawable.arrow
+    }
+}
 
 enum class QuestState {
     WAIT, PROGRESS, COMPLETE
