@@ -263,7 +263,7 @@ fun ARSceneComposable(
                 title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                 state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                 distanceText = "${
-                    nearestQuestInfo.distance?.let { if(it > 10.0f) "%.2f m".format(it) else "수행 가능" } ?: "검색중.."
+                    nearestQuestInfo.distance?.let { if(it > 10.0f) "%.2f m".format(it) else "친구를 찾아보세요!" } ?: "검색중.."
                 } ")
 
             ArStatusText(

@@ -38,15 +38,17 @@ fun CustomCard(
     Card(
         modifier = modifier
             .fillMaxWidth()
-            .padding(top = 60.dp, start = 30.dp, end = 30.dp),
+            .padding(top = 60.dp, start = 40.dp, end = 40.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
             modifier = Modifier
-                .padding(20.dp)
+                .padding(top = 20.dp, bottom = 20.dp)
                 .height(IntrinsicSize.Min),
             verticalAlignment = Alignment.CenterVertically
         ) {
+            Spacer(modifier = Modifier.width(40.dp))
+
             Image(
                 painter = painterResource(id = imageUrl),
                 contentDescription = "Card Image",
@@ -55,7 +57,7 @@ fun CustomCard(
                     .clip(RoundedCornerShape(4.dp))
             )
 
-            Spacer(modifier = Modifier.width(16.dp))
+            Spacer(modifier = Modifier.width(40.dp))
 
             Column(
                 modifier = Modifier
