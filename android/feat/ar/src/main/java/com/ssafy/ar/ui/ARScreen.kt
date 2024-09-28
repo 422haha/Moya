@@ -267,7 +267,7 @@ fun ARSceneComposable(
                 distanceText = "${
                     nearestQuestInfo.distance?.let {
                         if (nearestQuestInfo.shouldPlace)
-                            "친구를 찾아보세요!"
+                            "목적지 도착!"
                         else
                             "%.2f m".format(it)
                     } ?: "검색중.."

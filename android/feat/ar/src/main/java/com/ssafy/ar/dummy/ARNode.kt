@@ -3,6 +3,7 @@ package com.ssafy.ar.dummy
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.ScriptInfo
+import kotlin.random.Random
 
 val scripts: Map<Int, ScriptInfo> = mapOf(
     0 to ScriptInfo(
@@ -62,16 +63,58 @@ val scripts: Map<Int, ScriptInfo> = mapOf(
         completeMessage = "고마워! 덕분에 엄마한테 칭찬 받았어!",
     )
 )
-
 val quests: Map<Long, QuestInfo> = mapOf(
-    0L to QuestInfo(0L, 1L, 0, latitude = 36.1067967, longitude = 128.4162641, questType = 0, speciesId = ""),
-    1L to QuestInfo(1L, 2L, 1, latitude =36.1066985,longitude = 128.4161918, questType = 1, speciesId = ""),
-    2L to QuestInfo(2L, 3L, 2, latitude =36.1066493,longitude = 128.4163712, questType = 2, speciesId = ""),
-    3L to QuestInfo(3L, 4L, 3, latitude =36.1071543,longitude = 128.4165288, questType = 3, speciesId = ""),
-    4L to QuestInfo(4L, 5L, 4,latitude = 36.1017196, longitude =128.419904, questType = 0, speciesId = ""),
+    0L to QuestInfo(
+        id = 0L,
+        npcId = Random.nextLong(1, 13),
+        npcPosId = 0,
+        latitude = 36.1067967,
+        longitude = 128.4162641,
+        questType = 0,
+        speciesId = "",
+        speciesName = "",
+        isComplete = QuestState.WAIT,
+        isPlace = false,
+    ),
+    1L to QuestInfo(
+        id = 1L,
+        npcId = Random.nextLong(1, 13),
+        npcPosId = 1,
+        latitude = 36.1066985,
+        longitude = 128.4161918,
+        questType = 1,
+        speciesId = "",
+        speciesName = "",
+        isComplete = QuestState.WAIT,
+        isPlace = false,
+    ),
+    2L to QuestInfo(
+        id = 2L,
+        npcId = Random.nextLong(1, 13),
+        npcPosId = 2,
+        latitude = 36.1066493,
+        longitude = 128.4163712,
+        questType = 2,
+        speciesId = "",
+        speciesName = "",
+        isComplete = QuestState.WAIT,
+        isPlace = false,
+    ),
+    3L to QuestInfo(
+        id = 3L,
+        npcId = Random.nextLong(1, 13),
+        npcPosId = 3,
+        latitude = 36.1071543,
+        longitude = 128.4165288,
+        questType = 3,
+        speciesId = "",
+        speciesName = "",
+        isComplete = QuestState.WAIT,
+        isPlace = false,
+    ),
     5L to QuestInfo(
         id = 5L,
-        npcId = 6L,
+        npcId = Random.nextLong(1, 13),
         npcPosId = 5,
         questType = 2,
         latitude = 36.101726,
