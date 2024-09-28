@@ -1,6 +1,7 @@
 package com.ssafy.ar
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -18,6 +19,7 @@ import com.ssafy.ar.dummy.scripts
 import com.ssafy.ar.dummy.quests
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
@@ -93,14 +95,44 @@ class ARViewModel @Inject constructor(
         return _questInfos.value[id]?.isPlace
     }
 
-    fun getQuestState(id: Long): QuestState? {
-        return _questInfos.value[id]?.isComplete
-    }
-
-    fun getAllQuests() {
+    // TODO
+    fun getAllQuests(explorationId: Long) {
+        viewModelScope.launch {
+            explorationRepository.getQuestList(explorationId).collectLatest { response ->
+                when(response) {
+                    is ApiResponse.Success -> {
+                        response.body?.let { body ->
+                            _questInfos.value = body.quest.associate { quest ->
+                                quest.questId to QuestInfo(
+                                    id = quest.questId,
+                                    npcId = quest.npcId,
+                                    npcPosId = quest.npcPosId,
+                                    questType = quest.questType,
+                                    latitude = quest.latitude,
+                                    longitude = quest.longitude,
+                                    speciesId = quest.speciesId.toString(),
+                                    speciesName = quest.speciesName,
+                                    isComplete = when (quest.completed) {
+                                        0 -> QuestState.WAIT
+                                        1 -> QuestState.PROGRESS
+                                        2 -> QuestState.COMPLETE
+                                        else -> QuestState.WAIT
+                                    },
+                                    isPlace = false
+                                )
+                            }
+                        } ?: "Failed to load initial data"
+                    }
+                    is ApiResponse.Error -> {
+                        response.errorMessage?: "Unknown error"
+                    }
+                }
+            }
+        }
         _questInfos.value = quests
     }
 
+    // TODO
     fun getAllScripts() {
         _scriptInfos.value = scripts
     }
@@ -115,6 +147,7 @@ class ARViewModel @Inject constructor(
         }
     }
 
+    // TODO
     fun updateQuestState(id: Long, state: QuestState) {
         _questInfos.update { currentMap ->
             currentMap.toMutableMap().apply {
