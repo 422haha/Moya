@@ -95,10 +95,7 @@ fun QuestDialog(
                                 color = Color.Red
                             )
                         ) {
-                            append(
-                                if (state == QuestState.WAIT) script.middleDescription
-                                else script.middleCheckDescription
-                            )
+                            append(script.speciesName)
                         }
                         append(
                             if (state == QuestState.WAIT) script.nextDescription
