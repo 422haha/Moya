@@ -1,6 +1,8 @@
 package com.ssafy.moya
 
+import android.Manifest
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -15,6 +17,7 @@ import com.ssafy.main.explorestart.ExploreStartScreen
 import com.ssafy.main.login.LoginScreen
 import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
+import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.moya.navigation.MainBottomNavigation
 import com.ssafy.ui.screen.UserProfileEditScreen
 
@@ -24,6 +27,19 @@ fun MainNavigation(
     ttsHelper: TTSHelper,
     sttHelper: STTHelper
 ) {
+
+    val context = LocalContext.current
+
+    MultiplePermissionHandler(
+        permissions =
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+    ){
+
+    }
+
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
