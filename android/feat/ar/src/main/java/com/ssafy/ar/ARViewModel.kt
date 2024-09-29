@@ -151,10 +151,6 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    private fun updateNearestNPC(nearestNPCInfo: NearestNPCInfo) {
-
-    }
-
     fun updateNearestNPC(location: Location?) {
         location?.let {
             val nearestNPCInfo = locationManager.operateNearestNPC(it, questInfos.value)
@@ -212,7 +208,7 @@ class ARViewModel @Inject constructor(
         viewModelScope.launch {
             nodeManager.updateAnchorNode(
                 id = questInfo.id,
-                questModel = getModelUrl(questInfo.npcId),
+                modelUrl = getModelUrl(questInfo.npcId),
                 childNode = childNode,
                 parentNode = parentNode,
                 modelLoader = modelLoader,

@@ -112,7 +112,7 @@ class ARNodeManager {
     // 앵커노드 업데이트 (시작전 -> 진행중)
     suspend fun updateAnchorNode(
         id: Long,
-        questModel: String,
+        modelUrl: String,
         childNode: ModelNode,
         parentNode: AnchorNode,
         modelLoader: ModelLoader,
@@ -120,7 +120,7 @@ class ARNodeManager {
     ) = withContext(Dispatchers.Main) {
         parentNode.removeChildNode(childNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
-                questModel,
+                modelUrl,
                 kMaxModelInstances
             ).first()
 
