@@ -1,11 +1,12 @@
 package com.ssafy.model
 
-import java.util.Date
+import kotlinx.serialization.Serializable
 
+@Serializable
 data class Explorations(
     val explorationId: Long,
     val parkName: String,
-    val startTime: Date,
+    val startTime: String,
     val distance: Double,
     val collected: Int,
     val imageUrl: String,
