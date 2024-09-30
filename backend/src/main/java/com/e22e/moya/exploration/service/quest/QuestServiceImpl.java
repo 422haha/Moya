@@ -89,7 +89,7 @@ public class QuestServiceImpl implements QuestService {
             List<NpcPos> npcPositions = randomParkNpcs.getPositions();
             NpcPos randomNpcPos = npcPositions.get(random.nextInt(npcPositions.size()));
 
-            String questKey = questType + "_" + randomSpecies.getId() + "_" + randomNpcPos.getId();
+            String questKey = Long.toString(randomNpcPos.getId()); // 단일 위치에서 랜덤 퀘스트 생성
 
             if (generatedQuests.add(questKey)) { // 중복되지 않은 퀘스트라면
                 Quest quest = new Quest();
