@@ -113,7 +113,7 @@ public class CollectionController {
      * @param itemId 도감 ID
      * @return 도감 상세 정보
      */
-    @GetMapping("/{itemId}")
+    @GetMapping("/{itemId}/detail")
     public ResponseEntity<Map<String, Object>> getCollectionDetail(
 //        @RequestHeader("Authorization") String token,
         @PathVariable("itemId") Long itemId
