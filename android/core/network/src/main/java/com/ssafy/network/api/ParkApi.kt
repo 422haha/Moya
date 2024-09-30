@@ -4,6 +4,7 @@ import com.ssafy.model.Park
 import com.ssafy.model.ParkDetail
 import com.ssafy.model.ParkList
 import com.ssafy.network.ResponseBody
+import com.ssafy.network.ResponseListBody
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -37,5 +38,5 @@ interface ParkApi {
     suspend fun getFamousParks(
         @Query("latitude")latitude: Double,
         @Query("longitude")longitude: Double,
-    ): Response<ResponseBody<ParkList>>
+    ): Response<ResponseListBody<Park>>
 }

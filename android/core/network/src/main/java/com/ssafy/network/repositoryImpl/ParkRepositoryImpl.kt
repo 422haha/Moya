@@ -61,7 +61,7 @@ class ParkRepositoryImpl @Inject constructor(
         }
     }
 
-    override suspend fun getCloseParks(
+    override suspend fun getClosePark(
         latitude: Double,
         longitude: Double
     ): Flow<ApiResponse<Park>> = flow {
@@ -86,7 +86,7 @@ class ParkRepositoryImpl @Inject constructor(
     override suspend fun getFamousParks(
         latitude: Double,
         longitude: Double
-    ): Flow<ApiResponse<ParkList>> = flow {
+    ): Flow<ApiResponse<List<Park>>> = flow {
         val response =
             apiHandler {
                 parkApi.getFamousParks(latitude, longitude)
