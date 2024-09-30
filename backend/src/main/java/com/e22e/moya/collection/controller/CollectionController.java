@@ -26,7 +26,6 @@ public class CollectionController {
     /**
      * 전체 도감 목록 조회
      *
-     * @param token  사용자 인증 토큰
      * @param page   페이지 번호
      * @param size   페이지 크기
      * @param filter 완료된/미발견/전체 필터
@@ -68,7 +67,6 @@ public class CollectionController {
     /**
      * 특정 공원의 도감 목록 조회
      *
-     * @param token  사용자 인증 토큰
      * @param parkId 공원 ID
      * @param page   페이지 번호
      * @param size   페이지 크기
@@ -112,7 +110,6 @@ public class CollectionController {
     /**
      * 도감 상세 정보 조회
      *
-     * @param token  사용자 인증 토큰
      * @param itemId 도감 ID
      * @return 도감 상세 정보
      */
