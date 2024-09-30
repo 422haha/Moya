@@ -27,9 +27,11 @@ import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.ssafy.ar.ARViewModel
+import com.ssafy.ar.R
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.data.QuestType
+import com.ssafy.ar.data.SpeciesType
 import com.ssafy.ar.data.getImageResource
+import com.ssafy.ar.dummy.scripts
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
@@ -51,6 +53,7 @@ private const val TAG = "ArScreen"
 
 @Composable
 fun ARSceneComposable(
+    explorationId: Long,
     onPermissionDenied: () -> Unit
 ) {
     // Screen Size
@@ -82,7 +85,6 @@ fun ARSceneComposable(
 
     // AR State
     val questInfos by viewModel.questInfos.collectAsState()
-    val scriptInfos by viewModel.scriptInfos.collectAsState()
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
 
     // Dialog & SnackBar
@@ -101,10 +103,7 @@ fun ARSceneComposable(
 
             viewModel.locationManager.startLocationUpdates()
 
-            // TODO
-            viewModel.getAllQuests(0)
-
-            viewModel.getAllScripts()
+            viewModel.getAllQuests(explorationId)
         } else {
             hasPermission = false
 
@@ -188,12 +187,11 @@ fun ARSceneComposable(
                             val quest = questInfos[anchorId]
 
                             quest?.let {
-                                when (val state = quest.isComplete) {
+                                when (quest.isComplete) {
                                     // 퀘스트 진행전
                                     QuestState.WAIT -> {
                                         viewModel.showQuestDialog(
-                                            scriptInfos[quest.questType],
-                                            state
+                                            quest
                                         ) { accepted ->
                                             if (accepted) {
                                                 viewModel.updateQuestState(
@@ -218,15 +216,18 @@ fun ARSceneComposable(
                                     // 퀘스트 진행중
                                     QuestState.PROGRESS -> {
                                         viewModel.showQuestDialog(
-                                            scriptInfos[quest.questType],
-                                            state
+                                            quest
                                         ) { accepted ->
                                             if (accepted) {
                                                 // TODO 온디바이스 AI로 검사
-                                                viewModel.updateQuestState(
-                                                    anchorId,
-                                                    QuestState.COMPLETE
+                                                viewModel.completeQuest(
+                                                    explorationId,
+                                                    anchorId
                                                 ).apply {
+                                                    viewModel.updateQuestState(
+                                                        anchorId,
+                                                        QuestState.COMPLETE
+                                                    )
                                                     val imageNode = modelNode.childNodes
                                                         .filterIsInstance<ImageNode>()
                                                         .firstOrNull()
@@ -254,7 +255,7 @@ fun ARSceneComposable(
                                     QuestState.COMPLETE -> {
                                         coroutineScope.launch {
                                             snackBarHostState.showSnackbar(
-                                                scriptInfos[quest.questType]?.completeMessage ?: ""
+                                                scripts[quest.questType]?.completeMessage ?: ""
                                             )
                                         }
                                     }
@@ -267,8 +268,8 @@ fun ARSceneComposable(
 
         Column {
             CustomCard(
-                imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)
-                    ?.getImageResource() ?: 0,
+                imageUrl = SpeciesType.fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                    ?.getImageResource() ?: (R.drawable.maple),
                 title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                 state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                 distanceText = "${
@@ -296,8 +297,7 @@ fun ARSceneComposable(
 
     if (showDialog) {
         QuestDialog(
-            script = dialogData.first,
-            state = dialogData.second,
+            dialogData,
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() }
         )

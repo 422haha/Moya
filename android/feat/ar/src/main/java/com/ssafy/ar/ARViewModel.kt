@@ -10,13 +10,10 @@ import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
-import com.ssafy.ar.data.ModelType
 import com.ssafy.ar.data.NearestNPCInfo
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.data.ScriptInfo
-import com.ssafy.ar.dummy.quests
-import com.ssafy.ar.dummy.scripts
+import com.ssafy.ar.data.getModelUrl
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
 import com.ssafy.network.ApiResponse
@@ -67,10 +64,6 @@ class ARViewModel @Inject constructor(
     private val _questInfos = MutableStateFlow<Map<Long, QuestInfo>>(emptyMap())
     val questInfos = _questInfos.asStateFlow()
 
-    // 모든 Script 정보
-    private val _scriptInfos = MutableStateFlow<Map<Int, ScriptInfo>>(emptyMap())
-    val scriptInfos = _scriptInfos.asStateFlow()
-
     // 가장 가까운 NPC
     private val _nearestQuestInfo = MutableStateFlow(NearestNPCInfo())
     val nearestQuestInfo = _nearestQuestInfo.asStateFlow()
@@ -80,15 +73,14 @@ class ARViewModel @Inject constructor(
     val showDialog = _showDialog.asStateFlow()
 
     // Dialog Data
-    private val _dialogData = MutableStateFlow(Pair(ScriptInfo(), QuestState.WAIT))
-    val dialogData: StateFlow<Pair<ScriptInfo, QuestState>> = _dialogData
+    private val _dialogData = MutableStateFlow(QuestInfo())
+    val dialogData: StateFlow<QuestInfo> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
     fun getIsPlaceQuest(id: Long): Boolean? {
         return _questInfos.value[id]?.isPlace
     }
 
-    // TODO
     fun getAllQuests(explorationId: Long) {
         viewModelScope.launch {
             explorationRepository.getQuestList(explorationId).collectLatest { response ->
@@ -103,13 +95,11 @@ class ARViewModel @Inject constructor(
                                     questType = quest.questType,
                                     latitude = quest.latitude,
                                     longitude = quest.longitude,
-                                    speciesId = quest.speciesId.toString(),
+                                    speciesId = quest.speciesId,
                                     speciesName = quest.speciesName,
                                     isComplete = when (quest.completed) {
-                                        0 -> QuestState.WAIT
-                                        1 -> QuestState.PROGRESS
-                                        2 -> QuestState.COMPLETE
-                                        else -> QuestState.WAIT
+                                        "WAIT" -> QuestState.WAIT
+                                        else -> QuestState.COMPLETE
                                     },
                                     isPlace = false
                                 )
@@ -122,12 +112,6 @@ class ARViewModel @Inject constructor(
                 }
             }
         }
-        _questInfos.value = quests
-    }
-
-    // TODO
-    fun getAllScripts() {
-        _scriptInfos.value = scripts
     }
 
     private fun updateIsPlaceQuest(id: Long, state: Boolean) {
@@ -140,12 +124,17 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    // TODO
-    fun updateQuestState(id: Long, state: QuestState) {
+    fun completeQuest(explorationId: Long, questId: Long) {
+        viewModelScope.launch {
+            explorationRepository.completeQuest(explorationId, questId)
+        }
+    }
+
+    fun updateQuestState(questId: Long, state: QuestState) {
         _questInfos.update { currentMap ->
             currentMap.toMutableMap().apply {
-                this[id]?.let { npcLocation ->
-                    this[id] = npcLocation.copy(isComplete = state)
+                this[questId]?.let { npcLocation ->
+                    this[questId] = npcLocation.copy(isComplete = state)
                 }
             }
         }
@@ -194,10 +183,6 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    private fun getModelUrl(id: Long): String {
-        return ModelType.fromId(id).modelUrl
-    }
-
     fun updateAnchorNode(
         questInfo: QuestInfo,
         childNode: ModelNode,
@@ -231,22 +216,22 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun showQuestDialog(script: ScriptInfo?, state: QuestState, callback: (Boolean) -> Unit) {
-        _dialogData.value = Pair(script ?: ScriptInfo(), state)
+    fun showQuestDialog(questInfo: QuestInfo, callback: (Boolean) -> Unit) {
+        _dialogData.value = questInfo
         _showDialog.value = true
         dialogCallback = callback
     }
 
     fun onDialogConfirm() {
         _showDialog.value = false
-        _dialogData.value = Pair(ScriptInfo(), QuestState.WAIT)
+        _dialogData.value = QuestInfo()
         dialogCallback?.invoke(true)
         dialogCallback = null
     }
 
     fun onDialogDismiss() {
         _showDialog.value = false
-        _dialogData.value = Pair(ScriptInfo(), QuestState.WAIT)
+        _dialogData.value = QuestInfo()
         dialogCallback?.invoke(false)
         dialogCallback = null
     }

@@ -31,13 +31,14 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
+import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.ScriptInfo
+import com.ssafy.ar.dummy.scripts
 
 @Composable
 fun QuestDialog(
-    script: ScriptInfo,
-    state: QuestState,
+    info: QuestInfo,
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
@@ -65,7 +66,7 @@ fun QuestDialog(
                 Spacer(modifier = Modifier.height(40.dp))
 
                 Text(
-                    text = script.name,
+                    text = "${info.npcName}의 부탁",
                     textAlign = TextAlign.Center,
                     style = TextStyle(
                         color = Color.Black,
@@ -86,8 +87,8 @@ fun QuestDialog(
                     ),
                     text = buildAnnotatedString {
                         append(
-                            if (state == QuestState.WAIT) script.prevDescription ?: ""
-                            else script.prevCheckDescription
+                            if (info.isComplete == QuestState.WAIT) scripts[info.questType]?.description
+                            else scripts[info.questType]?.checkDescription
                         )
                         withStyle(
                             style = SpanStyle(
@@ -95,11 +96,12 @@ fun QuestDialog(
                                 color = Color.Red
                             )
                         ) {
-                            append(script.speciesName)
+                            append(info.speciesName)
                         }
                         append(
-                            if (state == QuestState.WAIT) script.nextDescription
-                            else script.nextCheckDescription
+                            if (info.isComplete == QuestState.WAIT) " 1개를 모아줄 수 있어?"
+                            else " 1개를 벌써 모아온 거야?"
+                            
                         )
                     },
                 )
@@ -133,7 +135,7 @@ fun QuestDialog(
                         ) {
                         Text(
                             text =
-                            if (state == QuestState.WAIT) "거절"
+                            if (info.isComplete == QuestState.WAIT) "거절"
                             else "취소",
                             textAlign = TextAlign.Center,
                             style = TextStyle(
@@ -165,7 +167,7 @@ fun QuestDialog(
                     ) {
                         Text(
                             text =
-                            if (state == QuestState.WAIT) "수락"
+                            if (info.isComplete == QuestState.WAIT) "수락"
                             else "확인",
                             textAlign = TextAlign.Center,
                             style = TextStyle(

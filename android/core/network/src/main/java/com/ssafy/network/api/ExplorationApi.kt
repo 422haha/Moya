@@ -37,7 +37,7 @@ interface ExplorationApi {
         @Body body: ExplorationEndRequestBody,
     ): Response<ResponseBody<SpeciesMinimumInfo>>
 
-    @GET("/explorations/{explorationId}/quest/list")
+    @GET("/exploration/{explorationId}/quest/list")
     suspend fun getQuestList(
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<QuestList>>

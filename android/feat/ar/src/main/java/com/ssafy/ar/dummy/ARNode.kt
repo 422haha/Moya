@@ -5,45 +5,28 @@ import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.ScriptInfo
 import kotlin.random.Random
 
+// 행동
 val scripts: Map<Int, ScriptInfo> = mapOf(
-    0 to ScriptInfo(
-        id = 0,
-        name = "마술쇼 준비하기",
-        questType = 0,
-        speciesId = 0,
-        speciesName = "단풍잎",
-        prevDescription = "마술쇼 재료가 필요해!\n",
-        nextDescription = " 1장을 가져와 줄래?",
-        prevCheckDescription = "마술쇼 소품으로 사용할\n",
-        nextCheckDescription = " 1장을 벌써 모아온 거야?",
-        completeMessage = "고마워! 덕분에 무사히 마술 공연을 끝냈어!",
-    ),
     1 to ScriptInfo(
         id = 1,
-        name = "알 숨기기",
-        questType = 0,
-        speciesId = 0,
-        speciesName = "은행잎",
-        prevDescription = "알을 숨겨야 하는데..\n",
-        nextDescription = " 1장만 모아 줄래?",
-        prevCheckDescription = "알을 숨길 만한 ",
-        nextCheckDescription = " 1장을\n벌써 모아온 거야?",
-        completeMessage = "고마워! 덕분에 무사히 알을 숨겼어!",
+        description = "학교 준비물이 필요해!\n",
+        checkDescription = "학교에 가져갈 준비물인\n",
+        completeMessage = "고마워! 덕분에 선생님께 칭찬 받았어!",
     ),
     2 to ScriptInfo(
         id = 2,
-        name = "집 짓기",
-        questType = 0,
-        speciesId = 0,
-        speciesName = "솔방울",
-        prevDescription = "집을 지어야 하는데 재료가 없어..\n",
-        nextDescription = " 1개만 모아줄 수 있어?",
-        prevCheckDescription = "집에 쓸 재료인 ",
-        nextCheckDescription = " 1개를\n벌써 모아온 거야?",
+        description = "심심해! 장난감이 필요해!\n",
+        checkDescription = "내가 재밌게 가지고 놀\n",
+        completeMessage = "고마워! 덕분에 재밌게 놀았어!",
+    ),
+    3 to ScriptInfo(
+        id = 3,
+        description = "집을 짓는데 재료가 없어..\n",
+        checkDescription = "튼튼한 집을 지을 재료인\n",
         completeMessage = "고마워! 덕분에 예쁜 집을 지었어!",
     ),
-//    3 to ScriptInfo(
-//        id = 3,
+    //    4 to ScriptInfo(
+//        id = 4,
 //        name = "심부름 다녀오기",
 //        questType = 0,
 //        speciesId = 0,
@@ -55,6 +38,7 @@ val scripts: Map<Int, ScriptInfo> = mapOf(
 //        completeMessage = "고마워! 덕분에 엄마한테 칭찬 받았어!",
 //    )
 )
+
 val quests: Map<Long, QuestInfo> = mapOf(
     1L to QuestInfo(
         id = 1L,
@@ -63,19 +47,19 @@ val quests: Map<Long, QuestInfo> = mapOf(
         questType = Random.nextInt(0, 3),
         latitude = 36.1067967,
         longitude = 128.4162641,
-        speciesId = "",
+        speciesId = 1L,
         speciesName = "",
         isComplete = QuestState.WAIT,
         isPlace = false,
     ),
     2L to QuestInfo(
         id = 2L,
-        npcId = Random.nextLong(1, 13),
+        npcId = Random.nextLong(1,13),
         npcPosId = 2,
         questType = Random.nextInt(0, 3),
         latitude = 36.1066985,
         longitude = 128.4161918,
-        speciesId = "",
+        speciesId = 1L,
         speciesName = "",
         isComplete = QuestState.WAIT,
         isPlace = false,
@@ -87,7 +71,7 @@ val quests: Map<Long, QuestInfo> = mapOf(
         questType = Random.nextInt(0, 3),
         latitude = 36.1066493,
         longitude = 128.4163712,
-        speciesId = "",
+        speciesId = 1L,
         speciesName = "",
         isComplete = QuestState.WAIT,
         isPlace = false,
@@ -99,7 +83,7 @@ val quests: Map<Long, QuestInfo> = mapOf(
         questType = Random.nextInt(0, 3),
         latitude = 36.1071543,
         longitude = 128.4165288,
-        speciesId = "",
+        speciesId = 1L,
         speciesName = "",
         isComplete = QuestState.WAIT,
         isPlace = false,
@@ -111,7 +95,7 @@ val quests: Map<Long, QuestInfo> = mapOf(
         questType = Random.nextInt(0, 3),
         latitude = 36.101726,
         longitude = 128.4199104,
-        speciesId = "",
+        speciesId = 1L,
         speciesName = "",
         isComplete = QuestState.WAIT,
         isPlace = false,
