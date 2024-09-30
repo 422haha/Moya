@@ -2,9 +2,11 @@ package com.ssafy.network.di
 
 import com.ssafy.network.repository.EncyclopediaRepository
 import com.ssafy.network.repository.ExplorationRepository
+import com.ssafy.network.repository.ExploreDiaryRepository
 import com.ssafy.network.repository.ParkRepository
 import com.ssafy.network.repositoryImpl.EncyclopediaRepositoryImpl
 import com.ssafy.network.repositoryImpl.ExplorationRepositoryImpl
+import com.ssafy.network.repositoryImpl.ExploreDiaryRepositoryImpl
 import com.ssafy.network.repositoryImpl.ParkRepositoryImpl
 import dagger.Binds
 import dagger.Module
@@ -26,4 +28,8 @@ interface RepositoryModule {
     @Binds
     @Singleton
     fun provideEncyclopediaRepository(encyclopediaRepositoryImpl: EncyclopediaRepositoryImpl): EncyclopediaRepository
+
+    @Binds
+    @Singleton
+    fun provideExploreDiaryRepository(exploreDiaryRepositoryImpl: ExploreDiaryRepositoryImpl): ExploreDiaryRepository
 }

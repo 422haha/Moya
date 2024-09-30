@@ -25,7 +25,7 @@ import com.ssafy.ui.screen.UserProfileEditScreen
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper,
-    sttHelper: STTHelper
+    sttHelper: STTHelper,
 ) {
 
     val context = LocalContext.current
@@ -50,6 +50,9 @@ fun MainNavigation(
                 onNavigateToParkDetail = { id ->
                     navController.navigate(ParkDetail(itemId = id))
                 },
+                onNavigateToEncyc = { id ->
+                    navController.navigate(EncycDetail(itemId = id))
+                },
             )
 //            HomeScreen(
 //                onNavigateToParkList = {
@@ -64,11 +67,16 @@ fun MainNavigation(
 //            )
         }
         composable<ExploreList> {
-            ExploreListScreen(onExploreItemClick = { itemId ->
-                navController.navigate(ExploreDetail(itemId))
-            }, onPop = {
-                navController.popBackStack()
-            })
+            ExploreListScreen(
+                page = 1,
+                size = 3,
+                onExploreItemClick = { itemId ->
+                    navController.navigate(ExploreDetail(itemId))
+                },
+                onPop = {
+                    navController.popBackStack()
+                },
+            )
         }
         composable<ParkList> {
             ParkListScreen(onParkItemClick = { itemId ->
@@ -100,21 +108,33 @@ fun MainNavigation(
             )
         }
         composable<Encyc> {
-            EncycScreen(onNavigateToEncycDetail = { itemId ->
-                navController.navigate(EncycDetail(itemId))
-            }, onPop = {
-                navController.popBackStack()
-            })
+            EncycScreen(
+                parkId = 1,
+                page = 1,
+                size = 10,
+                onNavigateToEncycDetail = { itemId ->
+                    navController.navigate(EncycDetail(itemId))
+                },
+                onPop = {
+                    navController.popBackStack()
+                },
+            )
         }
         // TODO 추후에 찾으러가기 버튼을 눌렀을 때 해당하는 동식물을 찾으러 가는 네비게이션 추가
         composable<EncycDetail> {
-            EncycDetailScreen(onPop = {
-                navController.popBackStack()
-            }, onTTSClicked = { fullText ->
-                ttsHelper.speak(fullText)
-            }, onTTSShutDown = {
-                ttsHelper.shutdown()
-            })
+            val item = it.toRoute<EncycDetail>()
+            EncycDetailScreen(
+                itemId = item.itemId + 1,
+                onPop = {
+                    navController.popBackStack()
+                },
+                onTTSClicked = { fullText ->
+                    ttsHelper.speak(fullText)
+                },
+                onTTSShutDown = {
+                    ttsHelper.shutdown()
+                },
+            )
         }
         composable<ExploreStart> {
             val exploreStart = it.toRoute<ExploreStart>()
@@ -132,11 +152,11 @@ fun MainNavigation(
                 },
                 onEnterAR = {
                     navController.navigate(ARCamera)
-                }
+                },
             )
         }
         composable<ARCamera> {
-            ARSceneComposable( onPermissionDenied = {} )
+            ARSceneComposable(onPermissionDenied = {})
         }
         composable<Login> {
             LoginScreen(
