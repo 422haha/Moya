@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.dto.chat;
+package com.e22e.moya.chat.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
