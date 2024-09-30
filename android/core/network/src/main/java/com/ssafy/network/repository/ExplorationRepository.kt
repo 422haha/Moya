@@ -1,6 +1,7 @@
 package com.ssafy.network.repository
 
 import com.ssafy.model.CompletedQuest
+import com.ssafy.model.ExplorationData
 import com.ssafy.model.ExplorationEndData
 import com.ssafy.model.ExplorationInitialData
 import com.ssafy.model.QuestList
@@ -26,7 +27,7 @@ interface ExplorationRepository {
     suspend fun getExplorationData(
         parkId: Long,
         explorationId: Long,
-    ): Flow<ApiResponse<ExplorationEndData>>
+    ): Flow<ApiResponse<ExplorationData>>
 
     suspend fun getQuestList(explorationId: Long): Flow<ApiResponse<QuestList>>
 

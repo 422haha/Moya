@@ -68,7 +68,7 @@ class ExplorationRepositoryImpl @Inject constructor(
 
     override suspend fun registerSpecies(
         explorationId: Long,
-        body: ExplorationEndRequestBody
+        body: RegisterSpeciesRequestBody
     ): Flow<ApiResponse<SpeciesMinimumInfo>> {
         return flow {
             val response =
