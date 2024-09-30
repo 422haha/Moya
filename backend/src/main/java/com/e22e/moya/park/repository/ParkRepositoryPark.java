@@ -89,14 +89,38 @@ public interface ParkRepositoryPark extends JpaRepository<Park, Long> {
      * @return 공원 정보
      */
     @Query(value = "SELECT p.id as id, p.name as name, p.image_url as imageUrl, " +
-        "ST_Distance(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326)) as distance "
+        "MIN(ST_Distance(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography))) as distance "
         +
         "FROM park p " +
-        "WHERE ST_DWithin(p.geometry, ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326), :radius) "
+        "JOIN park_pos pp ON p.id = pp.park_id " +
+        "WHERE ST_DWithin(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography), :radius) "
         +
+        "GROUP BY p.id, p.name, p.image_url " +
         "ORDER BY distance",
         nativeQuery = true)
     List<ParkDistanceProjection> findNearParks(@Param("latitude") double latitude,
         @Param("longitude") double longitude,
         @Param("radius") double radius);
+
+    /**
+     * 주어진 공원 ID 목록과 사용자 위치 사이의 거리를 계산하여 공원 목록을 반환
+     *
+     * @param parkIds   공원 ID 목록
+     * @param latitude  사용자 위도
+     * @param longitude 사용자 경도
+     * @return 거리와 함께 정렬된 공원의 리스트
+     */
+    @Query(value =
+        "SELECT p.id AS id, p.name AS name, p.image_url AS imageUrl, " +
+            "MIN(ST_Distance(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography))) AS distance "
+            +
+            "FROM park p " +
+            "JOIN park_pos pp ON p.id = pp.park_id " +
+            "WHERE p.id IN :parkIds " +
+            "GROUP BY p.id, p.name, p.image_url " +
+            "ORDER BY distance ASC",
+        nativeQuery = true)
+    List<ParkDistanceProjection> findParksByIdsWithDistance(@Param("parkIds") List<Long> parkIds,
+        @Param("latitude") double latitude,
+        @Param("longitude") double longitude);
 }

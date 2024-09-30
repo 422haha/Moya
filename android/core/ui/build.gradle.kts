@@ -16,4 +16,5 @@ dependencies {
     implementation(libs.toolbar.compose)
     implementation(libs.coil.compose)
     implementation(project(":core:model"))
+    implementation(libs.androidx.paging.common.android)
 }

@@ -1,9 +1,12 @@
-package com.ssafy.ui.exploredetail
+package com.ssafy.ui.explorelist
 
 import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -26,6 +29,9 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ssafy.ui.R
+import com.ssafy.ui.exploredetail.ExploreDetail
+import com.ssafy.ui.exploredetail.ExploreDetailScreenState
+import com.ssafy.ui.exploredetail.TextBox
 import com.ssafy.ui.formatDate
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.customTypography
@@ -38,11 +44,12 @@ fun ExploreDetailItem(
     state: ExploreDetailScreenState.Loaded,
     isSelected: Boolean,
     offset: Float,
+    onClick: (Long) -> Unit = {},
 ) {
     val animateHeight =
         getOffsetBasedValue(
-            selectedValue = 945,
-            nonSelectedValue = 360,
+            selectedValue = 1000,
+            nonSelectedValue = 600,
             isSelected = isSelected,
             offset = offset,
         ).dp
@@ -73,7 +80,8 @@ fun ExploreDetailItem(
             Modifier
                 .width(animateWidth)
                 .height(animateHeight)
-                .padding(24.dp),
+                .padding(24.dp)
+                .clickable { onClick(state.exploreDetail.id) },
         shape = RoundedCornerShape(16.dp),
         colors =
             CardDefaults.cardColors(
@@ -91,10 +99,17 @@ fun ExploreDetailItem(
                 modifier =
                     Modifier
                         .fillMaxWidth()
-                        .height(360.dp),
+                        .height(420.dp),
                 placeholder = painterResource(id = R.drawable.ic_launcher_background),
             )
-            Column(modifier = Modifier.padding(8.dp)) {
+            Column(
+                modifier =
+                    Modifier
+                        .padding(8.dp)
+                        .padding(vertical = 12.dp)
+                        .fillMaxHeight(),
+                verticalArrangement = Arrangement.Top,
+            ) {
                 Text(
                     text = "동락공원",
                     modifier = Modifier.padding(8.dp),
@@ -115,6 +130,9 @@ fun ExploreDetailItem(
                                 .size(32.dp),
                         tint = Color.Gray,
                     )
+
+                    Spacer(modifier = Modifier.height(12.dp))
+
                     Text(
                         text = formatDate(state.exploreDetail.date),
                         fontSize = 24.sp,
@@ -123,6 +141,8 @@ fun ExploreDetailItem(
                         modifier = Modifier.padding(horizontal = 8.dp),
                     )
                 }
+
+                Spacer(modifier = Modifier.height(28.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -140,6 +160,8 @@ fun ExploreDetailItem(
                         "${state.exploreDetail.runningTime}분",
                     )
                 }
+
+                Spacer(modifier = Modifier.height(12.dp))
 
                 Row(
                     modifier = Modifier.fillMaxWidth(),
@@ -183,6 +205,7 @@ fun ExploreDetailItemPreview() {
             ExploreDetailScreenState.Loaded(
                 exploreDetail =
                     ExploreDetail(
+                        id = 0,
                         distance = 3.0f,
                         runningTime = 20,
                         stepCount = 100,

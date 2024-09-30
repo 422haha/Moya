@@ -4,6 +4,7 @@ import com.e22e.moya.common.entity.Discovery;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 
@@ -25,6 +26,12 @@ public class Species {
     private String description;
 
     private String imageUrl;
+
+    @ElementCollection(targetClass = Season.class)
+    @CollectionTable(name = "species_seasons", joinColumns = @JoinColumn(name = "species_id"))
+    @Column(name = "season")
+    @Enumerated(EnumType.STRING)
+    private Set<Season> visibleSeasons;
 
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
@@ -92,4 +99,11 @@ public class Species {
         this.parkSpecies = parkSpecies;
     }
 
+    public Set<Season> getVisibleSeasons() {
+        return visibleSeasons;
+    }
+
+    public void setVisibleSeasons(Set<Season> visibleSeasons) {
+        this.visibleSeasons = visibleSeasons;
+    }
 }
