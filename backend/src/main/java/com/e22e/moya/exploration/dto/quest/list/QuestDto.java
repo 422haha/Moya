@@ -9,11 +9,11 @@ public class QuestDto {
 
     private Long questId;
     private Long npcId;
-    private String npcName;
+    private Long npcPosId;
     private double longitude;
     private double latitude;
     private int questType;
     private Long speciesId;
     private String speciesName;
-    private boolean completed;
+    private String completed;
 }

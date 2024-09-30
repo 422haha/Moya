@@ -1,5 +1,6 @@
 package com.ssafy.network.di
 
+import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.api.ExplorationApi
 import com.ssafy.network.api.ParkApi
 import dagger.Module
@@ -11,6 +12,11 @@ import retrofit2.Retrofit
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+
+    @Provides
+    fun provideEncyclopediaApi(retrofit: Retrofit): EncyclopediaApi {
+        return retrofit.create(EncyclopediaApi::class.java)
+    }
     @Provides
     fun provideExplorationApi(retrofit: Retrofit): ExplorationApi {
         return retrofit.create(ExplorationApi::class.java)

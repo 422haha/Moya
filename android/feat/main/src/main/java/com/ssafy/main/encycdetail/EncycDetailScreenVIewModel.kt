@@ -33,6 +33,7 @@ class EncycDetailScreenVIewModel
                                     EncycDetailScreenState.Loaded(
                                         data =
                                             EncycDetail(
+                                                plantId = body.data.itemId,
                                                 plantName = body.data.speciesName,
                                                 plantImage = body.data.imageUrl,
                                                 description = body.data.description,
