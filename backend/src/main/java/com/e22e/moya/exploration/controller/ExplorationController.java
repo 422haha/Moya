@@ -97,7 +97,7 @@ public class ExplorationController {
     }
 
     // 탐험중 정보 로드
-    @GetMapping("{parkId}/load/{explorationId}")
+    @GetMapping("/{parkId}/load/{explorationId}")
     public ResponseEntity<Map<String, Object>> loadExploration(
         //        @RequestHeader("Authorization") String token,
         @PathVariable Long parkId,
