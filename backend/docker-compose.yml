@@ -1,29 +1,12 @@
 version: '3.8'
 services:
-  springboot-blue:
+  springboot-app:
     build:
       context: .
       dockerfile: Dockerfile
-    container_name: springboot-blue
+    container_name: springboot
     ports:
-      - "8081:8080"
-    env_file:
-      - .env
-    environment:
-      - REDIS_HOST=redis
-      - REDIS_PORT=6379
-      - TZ=Asia/Seoul
-    restart: unless-stopped
-    networks:
-      - app-network
-
-  springboot-green:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: springboot-green
-    ports:
-      - "8082:8080"
+      - "8080:8080"
     env_file:
       - .env
     environment:
