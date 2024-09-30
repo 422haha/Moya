@@ -128,6 +128,7 @@ public class ParkServiceImpl implements ParkService {
      * @return 공원 목록
      */
     @Override
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public List<ParkDistanceDto> getParksByLocation(double latitude, double longitude) {
         // 사용자 위치에서 5km 이내의 공원 목록 조회
         List<ParkDistanceProjection> parkProjections = parkRepositoryPark.findNearParks(latitude,

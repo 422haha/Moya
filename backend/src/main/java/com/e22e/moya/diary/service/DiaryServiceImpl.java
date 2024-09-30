@@ -62,6 +62,8 @@ public class DiaryServiceImpl implements DiaryService {
      * @param size   페이지 크기
      * @return 탐험 리스트
      */
+    @Override
+    @Transactional(readOnly = true, isolation = Isolation.REPEATABLE_READ)
     public DiaryListResponseDto getExplorations(Long userId, int page, int size) {
         PageRequest pageRequest = PageRequest.of(page - 1, size);
 
