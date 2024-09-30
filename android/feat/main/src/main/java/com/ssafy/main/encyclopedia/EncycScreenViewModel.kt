@@ -96,6 +96,21 @@ class EncycScreenViewModel
             }
         }
 
+        //TODO 여기도 parkId에 따라 데이터를 불러오도록 수정
         fun onIntent(intent: EncycUserIntent) {
+            when (intent) {
+                is EncycUserIntent.OnChipSelected -> {
+                    val selectedChipIndex = intent.index
+                    val filter =
+                        when (selectedChipIndex) {
+                            0 -> "all"
+                            1 -> "completed"
+                            2 -> "undiscovered"
+                            else -> "all"
+                        }
+
+                    loadInitialAllEncyclopedia(page = 1, size = 10, filter = filter)
+                }
+            }
         }
     }
