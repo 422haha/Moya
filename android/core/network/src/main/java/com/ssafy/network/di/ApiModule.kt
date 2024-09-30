@@ -3,6 +3,7 @@ package com.ssafy.network.di
 import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.api.ExplorationApi
 import com.ssafy.network.api.ParkApi
+import com.ssafy.network.api.SeasonApi
 import dagger.Module
 import dagger.Provides
 import dagger.hilt.InstallIn
@@ -26,5 +27,10 @@ object ApiModule {
     @Provides
     fun provideParkApi(retrofit: Retrofit): ParkApi {
         return retrofit.create(ParkApi::class.java)
+    }
+
+    @Provides
+    fun provideSeasonApi(retrofit: Retrofit): SeasonApi {
+        return retrofit.create(SeasonApi::class.java)
     }
 }
