@@ -1,6 +1,8 @@
 package com.ssafy.network.di
 
+import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.api.ExplorationApi
+import com.ssafy.network.api.ExploreDiaryApi
 import com.ssafy.network.api.ParkApi
 import dagger.Module
 import dagger.Provides
@@ -12,12 +14,14 @@ import retrofit2.Retrofit
 @InstallIn(SingletonComponent::class)
 object ApiModule {
     @Provides
-    fun provideExplorationApi(retrofit: Retrofit): ExplorationApi {
-        return retrofit.create(ExplorationApi::class.java)
-    }
+    fun provideExplorationApi(retrofit: Retrofit): ExplorationApi = retrofit.create(ExplorationApi::class.java)
 
     @Provides
-    fun provideParkApi(retrofit: Retrofit): ParkApi {
-        return retrofit.create(ParkApi::class.java)
-    }
+    fun provideParkApi(retrofit: Retrofit): ParkApi = retrofit.create(ParkApi::class.java)
+
+    @Provides
+    fun provideExploreDiaryApi(retrofit: Retrofit): ExploreDiaryApi = retrofit.create(ExploreDiaryApi::class.java)
+
+    @Provides
+    fun encyclopediaApi(retrofit: Retrofit): EncyclopediaApi = retrofit.create(EncyclopediaApi::class.java)
 }
