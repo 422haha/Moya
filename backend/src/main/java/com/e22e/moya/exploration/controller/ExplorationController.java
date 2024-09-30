@@ -228,31 +228,6 @@ public class ExplorationController {
         }
     }
 
-    // 도전과제 상태 변경
-    @GetMapping("/quest/{questId}/start")
-    public ResponseEntity<Map<String, Object>> changeStatus(
-        @PathVariable Long questId) {
-        Map<String, Object> response = new HashMap<>();
-
-        try {
-            questService.changeStatus(questId);
-
-            response.put("message", "도전과제 상태 변경 완료");
-            response.put("data", new Object[]{});
-            return ResponseEntity.ok().body(response);
-        } catch (EntityNotFoundException e) {
-            log.error("도전과제 찾을 수 없음 :", e);
-            response.put("message", e.getMessage());
-            response.put("data", new Object[]{});
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
-        } catch (Exception e) {
-            log.error("도전과제 조회 실패", e);
-            response.put("message", "도전과제 목록 조회에 실패했습니다.");
-            response.put("data", new Object[]{});
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-        }
-    }
-
 
     // 도전과제 성공 처리
     @PostMapping("/{explorationId}/quest/{questId}/complete")
