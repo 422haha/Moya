@@ -83,6 +83,10 @@ fun EncycScreenContent(
                             state = encycScreenState,
                             selectedChipIndex = selectedChipIndex,
                             onIntent = onIntent,
+                            onChipSelected = { index ->
+                                selectedChipIndex = index
+                                onIntent(EncycUserIntent.OnChipSelected(index))
+                            },
                         )
                     }
 
@@ -106,7 +110,6 @@ fun TopTitle(
     Row(
         modifier =
             Modifier
-                .background(color = LightBackgroundColor)
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -138,6 +141,7 @@ fun EncycScreenLoaded(
     state: EncycScreenState.Loaded,
     selectedChipIndex: Int,
     onIntent: (EncycUserIntent) -> Unit = {},
+    onChipSelected: (Int) -> Unit = {},
 ) {
     Column(
         modifier =
@@ -147,9 +151,7 @@ fun EncycScreenLoaded(
         CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = selectedChipIndex,
-            onChipSelected = { index ->
-                onIntent(EncycUserIntent.OnChipSelected(index))
-            },
+            onChipSelected = onChipSelected,
         )
         EncycGrid(
             items = state.items,
@@ -257,35 +259,6 @@ fun CollectionProgress(
                 Modifier
                     .fillMaxWidth(),
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "도감",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = customTypography.titleMedium,
-                    modifier =
-                        Modifier
-                            .padding(start = 8.dp),
-                )
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "onPop",
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable { onIntent(EncycUserIntent.OnPop) },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
