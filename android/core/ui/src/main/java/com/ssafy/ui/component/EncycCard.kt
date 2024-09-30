@@ -68,9 +68,9 @@ fun EncycCard(
                     .align(Alignment.BottomCenter),
             color =
                 if (state.isDiscovered) {
-                    SurfaceColor.copy(alpha = 0.5f)
+                    SurfaceColor.copy(alpha = 0.8f)
                 } else {
-                    Color.Black.copy(alpha = 0.5f)
+                    Color.Black.copy(alpha = 0.8f)
                 },
         ) {
             Box(

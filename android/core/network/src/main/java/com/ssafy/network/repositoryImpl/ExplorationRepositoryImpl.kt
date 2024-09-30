@@ -67,7 +67,26 @@ class ExplorationRepositoryImpl @Inject constructor(
     }
 
     override suspend fun getQuestList(explorationId: Long): Flow<ApiResponse<QuestList>> {
-        TODO("Not yet implemented")
+        return flow {
+            val response =
+                apiHandler {
+                    explorationApi.getQuestList(explorationId)
+                }
+            when (response) {
+                is ApiResponse.Success -> {
+                    emit(ApiResponse.Success(response.body?.data))
+                }
+
+                is ApiResponse.Error -> {
+                    emit(
+                        ApiResponse.Error(
+                            errorCode = response.errorCode,
+                            errorMessage = response.errorMessage,
+                        ),
+                    )
+                }
+            }
+        }
     }
 
     override suspend fun completeQuest(

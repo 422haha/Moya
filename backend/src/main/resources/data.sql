@@ -71,14 +71,13 @@ VALUES (1, 1),  -- 1 싸피 뒷뜰, 수달
 -- 환경 연수원
 -- NPC Position
 INSERT INTO npc_pos (pos, park_npc_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326), 1), -- 싸피 뒷뜰 - 수달
-       (ST_SetSRID(ST_MakePoint(128.416100, 36.107100), 4326), 1), -- 싸피 뒷뜰 - 수달
-       (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 2), -- 싸피 뒷뜰 - 검사 수달
-       (ST_SetSRID(ST_MakePoint(128.416300, 36.107300), 4326), 2), -- 싸피 뒷뜰 - 검사 수달
-       (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 3), -- 싸피 뒷뜰 - 거북이
-       (ST_SetSRID(ST_MakePoint(128.416500, 36.107500), 4326), 4), -- 싸피 뒷뜰 - 이정표
-       (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5), -- 동락공원 - 기도하는 수달
-       (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 6), -- 동락공원 - 너구리
+VALUES (ST_SetSRID(ST_MakePoint(128.4162641, 36.1067967), 4326), 1), -- 싸피 뒷뜰 - 수달
+       (ST_SetSRID(ST_MakePoint(128.4161918, 36.1066985), 4326), 2), -- 싸피 뒷뜰 - 수달
+       (ST_SetSRID(ST_MakePoint(128.4163712, 36.1066493), 4326), 3), -- 싸피 뒷뜰 - 검사 수달
+       (ST_SetSRID(ST_MakePoint(128.4165288, 36.1071543), 4326), 3), -- 싸피 뒷뜰 - 검사 수달
+       (ST_SetSRID(ST_MakePoint(128.4199104, 36.101726), 4326), 4),  -- 싸피 뒷뜰 - 검사 수달
+       (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),   -- 동락공원 - 기도하는 수달
+       (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 6),   -- 동락공원 - 너구리
        (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 9);
 -- 환경 연수원 - 마법사 너구리
 -- Species
@@ -92,13 +91,22 @@ VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
-VALUES
-    (1, 'SPRING'), (1, 'SUMMER'), (1, 'AUTUMN'), (1, 'WINTER'), -- 청설모: 모든 계절
-    (2, 'SPRING'), -- 왕벚나무: 봄
-    (3, 'SPRING'), (3, 'SUMMER'), (3, 'AUTUMN'), -- 잉어: 봄, 여름, 가을
-    (4, 'SPRING'), (4, 'SUMMER'), (4, 'AUTUMN'), (4, 'WINTER'), -- 참새: 모든 계절
-    (5, 'AUTUMN'), -- 단풍나무: 가을
-    (6, 'SPRING'), (6, 'SUMMER'); -- 개구리: 봄, 여름
+VALUES (1, 'SPRING'),
+       (1, 'SUMMER'),
+       (1, 'AUTUMN'),
+       (1, 'WINTER'), -- 청설모: 모든 계절
+       (2, 'SPRING'), -- 왕벚나무: 봄
+       (3, 'SPRING'),
+       (3, 'SUMMER'),
+       (3, 'AUTUMN'), -- 잉어: 봄, 여름, 가을
+       (4, 'SPRING'),
+       (4, 'SUMMER'),
+       (4, 'AUTUMN'),
+       (4, 'WINTER'), -- 참새: 모든 계절
+       (5, 'AUTUMN'), -- 단풍나무: 가을
+       (6, 'SPRING'),
+       (6, 'SUMMER');
+-- 개구리: 봄, 여름
 
 -- Park Species
 INSERT INTO park_species (park_id, species_id)

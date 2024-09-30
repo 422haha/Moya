@@ -23,9 +23,9 @@ class EncycDetailScreenVIewModel
         private val _state = MutableStateFlow<EncycDetailScreenState>(EncycDetailScreenState.Loading)
         val state: StateFlow<EncycDetailScreenState> = _state
 
-        fun loadInitialData(parkId: Long) {
+        fun loadInitialData(itemId: Long) {
             viewModelScope.launch {
-                encyclopediaRepository.getEncyclopediaDetail(parkId).collectLatest { response ->
+                encyclopediaRepository.getEncyclopediaDetail(itemId).collectLatest { response ->
                     _state.value =
                         when (response) {
                             is ApiResponse.Success -> {
@@ -33,26 +33,28 @@ class EncycDetailScreenVIewModel
                                     EncycDetailScreenState.Loaded(
                                         data =
                                             EncycDetail(
-                                                plantId = body.data.itemId,
-                                                plantName = body.data.speciesName,
-                                                plantImage = body.data.imageUrl,
-                                                description = body.data.description,
-                                                userPhoto = body.data.userPhotos[0].imageUrl,
+                                                plantId = body.itemId,
+                                                plantName = body.speciesName,
+                                                plantImage = body.imageUrl,
+                                                description = body.description,
+                                                userPhoto = body.userPhotos[0].imageUrl,
                                             ),
                                     )
                                 } ?: EncycDetailScreenState.Error("Failed to load initial data")
                             }
 
-                            is ApiResponse.Error ->
+                            is ApiResponse.Error -> {
                                 EncycDetailScreenState.Error(
                                     response.errorMessage ?: "Unknown error",
                                 )
+                            }
                         }
                 }
             }
         }
 
         fun onIntent(intent: EncycDetailUserIntent) {
-            when(intent) {}
+            when (intent) {
+            }
         }
     }
