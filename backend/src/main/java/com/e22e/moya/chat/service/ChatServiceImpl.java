@@ -1,4 +1,4 @@
-package com.e22e.moya.exploration.service.chat;
+package com.e22e.moya.chat.service;
 
 import com.e22e.moya.common.entity.chatting.Chat;
 import com.e22e.moya.common.entity.chatting.Message;
@@ -15,7 +15,11 @@ import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
 import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
 import dev.langchain4j.data.segment.TextSegment;
 import dev.langchain4j.data.document.Document;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
@@ -28,7 +32,7 @@ import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.load
 
 @Service
 public class ChatServiceImpl implements ChatService {
-//
+
 //    private final ChatRepository chatRepository;
 //    private final ChatAssistant assistant; // AI 챗봇과의 상호작용을 관리하는 객체
 //
@@ -59,30 +63,61 @@ public class ChatServiceImpl implements ChatService {
 //     * @return ChatResponseDto
 //     */
 //    @Override
-//    @Transactional
+//    @Transactional(isolation = Isolation.READ_COMMITTED)
 //    public ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long chatId) {
-//        Chat chat = chatRepository.findById(chatId).orElse(new Chat()); // 기존 채팅 내역을 불러오거나 새로운 채팅 생성
+//        Chat chat = this.chatRepository.findById(chatId).orElse(new Chat());
 //
-//        // 사용자 메시지 생성 및 추가
-//        Message userMessage = new Message();
-//        userMessage.setContent(requestDto.getMessage());
-//        userMessage.setMessageTime(LocalDateTime.now());
-//        userMessage.setUserMessage(true);
+//        List<Message> recentMessages = getRecentMessages(chat);
+//        String context = buildContext(recentMessages);
+//
+//        Message userMessage = createUserMessage(requestDto.getMessage());
 //        chat.getMessages().add(userMessage);
 //
-//        // RAG 기반 AI 응답 생성
-//        String response = assistant.answer(requestDto.getMessage());
+//        String prompt = context + "User: " + requestDto.getMessage() + "\nAI:";
+//        String response = this.assistant.answer(prompt);
 //
-//        // AI 메시지 생성 및 추가
-//        Message aiMessage = new Message();
-//        aiMessage.setContent(response);
-//        aiMessage.setMessageTime(LocalDateTime.now());
-//        aiMessage.setUserMessage(false);
+//        Message aiMessage = createAiMessage(response);
 //        chat.getMessages().add(aiMessage);
 //
-//        // 채팅 기록 저장
-//        chatRepository.save(chat);
+//        this.chatRepository.save(chat);
 //
-//        return new ChatResponseDto(response); // AI 응답 반환
+//        return new ChatResponseDto(response);
+//    }
+//
+//    private List<Message> getRecentMessages(Chat chat) {
+//        List<Message> messages = new ArrayList<>(chat.getMessages());
+//        Collections.sort(messages, new Comparator<Message>() {
+//            @Override
+//            public int compare(Message m1, Message m2) {
+//                return m2.getMessageTime().compareTo(m1.getMessageTime());
+//            }
+//        });
+//        return messages.subList(0, Math.min(messages.size(), 20));
+//    }
+//
+//    private String buildContext(List<Message> messages) {
+//        StringBuilder context = new StringBuilder();
+//        for (Message message : messages) {
+//            context.append(message.isUserMessage() ? "User: " : "AI: ")
+//                .append(message.getContent())
+//                .append("\n");
+//        }
+//        return context.toString();
+//    }
+//
+//    private Message createUserMessage(String content) {
+//        Message message = new Message();
+//        message.setContent(content);
+//        message.setMessageTime(LocalDateTime.now());
+//        message.setUserMessage(true);
+//        return message;
+//    }
+//
+//    private Message createAiMessage(String content) {
+//        Message message = new Message();
+//        message.setContent(content);
+//        message.setMessageTime(LocalDateTime.now());
+//        message.setUserMessage(false);
+//        return message;
 //    }
 }
