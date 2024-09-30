@@ -9,7 +9,7 @@ import androidx.compose.ui.Modifier
 
 @Composable
 fun LoadingScreen(
-    modifier: Modifier,
+    modifier: Modifier = Modifier,
 ) {
     Box(
         modifier = modifier.fillMaxSize()

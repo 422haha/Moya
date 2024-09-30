@@ -17,6 +17,7 @@ object ApiModule {
     fun provideEncyclopediaApi(retrofit: Retrofit): EncyclopediaApi {
         return retrofit.create(EncyclopediaApi::class.java)
     }
+
     @Provides
     fun provideExplorationApi(retrofit: Retrofit): ExplorationApi {
         return retrofit.create(ExplorationApi::class.java)
