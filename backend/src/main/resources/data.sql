@@ -209,17 +209,17 @@ VALUES (1),
 INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate,
                          image_url, route, completed)
 VALUES (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09-23',
-        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        'https://i.ibb.co/hXpwwkt/test-camera.png',
         ST_GeomFromText(
                 'LINESTRING(128.416000 36.107000, 128.416100 36.107100, 128.416200 36.107200)',
                 4326), true),
        (1, 2, '2024-09-24 09:00:00', '2024-09-24 11:30:00', 5000, 8000, '2024-09-24',
-        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        'https://i.ibb.co/hXpwwkt/test-camera.png',
         ST_GeomFromText(
                 'LINESTRING(128.402000 36.100000, 128.402100 36.100100, 128.402500 36.095000)',
                 4326), true),
        (1, 3, '2024-09-25 14:00:00', '2024-09-25 16:00:00', 3000, 6000, '2024-09-25',
-        'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp',
+        'https://i.ibb.co/hXpwwkt/test-camera.png',
         ST_GeomFromText(
                 'LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)',
                 4326), true);
@@ -231,7 +231,7 @@ SELECT 1,                                                                       
        1,                                                                                                                                   -- species_id ('청설모')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-23 10:30:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (청설모 이미지)
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (청설모 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
@@ -244,7 +244,7 @@ SELECT 1,                                                                       
        2,                                                                                                                                   -- species_id ('왕벚나무')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-23 11:00:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (왕벚나무 이미지)
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (왕벚나무 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
@@ -257,7 +257,7 @@ SELECT 1,                                                                       
        3,                                                                                                                                   -- species_id ('잉어')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-24 10:15:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (잉어 이미지)
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (잉어 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 2    -- 동락공원
@@ -270,7 +270,7 @@ SELECT 1,                                                                       
        5,                                                                                                                                   -- species_id ('단풍나무')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-24 11:00:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (단풍나무 이미지)
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (단풍나무 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 2    -- 동락공원
@@ -283,7 +283,7 @@ SELECT 1,                                                                       
        6,                                                                                                                                   -- species_id ('개구리')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-25 15:00:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/jLsXS5z/DALL-E-2024-09-25-12-52-09-A-detailed-3-D-like-rendering-of-a-cute-rabbit-standing-on-a-white-backgr.webp' -- image_url (개구리 이미지)
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (개구리 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 3    -- 환경 연수원
@@ -295,26 +295,26 @@ WHERE ps.park_id = 3    -- 환경 연수원
 -- ========================================================공원 더미 데이터
 -- 테스트용 공원 20개 추가
 INSERT INTO park (name, description, image_url)
-VALUES ('Test Park 1', '테스트 공원 1 설명', 'https://example.com/test_park1.jpg'),
-       ('Test Park 2', '테스트 공원 2 설명', 'https://example.com/test_park2.jpg'),
-       ('Test Park 3', '테스트 공원 3 설명', 'https://example.com/test_park3.jpg'),
-       ('Test Park 4', '테스트 공원 4 설명', 'https://example.com/test_park4.jpg'),
-       ('Test Park 5', '테스트 공원 5 설명', 'https://example.com/test_park5.jpg'),
-       ('Test Park 6', '테스트 공원 6 설명', 'https://example.com/test_park6.jpg'),
-       ('Test Park 7', '테스트 공원 7 설명', 'https://example.com/test_park7.jpg'),
-       ('Test Park 8', '테스트 공원 8 설명', 'https://example.com/test_park8.jpg'),
-       ('Test Park 9', '테스트 공원 9 설명', 'https://example.com/test_park9.jpg'),
-       ('Test Park 10', '테스트 공원 10 설명', 'https://example.com/test_park10.jpg'),
-       ('Test Park 11', '테스트 공원 11 설명', 'https://example.com/test_park11.jpg'),
-       ('Test Park 12', '테스트 공원 12 설명', 'https://example.com/test_park12.jpg'),
-       ('Test Park 13', '테스트 공원 13 설명', 'https://example.com/test_park13.jpg'),
-       ('Test Park 14', '테스트 공원 14 설명', 'https://example.com/test_park14.jpg'),
-       ('Test Park 15', '테스트 공원 15 설명', 'https://example.com/test_park15.jpg'),
-       ('Test Park 16', '테스트 공원 16 설명', 'https://example.com/test_park16.jpg'),
-       ('Test Park 17', '테스트 공원 17 설명', 'https://example.com/test_park17.jpg'),
-       ('Test Park 18', '테스트 공원 18 설명', 'https://example.com/test_park18.jpg'),
-       ('Test Park 19', '테스트 공원 19 설명', 'https://example.com/test_park19.jpg'),
-       ('Test Park 20', '테스트 공원 20 설명', 'https://example.com/test_park20.jpg');
+VALUES ('Test Park 1', '테스트 공원 1 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 2', '테스트 공원 2 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 3', '테스트 공원 3 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 4', '테스트 공원 4 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 5', '테스트 공원 5 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 6', '테스트 공원 6 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 7', '테스트 공원 7 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 8', '테스트 공원 8 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 9', '테스트 공원 9 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 10', '테스트 공원 10 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 11', '테스트 공원 11 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 12', '테스트 공원 12 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 13', '테스트 공원 13 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 14', '테스트 공원 14 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 15', '테스트 공원 15 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 16', '테스트 공원 16 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 17', '테스트 공원 17 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 18', '테스트 공원 18 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 19', '테스트 공원 19 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg'),
+       ('Test Park 20', '테스트 공원 20 설명', 'https://i.ibb.co/Sn5SfGR/test-garden.jpg');
 
 -- 테스트용 공원 위치 추가
 INSERT INTO park_pos (pos, park_id, name)
