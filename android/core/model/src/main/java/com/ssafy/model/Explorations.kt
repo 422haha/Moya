@@ -8,7 +8,7 @@ data class Explorations(
     val parkName: String,
     val startTime: String,
     val distance: Double,
-    val collected: Int,
+    val collectedCount: Int,
     val imageUrl: String,
     val duration: Int,
     val questCompletedCount: Int,
