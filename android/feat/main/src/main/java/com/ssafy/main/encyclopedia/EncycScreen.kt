@@ -20,7 +20,7 @@ fun EncycScreen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     //TODO 추후에 filter를 intent를 통해서 수정
-    LaunchedEffect(page, size) {
+    LaunchedEffect(Unit) {
         viewModel.loadInitialParkEncyclopedia(parkId, page, size, filter = "all")
     }
 
