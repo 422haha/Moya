@@ -8,8 +8,9 @@ import com.ssafy.network.apiHandler
 import com.ssafy.network.repository.SeasonRepository
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
+import javax.inject.Inject
 
-class SeasonRepositoryImpl(
+class SeasonRepositoryImpl @Inject constructor(
     private val seasonApi: SeasonApi
 ) : SeasonRepository {
     override suspend fun getSpeciesInSeason(): Flow<ApiResponse<List<SpeciesInSeason>>> {
