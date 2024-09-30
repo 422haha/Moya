@@ -5,7 +5,6 @@ import android.content.Context
 import android.content.pm.PackageManager
 import android.location.Location
 import android.os.Looper
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -13,8 +12,9 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.Priority
 import com.ssafy.ar.data.LocationPriority
-import com.ssafy.ar.data.NPCLocation
+import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.NearestNPCInfo
+import com.ssafy.ar.data.QuestState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,8 +87,8 @@ class ARLocationManager(
         locationCallback = null
     }
 
-    fun operateNearestNPC(location: Location, npcMarkers: Map<String, NPCLocation>): NearestNPCInfo {
-        val npc = findNearestNPC(location, npcMarkers)
+    fun operateNearestNPC(location: Location, questInfos: Map<Long, QuestInfo>): NearestNPCInfo {
+        val npc = findNearestNPC(location, questInfos)
         val distance = npc?.let { measureNearestNpcDistance(location, it) }
         val isAvailable = isAvailableNearestNPC(distance, location)
 
@@ -96,7 +96,7 @@ class ARLocationManager(
     }
 
     // 가장 가까운 노드와의 거리를 측정
-    private fun measureNearestNpcDistance(location: Location, npcLocation: NPCLocation): Float {
+    private fun measureNearestNpcDistance(location: Location, npcLocation: QuestInfo): Float {
         val targetLocation = Location("target").apply {
             latitude = npcLocation.latitude
             longitude = npcLocation.longitude
@@ -108,10 +108,10 @@ class ARLocationManager(
     // 가장 가까운 노드를 찾기
     private fun findNearestNPC(
         currentLocation: Location,
-        npcLocations: Map<String, NPCLocation>
-    ): NPCLocation? {
-        return npcLocations.values
-            .filter { !it.isPlace }
+        questInfos: Map<Long, QuestInfo>
+    ): QuestInfo? {
+        return questInfos.values
+            .filter { it.isComplete != QuestState.COMPLETE }
             .minByOrNull { location ->
             val npcLocation = Location("npc").apply {
                 latitude = location.latitude
@@ -127,7 +127,7 @@ class ARLocationManager(
         nearestDistance: Float?,
         location: Location?
     ): Boolean {
-        return ((location?.accuracy ?: 100.0f) <= 10f
+        return ((location?.accuracy ?: 100.0f) <= 15f
                 && (nearestDistance ?: 100f) <= 10f)
     }
 

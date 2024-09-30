@@ -1,17 +1,12 @@
-package com.ssafy.ar
+package com.ssafy.ar.ui
 
 import android.Manifest
-import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.systemBarsPadding
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -21,28 +16,20 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.google.android.gms.location.LocationServices
+import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.ar.core.Camera
 import com.google.ar.core.Config
 import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
-import com.ssafy.ar.data.QuestStatus
-import com.ssafy.ar.data.TrackingMessage
-import com.ssafy.ar.dummy.scriptNode
-import com.ssafy.ar.manager.ARLocationManager
-import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.ar.ARViewModel
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.data.QuestType
+import com.ssafy.ar.data.getImageResource
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
@@ -76,7 +63,7 @@ fun ARSceneComposable(
     val heightPx = with(density) { screenHeight.toPx() }.toInt()
 
     // LifeCycle
-    val context = LocalContext.current
+    val viewModel: ARViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
 
     // Permission
@@ -93,21 +80,10 @@ fun ARSceneComposable(
     var planeRenderer by remember { mutableStateOf(false) }
     var trackingFailureReason by remember { mutableStateOf<TrackingFailureReason?>(null) }
 
-    // Manager
-    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
-    val locationManager = remember { ARLocationManager(context, fusedLocationClient) }
-    val nodeManager = remember { ARNodeManager(engine, modelLoader, materialLoader) }
-
-    val viewModel: ARViewModel = viewModel(factory = object : ViewModelProvider.Factory {
-        override fun <T : ViewModel> create(modelClass: Class<T>): T {
-            return ARViewModel(nodeManager, locationManager) as T
-        }
-    })
-
     // AR State
-    val questNodes by viewModel.questNodes.collectAsState()
-    val nearestNPCInfo by viewModel.nearestNPCInfo.collectAsState()
-    val currentLocation by locationManager.currentLocation.collectAsState()
+    val questInfos by viewModel.questInfos.collectAsState()
+    val scriptInfos by viewModel.scriptInfos.collectAsState()
+    val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
@@ -123,9 +99,12 @@ fun ARSceneComposable(
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
 
-            locationManager.startLocationUpdates()
+            viewModel.locationManager.startLocationUpdates()
 
-            viewModel.getAllNpcMarker()
+            // TODO
+            viewModel.getAllQuests(0)
+
+            viewModel.getAllScripts()
         } else {
             hasPermission = false
 
@@ -151,7 +130,7 @@ fun ARSceneComposable(
                     }
                 config.instantPlacementMode = Config.InstantPlacementMode.DISABLED
                 config.updateMode = Config.UpdateMode.LATEST_CAMERA_IMAGE
-                config.lightEstimationMode = Config.LightEstimationMode.DISABLED
+                config.lightEstimationMode = Config.LightEstimationMode.ENVIRONMENTAL_HDR
                 config.planeFindingMode = Config.PlaneFindingMode.HORIZONTAL
                 config.focusMode = Config.FocusMode.AUTO
 //                config.geospatialMode = Config.GeospatialMode.ENABLED
@@ -160,11 +139,12 @@ fun ARSceneComposable(
             planeRenderer = planeRenderer,
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
-                if(trackingFailureReason == null) {
-                    val desiredPlaneFindingMode = if (nearestNPCInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
-                        Config.PlaneFindingMode.HORIZONTAL
-                    else
-                        Config.PlaneFindingMode.DISABLED
+                if (trackingFailureReason == null) {
+                    val desiredPlaneFindingMode =
+                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
+                            Config.PlaneFindingMode.HORIZONTAL
+                        else
+                            Config.PlaneFindingMode.DISABLED
 
                     if (desiredPlaneFindingMode != session.config.planeFindingMode) {
                         session.configure(session.config.apply {
@@ -173,17 +153,23 @@ fun ARSceneComposable(
                     }
                 }
 
-                if (frame.isTrackingPlane()
-                    && nearestNPCInfo.shouldPlace
-                ) {
-                    nearestNPCInfo.npc?.id?.let { id ->
+                if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
+                    nearestQuestInfo.npc?.let { quest ->
                         val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
-                        if(planeAndPose != null) {
+                        if (planeAndPose != null) {
                             val (plane, pose) = planeAndPose
 
-                            if(childNodes.all { it.name != id }) {
-                                viewModel.addAnchorNode(plane, pose, id, childNodes)
+                            if (childNodes.all { it.name != quest.id.toString() }) {
+                                viewModel.placeNode(
+                                    plane,
+                                    pose,
+                                    quest,
+                                    engine,
+                                    modelLoader,
+                                    materialLoader,
+                                    childNodes
+                                )
                             }
                         }
                     }
@@ -191,49 +177,70 @@ fun ARSceneComposable(
             },
             onGestureListener = rememberOnGestureListener(
                 onSingleTapConfirmed = { motionEvent, node ->
-                    if (node is ModelNode || node is ImageNode) {
+                    if (node is ModelNode || node?.parent is ModelNode) {
                         val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+
                         val anchorNode = modelNode?.parent as? AnchorNode
 
-                        val nodeId = modelNode?.name?.toInt()
-                        val anchorId = anchorNode?.name
+                        val anchorId = anchorNode?.name?.toLong()
 
-                        if (nodeId != null && anchorId != null) {
-                            val quest = scriptNode[nodeId]
-                            val state = questNodes[anchorId]
+                        if (anchorId != null) {
+                            val quest = questInfos[anchorId]
 
-                            state?.let {
-                                when (state) {
+                            quest?.let {
+                                when (val state = quest.isComplete) {
                                     // 퀘스트 진행전
-                                    QuestStatus.WAIT -> {
-                                        viewModel.showQuestDialog(nodeId, state) { accepted ->
+                                    QuestState.WAIT -> {
+                                        viewModel.showQuestDialog(
+                                            scriptInfos[quest.questType],
+                                            state
+                                        ) { accepted ->
                                             if (accepted) {
-                                                viewModel.updateQuest(anchorId,
-                                                    QuestStatus.PROGRESS)
-                                                    .apply {
-                                                        viewModel.updateAnchorNode(
-                                                            modelNode,
-                                                            quest,
-                                                            anchorNode
-                                                        )
+                                                viewModel.updateQuestState(
+                                                    anchorId,
+                                                    QuestState.PROGRESS
+                                                ).apply {
+                                                    viewModel.updateAnchorNode(
+                                                        quest,
+                                                        modelNode,
+                                                        anchorNode,
+                                                        modelLoader,
+                                                        materialLoader
+                                                    )
+
+                                                    viewModel.locationManager.currentLocation.value?.let {
+                                                        viewModel.updateNearestNPC(it)
                                                     }
+                                                }
                                             }
                                         }
                                     }
                                     // 퀘스트 진행중
-                                    QuestStatus.PROGRESS -> {
-                                        viewModel.showQuestDialog(nodeId, state) { accepted ->
+                                    QuestState.PROGRESS -> {
+                                        viewModel.showQuestDialog(
+                                            scriptInfos[quest.questType],
+                                            state
+                                        ) { accepted ->
                                             if (accepted) {
                                                 // TODO 온디바이스 AI로 검사
-                                                viewModel.updateQuest(
+                                                viewModel.updateQuestState(
                                                     anchorId,
-                                                    QuestStatus.COMPLETE
+                                                    QuestState.COMPLETE
                                                 ).apply {
-                                                    val imageNode = modelNode.childNodes.filterIsInstance<ImageNode>()
+                                                    val imageNode = modelNode.childNodes
+                                                        .filterIsInstance<ImageNode>()
                                                         .firstOrNull()
 
                                                     imageNode?.let {
-                                                        viewModel.updateModelNode(imageNode, modelNode)
+                                                        viewModel.updateModelNode(
+                                                            imageNode,
+                                                            modelNode,
+                                                            materialLoader
+                                                        )
+                                                    }
+
+                                                    viewModel.locationManager.currentLocation.value?.let {
+                                                        viewModel.updateNearestNPC(it)
                                                     }
 
                                                     coroutineScope.launch {
@@ -244,9 +251,11 @@ fun ARSceneComposable(
                                         }
                                     }
                                     // 퀘스트 완료
-                                    QuestStatus.COMPLETE -> {
+                                    QuestState.COMPLETE -> {
                                         coroutineScope.launch {
-                                            snackBarHostState.showSnackbar(quest.completeMessage)
+                                            snackBarHostState.showSnackbar(
+                                                scriptInfos[quest.questType]?.completeMessage ?: ""
+                                            )
                                         }
                                     }
                                 }
@@ -257,34 +266,23 @@ fun ARSceneComposable(
         )
 
         Column {
+            CustomCard(
+                imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)
+                    ?.getImageResource() ?: 0,
+                title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
+                state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
+                distanceText = "${
+                    nearestQuestInfo.distance?.let {
+                        if (nearestQuestInfo.shouldPlace)
+                            "목적지 도착!"
+                        else
+                            "%.2f m".format(it)
+                    } ?: "검색중.."
+                } ")
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
-                isAvailable = nearestNPCInfo.shouldPlace,
-                isPlace = nearestNPCInfo.npc?.id?.let { viewModel.getNpcMarker(it) }
-            )
-            Text(
-                text = "위도: ${currentLocation?.latitude ?: "모니터링중..."} ",
-                color = Color.White
-            )
-            Text(
-                text = "경도: ${currentLocation?.longitude ?: "모니터링중..."} ",
-                color = Color.White
-            )
-            Text(
-                text = "정확도: ${currentLocation?.accuracy ?: "모니터링중..."} ",
-                color = Color.Red
-            )
-            Text(
-                text = "생성된 미션: ${questNodes.keys} ",
-                color = Color.Red
-            )
-            Text(
-                text = "가까운 미션: ${nearestNPCInfo.npc?.id ?: "모니터링중..."} ",
-                color = Color.Red
-            )
-            Text(
-                text = "미션까지 거리: ${nearestNPCInfo.distance?.let { "%.2fm".format(it) } ?: "모니터링중..."} ",
-                color = Color.Red
+                isAvailable = nearestQuestInfo.shouldPlace,
+                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
             )
         }
 
@@ -298,7 +296,7 @@ fun ARSceneComposable(
 
     if (showDialog) {
         QuestDialog(
-            idx = dialogData.first,
+            script = dialogData.first,
             state = dialogData.second,
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() }
@@ -306,12 +304,17 @@ fun ARSceneComposable(
     }
 }
 
-private fun findPlaneInView(frame: Frame, width: Int, height: Int, camera: Camera): Pair<Plane, Pose>? {
+private fun findPlaneInView(
+    frame: Frame,
+    width: Int,
+    height: Int,
+    camera: Camera
+): Pair<Plane, Pose>? {
     val center = android.graphics.PointF(width / 2f, height / 2f)
     val hits = frame.hitTest(center.x, center.y)
 
     val planeHit = hits.firstOrNull {
-        it.isValid (
+        it.isValid(
             depthPoint = true,
             point = true,
             planePoseInPolygon = true,
@@ -327,34 +330,5 @@ private fun findPlaneInView(frame: Frame, width: Int, height: Int, camera: Camer
         val pose = hit.hitPose
         Pair(plane, pose)
     }
-}
-
-@Composable
-fun ArStatusText(
-    trackingFailureReason: TrackingFailureReason?,
-    isAvailable: Boolean,
-    isPlace: Boolean?
-) {
-    Log.d(TAG, "ArStatusText: $trackingFailureReason ${isAvailable} $isPlace")
-    
-    Text(
-        modifier = Modifier
-            .systemBarsPadding()
-            .fillMaxWidth()
-            .padding(top = 16.dp, start = 32.dp, end = 32.dp),
-        textAlign = TextAlign.Center,
-        fontSize = 20.sp,
-        color = Color.White,
-        text = when {
-            trackingFailureReason != TrackingFailureReason.NONE && trackingFailureReason != null ->
-                TrackingMessage.fromTrackingFailureReason(trackingFailureReason).message
-            else -> {
-                if(isAvailable && isPlace != null && !isPlace)
-                    TrackingMessage.SEARCH_AROUND.message
-                else
-                    TrackingMessage.EMPTY.message
-            }
-        }
-    )
 }
 

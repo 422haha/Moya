@@ -2,6 +2,7 @@ package com.e22e.moya.chat.service;
 
 import com.e22e.moya.common.entity.chatting.Chat;
 import com.e22e.moya.common.entity.chatting.Message;
+import com.e22e.moya.common.entity.npc.Npc;
 import com.e22e.moya.common.util.ChatAssistant;
 import com.e22e.moya.common.util.ChatUtils;
 import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
@@ -64,8 +65,10 @@ public class ChatServiceImpl implements ChatService {
 //     */
 //    @Override
 //    @Transactional(isolation = Isolation.READ_COMMITTED)
-//    public ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long chatId) {
-//        Chat chat = this.chatRepository.findById(chatId).orElse(new Chat());
+//    public ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long npcPosId,
+//        Long userId) {
+//        Chat chat = this.chatRepository.findByNpcPosIdAndUserId(npcPosId, userId)
+//            .orElse(new Chat());
 //
 //        List<Message> recentMessages = getRecentMessages(chat);
 //        String context = buildContext(recentMessages);
@@ -120,4 +123,16 @@ public class ChatServiceImpl implements ChatService {
 //        message.setUserMessage(false);
 //        return message;
 //    }
+//
+//    private String setPersonality(String context, String userMessage, Npc npc) {
+//        StringBuilder prompt = new StringBuilder();
+//        prompt.append("You are an NPC named ").append(npc.getName()).append(".\n");
+//        prompt.append("Your personality: ").append("friendly").append("\n");
+////        prompt.append("Your knowledge base: ").append(npc.getKnowledgeBase()).append("\n");
+//        prompt.append("Previous conversation:\n").append(context);
+//        prompt.append("User: ").append(userMessage).append("\n");
+//        prompt.append("AI (as ").append(npc.getName()).append("): ");
+//        return prompt.toString();
+//    }
+
 }
