@@ -35,5 +35,5 @@ data class SpeciesInSeason(
     @SerialName("imageUrl")
     val imageUrl: String,
     @SerialName("score")
-    val score: Int,
+    val score: Float,
 )
