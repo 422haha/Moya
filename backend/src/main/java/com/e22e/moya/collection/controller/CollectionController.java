@@ -34,7 +34,7 @@ public class CollectionController {
      */
     @GetMapping("/collections")
     public ResponseEntity<Map<String, Object>> getAllCollections(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @RequestParam("page") int page,
         @RequestParam("size") int size,
         @RequestParam(value = "filter", defaultValue = "all") String filter
@@ -77,7 +77,7 @@ public class CollectionController {
      */
     @GetMapping("/{parkId}")
     public ResponseEntity<Map<String, Object>> getParkCollections(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @PathVariable("parkId") Long parkId,
         @RequestParam("page") int page,
         @RequestParam("size") int size,
@@ -118,7 +118,7 @@ public class CollectionController {
      */
     @GetMapping("/{itemId}/detail")
     public ResponseEntity<Map<String, Object>> getCollectionDetail(
-        @RequestHeader("Authorization") String token,
+//        @RequestHeader("Authorization") String token,
         @PathVariable("itemId") Long itemId
     ) {
         Map<String, Object> response = new HashMap<>();
