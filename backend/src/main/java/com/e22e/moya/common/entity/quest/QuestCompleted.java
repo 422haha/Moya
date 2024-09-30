@@ -36,7 +36,9 @@ public class QuestCompleted {
     @Exclude
     private NpcPos npcPos;
 
-    private boolean completed;
+    @Enumerated(EnumType.STRING)
+    @Column(name = "status")
+    private QuestStatus status;
 
     // getter, setter
 
@@ -88,12 +90,11 @@ public class QuestCompleted {
         this.npcPos = npcPos;
     }
 
-    public boolean isCompleted() {
-        return completed;
+    public QuestStatus getStatus() {
+        return status;
     }
 
-    public void setCompleted(boolean completed) {
-        this.completed = completed;
+    public void setStatus(QuestStatus status) {
+        this.status = status;
     }
-
 }

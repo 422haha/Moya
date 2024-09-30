@@ -1,6 +1,5 @@
 package com.ssafy.network.di
 
-import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.api.ExplorationApi
 import com.ssafy.network.api.ParkApi
 import dagger.Module

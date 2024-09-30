@@ -11,4 +11,6 @@ public interface QuestService {
     QuestListResponseDto getQuestList(long userId, Long explorationId);
 
     QuestCompleteResponseDto completeQuest(Long explorationId, Long questId);
+
+    void changeStatus(Long questId);
 }

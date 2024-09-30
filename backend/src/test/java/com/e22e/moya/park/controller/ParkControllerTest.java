@@ -1,10 +1,9 @@
-package com.e22e.moya.park;
+package com.e22e.moya.park.controller;
 
 import com.e22e.moya.park.dto.ParkDetailResponseDto;
 import com.e22e.moya.park.dto.ParkListResponseDto;
 import com.e22e.moya.park.dto.ParkResponseDto;
 import com.e22e.moya.park.service.ParkService;
-import com.e22e.moya.park.controller.ParkController;
 // import com.e22e.moya.common.util.JwtUtil;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

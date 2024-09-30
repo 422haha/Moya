@@ -89,6 +89,17 @@ VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 
        ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
        ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
        ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
+
+-- 동식물의 볼 수 있는 계절 정보 삽입
+INSERT INTO species_seasons (species_id, season)
+VALUES
+    (1, 'SPRING'), (1, 'SUMMER'), (1, 'AUTUMN'), (1, 'WINTER'), -- 청설모: 모든 계절
+    (2, 'SPRING'), -- 왕벚나무: 봄
+    (3, 'SPRING'), (3, 'SUMMER'), (3, 'AUTUMN'), -- 잉어: 봄, 여름, 가을
+    (4, 'SPRING'), (4, 'SUMMER'), (4, 'AUTUMN'), (4, 'WINTER'), -- 참새: 모든 계절
+    (5, 'AUTUMN'), -- 단풍나무: 가을
+    (6, 'SPRING'), (6, 'SUMMER'); -- 개구리: 봄, 여름
+
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
 VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
@@ -101,7 +112,9 @@ VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
        (3, 5), -- 8 환경 연수원 - 단풍나무
        (3, 6)
 -- 9 환경 연수원 - 개구리
-    ON CONFLICT (park_id, species_id) DO NOTHING;
+ON CONFLICT
+    (park_id, species_id)
+DO NOTHING;
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
@@ -269,3 +282,45 @@ FROM species_pos sp
 WHERE ps.park_id = 3    -- 환경 연수원
   AND ps.species_id = 6 -- 개구리
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));
+
+
+
+-- ========================================================공원 더미 데이터
+-- 테스트용 공원 20개 추가
+INSERT INTO park (name, description, image_url)
+VALUES ('Test Park 1', '테스트 공원 1 설명', 'https://example.com/test_park1.jpg'),
+       ('Test Park 2', '테스트 공원 2 설명', 'https://example.com/test_park2.jpg'),
+       ('Test Park 3', '테스트 공원 3 설명', 'https://example.com/test_park3.jpg'),
+       ('Test Park 4', '테스트 공원 4 설명', 'https://example.com/test_park4.jpg'),
+       ('Test Park 5', '테스트 공원 5 설명', 'https://example.com/test_park5.jpg'),
+       ('Test Park 6', '테스트 공원 6 설명', 'https://example.com/test_park6.jpg'),
+       ('Test Park 7', '테스트 공원 7 설명', 'https://example.com/test_park7.jpg'),
+       ('Test Park 8', '테스트 공원 8 설명', 'https://example.com/test_park8.jpg'),
+       ('Test Park 9', '테스트 공원 9 설명', 'https://example.com/test_park9.jpg'),
+       ('Test Park 10', '테스트 공원 10 설명', 'https://example.com/test_park10.jpg'),
+       ('Test Park 11', '테스트 공원 11 설명', 'https://example.com/test_park11.jpg'),
+       ('Test Park 12', '테스트 공원 12 설명', 'https://example.com/test_park12.jpg'),
+       ('Test Park 13', '테스트 공원 13 설명', 'https://example.com/test_park13.jpg'),
+       ('Test Park 14', '테스트 공원 14 설명', 'https://example.com/test_park14.jpg'),
+       ('Test Park 15', '테스트 공원 15 설명', 'https://example.com/test_park15.jpg'),
+       ('Test Park 16', '테스트 공원 16 설명', 'https://example.com/test_park16.jpg'),
+       ('Test Park 17', '테스트 공원 17 설명', 'https://example.com/test_park17.jpg'),
+       ('Test Park 18', '테스트 공원 18 설명', 'https://example.com/test_park18.jpg'),
+       ('Test Park 19', '테스트 공원 19 설명', 'https://example.com/test_park19.jpg'),
+       ('Test Park 20', '테스트 공원 20 설명', 'https://example.com/test_park20.jpg');
+
+-- 테스트용 공원 위치 추가
+INSERT INTO park_pos (pos, park_id, name)
+SELECT ST_SetSRID(
+               ST_MakePoint(
+                       128.416431 + (random() - 0.5) * 0.7,
+                       36.108044 + (random() - 0.5) * 0.7
+               ),
+               4326
+       ),
+       p.id,
+       '입구'
+FROM park p
+WHERE p.name LIKE 'Test Park %'
+ORDER BY p.id;
+-- ========================================================공원 더미 데이터

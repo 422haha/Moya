@@ -5,10 +5,12 @@ import static org.junit.jupiter.api.Assertions.*;
 import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.quest.QuestCompleted;
+import com.e22e.moya.common.entity.quest.QuestStatus;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
 import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
 import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
 import com.e22e.moya.exploration.repository.QuestCompletedRepositoryExploration;
+import java.util.Objects;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -59,27 +61,32 @@ public class QuestServiceTestCreateAndGet {
         // Then
         printAllEntities("퀘스트 생성 후 엔티티");
 
-        List<QuestCompleted> generatedQuests = questCompletedRepository.findByExplorationUserIdAndExplorationId(userId, exploration.getId());
+        List<QuestCompleted> generatedQuests = questCompletedRepository.findByExplorationId(
+            exploration.getId());
         assertFalse(generatedQuests.isEmpty(), "생성된 퀘스트 없음");
         assertTrue(generatedQuests.size() <= 3, "생성된 퀘스트 수가 3개 초과");
 
         // When
-        QuestListResponseDto questListResponseDto = questService.getQuestList(userId, exploration.getId());
+        QuestListResponseDto questListResponseDto = questService.getQuestList(userId,
+            exploration.getId());
 
         // Then
         assertNotNull(questListResponseDto, "퀘스트 목록 응답이 null.");
-        assertEquals(generatedQuests.size(), questListResponseDto.getQuest().size(), "생성된 퀘스트 수와 조회된 퀘스트 수가 불일치함");
+        assertEquals(generatedQuests.size(), questListResponseDto.getQuest().size(),
+            "생성된 퀘스트 수와 조회된 퀘스트 수가 불일치함");
 
         questListResponseDto.getQuest().forEach(questDto -> {
             assertNotNull(questDto.getQuestId(), "퀘스트 Id가 nul.");
             assertNotNull(questDto.getNpcId(), "NPC Id가 null.");
-            assertNotNull(questDto.getNpcName(), "NPC 이름이 null.");
+            assertNotNull(questDto.getNpcPosId(), "NPC 위치 ID가 null.");
             assertTrue(questDto.getLongitude() != 0, "경도가 0.");
             assertTrue(questDto.getLatitude() != 0, "위도가 0");
-            assertTrue(questDto.getQuestType() > 0 && questDto.getQuestType() <= 3, "퀘스트 타입이 유효하지 않음.");
+            assertTrue(questDto.getQuestType() > 0 && questDto.getQuestType() <= 3,
+                "퀘스트 타입이 유효하지 않음.");
             assertNotNull(questDto.getSpeciesId(), "종 Id가 null.");
             assertNotNull(questDto.getSpeciesName(), "종 이름이 null.");
-            assertFalse(questDto.isCompleted(), "새로 생성된 퀘스트가 이미 완료 상태입니다.");
+            assertNotEquals(questDto.getCompleted(), QuestStatus.COMPLETE.name(),
+                "새로 생성된 퀘스트가 이미 완료 상태입니다.");
         });
 
         printAllEntities("퀘스트 조회 후 엔티티");

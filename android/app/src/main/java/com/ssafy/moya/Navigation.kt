@@ -8,7 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
-import com.ssafy.ar.ARSceneComposable
+import com.ssafy.ar.ui.ARSceneComposable
 import com.ssafy.main.encycdetail.EncycDetailScreen
 import com.ssafy.main.encyclopedia.EncycScreen
 import com.ssafy.main.exploredetail.ExploreDetailScreen
