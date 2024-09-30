@@ -13,6 +13,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.collectLatest
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -25,7 +26,41 @@ class HomeScreenViewModel
         private val _state = MutableStateFlow<HomeScreenState>(HomeScreenState.Loading)
         val state: StateFlow<HomeScreenState> = _state
 
-        fun loadInitialData(latitude: Double, longitude: Double) {
+        fun loadInitialData(
+            latitude: Double,
+            longitude: Double,
+        ) {
+            viewModelScope.launch {
+                val response = combine(
+                    parkRepository.getFamousParks(latitude, longitude),
+                    parkRepository.getParkList(1, 3, latitude, longitude),
+                    parkRepository.getCloseParks(latitude, longitude),
+                ){ famous, close, nearby ->
+
+                }
+
+//                    HomeScreenState.Loaded(
+//                        popularParks =
+//                            when (famousParkResponse) {
+//                                is ApiResponse.Success -> {
+//                                    famousParkResponse.body?.let { parkList ->
+//                                        parkList.parks.map {
+//                                            ImageCardWithTitleDescriptionState(
+//                                                id = it.parkId,
+//                                                title = it.parkName,
+//                                                description = it.distance.toString(),
+//                                            )
+//                                        }
+//                                    } ?: emptyList()
+//                                }
+//
+//                                is ApiResponse.Error -> {
+//                                    emptyList()
+//                                }
+//                            },
+//                    )
+            }
+
             _state.value =
                 HomeScreenState.Loaded(
                     popularParks =
