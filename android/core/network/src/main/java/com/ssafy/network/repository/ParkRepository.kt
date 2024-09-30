@@ -1,5 +1,6 @@
 package com.ssafy.network.repository
 
+import com.ssafy.model.Park
 import com.ssafy.model.ParkDetail
 import com.ssafy.model.ParkList
 import com.ssafy.network.ApiResponse
@@ -13,7 +14,15 @@ interface ParkRepository {
         longitude: Double,
     ): Flow<ApiResponse<ParkList>>
 
-    suspend fun getPark(
-        parkId: Long,
-    ): Flow<ApiResponse<ParkDetail>>
+    suspend fun getPark(parkId: Long): Flow<ApiResponse<ParkDetail>>
+
+    suspend fun getCloseParks(
+        latitude: Double,
+        longitude: Double,
+    ): Flow<ApiResponse<Park>>
+
+    suspend fun getFamousParks(
+        latitude: Double,
+        longitude: Double,
+    ): Flow<ApiResponse<ParkList>>
 }
