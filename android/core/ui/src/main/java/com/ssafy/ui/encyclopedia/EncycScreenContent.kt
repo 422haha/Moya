@@ -1,7 +1,6 @@
 package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -49,6 +48,7 @@ import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.customTypography
+import java.util.Locale
 
 val chipLabels = listOf("전체", "수집완료", "미발견")
 
@@ -193,7 +193,7 @@ fun EncycGrid(
                     imageUrl = item.imageUrl,
                     isDiscovered = item.isDiscovered,
                 ),
-                onClick = { onItemClicked(index.toLong()) }
+                onClick = { onItemClicked(index.toLong()) },
             )
         }
     }
@@ -204,16 +204,18 @@ fun CollectionProgress(
     progress: Float,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
-    Surface(shadowElevation = 8.dp) {
+    Surface {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .background(LightBackgroundColor),
+                    .fillMaxWidth(),
         ) {
             Row(
-                modifier = Modifier.padding(top = 8.dp).fillMaxWidth(),
+                modifier =
+                    Modifier
+                        .padding(top = 8.dp)
+                        .fillMaxWidth(),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.SpaceBetween,
             ) {
@@ -250,7 +252,7 @@ fun CollectionProgress(
                 Text(text = "수집률")
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
-                    text = "$progress%",
+                    text = String.format(Locale.KOREA, "%.1f%%", progress),
                     color = Color.Gray,
                 )
             }
