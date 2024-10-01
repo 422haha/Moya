@@ -6,6 +6,8 @@ public interface ParkDistanceProjection {
 
     String getName();
 
+    String getDescription();
+
     String getImageUrl();
 
     Double getDistance();
