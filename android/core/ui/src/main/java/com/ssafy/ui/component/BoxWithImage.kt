@@ -95,7 +95,7 @@ fun BoxWithImage(
                         tint = LightBackgroundColor
                     )
                     Text(
-                        text = formatDistance(state.info),
+                        text = state.info.formatDistance(),
                         color = Color.White,
                         modifier = Modifier
                             .padding(vertical = 16.dp)

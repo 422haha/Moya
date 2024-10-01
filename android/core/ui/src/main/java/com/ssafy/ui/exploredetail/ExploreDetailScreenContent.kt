@@ -136,7 +136,7 @@ fun ExploreInfo(state: ExploreDetailScreenState.Loaded) {
                     tint = SecondaryColor,
                 )
                 Text(
-                    text = formatDate(state.exploreDetail.date),
+                    text = state.exploreDetail.date.formatDate(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = SecondaryColor,

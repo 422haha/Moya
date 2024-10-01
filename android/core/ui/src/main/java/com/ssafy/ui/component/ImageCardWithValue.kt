@@ -31,6 +31,7 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.ssafy.ui.R
+import com.ssafy.ui.formatDistance
 import com.ssafy.ui.theme.OnPrimaryColor
 
 @Composable
@@ -81,7 +82,7 @@ fun ImageCardWithValue(
                     tint = OnPrimaryColor,
                 )
                 Text(
-                    text = state.value,
+                    text = state.value.formatDistance(),
                     fontSize = 16.sp,
                     fontWeight = FontWeight.SemiBold,
                     color = OnPrimaryColor,
@@ -108,7 +109,7 @@ fun ImageCardWithValuePreview() {
             ImageCardWithValueState(
                 id = 1,
                 title = "동락공원",
-                value = "99m",
+                value = "99",
                 imageUrl = "",
             ),
     )
