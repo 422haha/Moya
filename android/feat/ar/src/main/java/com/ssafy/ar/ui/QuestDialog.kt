@@ -42,6 +42,8 @@ fun QuestDialog(
     onConfirm: () -> Unit,
     onDismiss: () -> Unit
 ) {
+    val script = scripts[info.questType]
+
     Dialog(
         onDismissRequest = { onDismiss() },
         properties = DialogProperties(
@@ -87,8 +89,8 @@ fun QuestDialog(
                     ),
                     text = buildAnnotatedString {
                         append(
-                            if (info.isComplete == QuestState.WAIT) scripts[info.questType]?.description
-                            else scripts[info.questType]?.checkDescription
+                            if (info.isComplete == QuestState.WAIT) script?.description1
+                            else script?.checkDescription1
                         )
                         withStyle(
                             style = SpanStyle(
@@ -99,9 +101,8 @@ fun QuestDialog(
                             append(info.speciesName)
                         }
                         append(
-                            if (info.isComplete == QuestState.WAIT) " 1개를 모아줄 수 있어?"
-                            else " 1개를 벌써 모아온 거야?"
-                            
+                            if (info.isComplete == QuestState.WAIT) script?.description2
+                            else script?.checkDescription2
                         )
                     },
                 )
