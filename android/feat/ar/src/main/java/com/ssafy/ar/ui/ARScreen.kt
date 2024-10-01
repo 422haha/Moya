@@ -1,6 +1,7 @@
 package com.ssafy.ar.ui
 
 import android.Manifest
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -197,19 +198,15 @@ fun ARSceneComposable(
                                                 viewModel.updateQuestState(
                                                     anchorId,
                                                     QuestState.PROGRESS
-                                                ).apply {
-                                                    viewModel.updateAnchorNode(
-                                                        quest,
-                                                        modelNode,
-                                                        anchorNode,
-                                                        modelLoader,
-                                                        materialLoader
-                                                    )
+                                                )
 
-                                                    viewModel.locationManager.currentLocation.value?.let {
-                                                        viewModel.updateNearestNPC(it)
-                                                    }
-                                                }
+                                                viewModel.updateAnchorNode(
+                                                    quest,
+                                                    modelNode,
+                                                    anchorNode,
+                                                    modelLoader,
+                                                    materialLoader
+                                                )
                                             }
                                         }
                                     }
@@ -220,32 +217,34 @@ fun ARSceneComposable(
                                         ) { accepted ->
                                             if (accepted) {
                                                 // TODO 온디바이스 AI로 검사
-                                                viewModel.completeQuest(
-                                                    explorationId,
-                                                    anchorId
-                                                ).apply {
-                                                    viewModel.updateQuestState(
-                                                        anchorId,
-                                                        QuestState.COMPLETE
+                                                coroutineScope.launch {
+                                                    val result = viewModel.completeQuest(
+                                                        explorationId,
+                                                        anchorId
                                                     )
-                                                    val imageNode = modelNode.childNodes
-                                                        .filterIsInstance<ImageNode>()
-                                                        .firstOrNull()
 
-                                                    imageNode?.let {
-                                                        viewModel.updateModelNode(
-                                                            imageNode,
-                                                            modelNode,
-                                                            materialLoader
-                                                        )
-                                                    }
+                                                    when(result) {
+                                                        true -> {
+                                                            viewModel.updateQuestState(
+                                                                anchorId,
+                                                                QuestState.COMPLETE
+                                                            )
 
-                                                    viewModel.locationManager.currentLocation.value?.let {
-                                                        viewModel.updateNearestNPC(it)
-                                                    }
+                                                            val imageNode = modelNode.childNodes
+                                                                .filterIsInstance<ImageNode>()
+                                                                .firstOrNull()
 
-                                                    coroutineScope.launch {
-                                                        snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                            imageNode?.let {
+                                                                viewModel.updateModelNode(
+                                                                    imageNode,
+                                                                    modelNode,
+                                                                    materialLoader
+                                                                )
+                                                            }
+
+                                                            snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                        }
+                                                        false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
                                                     }
                                                 }
                                             }

@@ -42,7 +42,7 @@ interface ExplorationApi {
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<QuestList>>
 
-    @POST("/explorations/{explorationId}/quest/{questId}/complete")
+    @POST("/exploration/{explorationId}/quest/{questId}/complete")
     suspend fun completeQuest(
         @Path("explorationId") explorationId: Long,
         @Path("questId") questId: Long,

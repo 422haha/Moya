@@ -11,7 +11,7 @@ enum class ModelType(val id: Long, val modelUrl: String) {
     TURTLE(7L, "models/turtle.glb"),
     BROWN_TURTLE(8L, "models/brownturtle.glb"),
     RABBIT(9L, "models/rabbit.glb"),
-    UNICORN(10L, "models/unicorn.glb"),
+    DIRECTION(10L, "models/direction.glb"),
     PENGUIN(11L, "models/penguin.glb"),
     SAILFISH(12L, "models/sailfish.glb");
 

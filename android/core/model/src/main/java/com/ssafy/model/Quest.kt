@@ -24,5 +24,5 @@ data class Quest(
 @Serializable
 data class CompletedQuest(
     val completionDate: String,
-    val completedQuest: Int,
+    val completedQuests: Int,
 )

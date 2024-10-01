@@ -26,12 +26,14 @@ import io.github.sceneview.loaders.ModelLoader
 import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import java.util.Collections
 import javax.inject.Inject
 
@@ -85,12 +87,13 @@ class ARViewModel @Inject constructor(
         viewModelScope.launch {
             explorationRepository.getQuestList(explorationId).collectLatest { response ->
                 when(response) {
-                    is ApiResponse.Success -> {
+                            is ApiResponse.Success -> {
                         response.body?.let { body ->
                             _questInfos.value = body.quest.associate { quest ->
                                 quest.questId to QuestInfo(
                                     id = quest.questId,
                                     npcId = quest.npcId,
+                                    npcName = quest.npcName,
                                     npcPosId = quest.npcPosId,
                                     questType = quest.questType,
                                     latitude = quest.latitude,
@@ -124,9 +127,28 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun completeQuest(explorationId: Long, questId: Long) {
-        viewModelScope.launch {
-            explorationRepository.completeQuest(explorationId, questId)
+    suspend fun completeQuest(explorationId: Long, questId: Long): Boolean {
+        return withContext(Dispatchers.IO) {
+            try {
+                var result = false
+                explorationRepository.completeQuest(explorationId, questId).collect { response ->
+                    when(response) {
+                        is ApiResponse.Success -> {
+                            response.body?.let {
+                                // 필요한 처리
+                                result = true
+                            } ?: "Failed to load initial data"
+                        }
+                        is ApiResponse.Error -> {
+                            response.errorMessage ?: "Unknown error"
+                        }
+                    }
+                }
+                result
+            } catch (e: Exception) {
+                // 예외 처리
+                false
+            }
         }
     }
 
@@ -138,9 +160,13 @@ class ARViewModel @Inject constructor(
                 }
             }
         }
+
+        locationManager.currentLocation.value?.let {
+            updateNearestNPC(it)
+        }
     }
 
-    fun updateNearestNPC(location: Location?) {
+    private fun updateNearestNPC(location: Location?) {
         location?.let {
             val nearestNPCInfo = locationManager.operateNearestNPC(it, questInfos.value)
 
