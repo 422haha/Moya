@@ -65,6 +65,7 @@ fun CustomCard(
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,

@@ -27,6 +27,8 @@ import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarStyle
 import com.ssafy.ar.ARViewModel
 import com.ssafy.ar.R
 import com.ssafy.ar.data.QuestState
@@ -89,6 +91,7 @@ fun ARSceneComposable(
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
 
     // Dialog & SnackBar
+    val rating by viewModel.rating.collectAsState()
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -264,7 +267,6 @@ fun ARSceneComposable(
                     }
                 })
         )
-
         Column {
             CustomCard(
                 imageUrl = SpeciesType.fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)

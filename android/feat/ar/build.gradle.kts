@@ -15,6 +15,7 @@ dependencies {
     implementation("io.github.sceneview:arsceneview:2.2.1")
     implementation("com.google.android.gms:play-services-location:21.0.1")
     implementation ("com.google.accompanist:accompanist-systemuicontroller:0.36.0")
+    implementation ("com.github.a914-gowtham:compose-ratingbar:1.2.3")
     implementation(libs.play.services.maps)
     implementation(project(":core:network"))
     implementation(project(":core:model"))

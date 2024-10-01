@@ -20,6 +20,9 @@ dependencyResolutionManagement {
         maven {
             url = uri("https://repository.map.naver.com/archive/maven")
         }
+        maven {
+            url = uri("https://jitpack.io")
+        }
     }
 }
 

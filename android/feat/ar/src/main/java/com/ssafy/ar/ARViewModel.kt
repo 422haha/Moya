@@ -70,6 +70,10 @@ class ARViewModel @Inject constructor(
     private val _nearestQuestInfo = MutableStateFlow(NearestNPCInfo())
     val nearestQuestInfo = _nearestQuestInfo.asStateFlow()
 
+    // 퀘스트 완료 비율
+    private val _rating = MutableStateFlow(0f)
+    val rating: StateFlow<Float> = _rating.asStateFlow()
+
     // Dialog
     private val _showDialog = MutableStateFlow(false)
     val showDialog = _showDialog.asStateFlow()
@@ -136,6 +140,10 @@ class ARViewModel @Inject constructor(
                         is ApiResponse.Success -> {
                             response.body?.let {
                                 // 필요한 처리
+                                val ratingValue: Float = (it.completedQuests.toFloat())/(_questInfos.value.size.toFloat())
+
+                                updateRating(ratingValue)
+
                                 result = true
                             } ?: "Failed to load initial data"
                         }
@@ -146,7 +154,7 @@ class ARViewModel @Inject constructor(
                 }
                 result
             } catch (e: Exception) {
-                // 예외 처리
+                e.printStackTrace()
                 false
             }
         }
@@ -240,6 +248,10 @@ class ARViewModel @Inject constructor(
                 materialLoader = materialLoader
             )
         }
+    }
+
+    fun updateRating(newRating: Float) {
+        _rating.value = newRating
     }
 
     fun showQuestDialog(questInfo: QuestInfo, callback: (Boolean) -> Unit) {
