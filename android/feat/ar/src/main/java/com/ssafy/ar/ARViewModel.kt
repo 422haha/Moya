@@ -36,6 +36,7 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.util.Collections
 import javax.inject.Inject
+import kotlin.math.roundToInt
 
 @HiltViewModel
 class ARViewModel @Inject constructor(
@@ -118,6 +119,9 @@ class ARViewModel @Inject constructor(
                     }
                 }
             }
+
+            updateRating(_questInfos.value.count { it.value.isComplete == QuestState.COMPLETE }.toFloat(),
+                _questInfos.value.size.toFloat())
         }
     }
 
@@ -139,10 +143,8 @@ class ARViewModel @Inject constructor(
                     when(response) {
                         is ApiResponse.Success -> {
                             response.body?.let {
-                                // 필요한 처리
-                                val ratingValue: Float = (it.completedQuests.toFloat())/(_questInfos.value.size.toFloat())
-
-                                updateRating(ratingValue)
+                                updateRating(it.completedQuests.toFloat(),
+                                    _questInfos.value.size.toFloat())
 
                                 result = true
                             } ?: "Failed to load initial data"
@@ -250,8 +252,14 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun updateRating(newRating: Float) {
-        _rating.value = newRating
+    private fun updateRating(numerator: Float, denominator: Float) {
+        if(denominator == 0f) return
+
+        val ratingValue: Float = (numerator)/(denominator) * 5
+
+        val roundedRatingValue = (ratingValue * 10).roundToInt() / 10f
+
+        _rating.value = roundedRatingValue
     }
 
     fun showQuestDialog(questInfo: QuestInfo, callback: (Boolean) -> Unit) {

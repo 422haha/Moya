@@ -1,10 +1,12 @@
 package com.ssafy.ar.ui
 
 import android.Manifest
-import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -17,6 +19,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
@@ -28,7 +31,9 @@ import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarConfig
 import com.gowtham.ratingbar.RatingBarStyle
+import com.gowtham.ratingbar.StepSize
 import com.ssafy.ar.ARViewModel
 import com.ssafy.ar.R
 import com.ssafy.ar.data.QuestState
@@ -90,8 +95,15 @@ fun ARSceneComposable(
     val questInfos by viewModel.questInfos.collectAsState()
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
 
-    // Dialog & SnackBar
+    // RatingBar
     val rating by viewModel.rating.collectAsState()
+    var showRating by remember { mutableStateOf(true) }
+    val animatedRating by animateFloatAsState(
+        targetValue = if (showRating) rating else 0f,
+        label = "Rating Animation"
+    )
+
+    // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
@@ -226,7 +238,7 @@ fun ARSceneComposable(
                                                         anchorId
                                                     )
 
-                                                    when(result) {
+                                                    when (result) {
                                                         true -> {
                                                             viewModel.updateQuestState(
                                                                 anchorId,
@@ -247,6 +259,7 @@ fun ARSceneComposable(
 
                                                             snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
                                                         }
+
                                                         false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
                                                     }
                                                 }
@@ -268,19 +281,40 @@ fun ARSceneComposable(
                 })
         )
         Column {
-            CustomCard(
-                imageUrl = SpeciesType.fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
-                    ?.getImageResource() ?: (R.drawable.maple),
-                title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
-                state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
-                distanceText = "${
-                    nearestQuestInfo.distance?.let {
-                        if (nearestQuestInfo.shouldPlace)
-                            "목적지 도착!"
-                        else
-                            "%.2f m".format(it)
-                    } ?: "검색중.."
-                } ")
+            Box(
+                modifier = Modifier
+                    .padding(top = 60.dp, start = 40.dp, end = 40.dp)
+            ) {
+                CustomCard(
+                    imageUrl = SpeciesType.fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                        ?.getImageResource() ?: (R.drawable.maple),
+                    title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
+                    state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
+                    distanceText = "${
+                        nearestQuestInfo.distance?.let {
+                            if (nearestQuestInfo.shouldPlace)
+                                "목적지 도착!"
+                            else
+                                "%.2f m".format(it)
+                        } ?: "검색중.."
+                    } ")
+                RatingBar(
+                    value = animatedRating,
+                    config = RatingBarConfig()
+                        .isIndicator(true)
+                        .stepSize(StepSize.HALF)
+                        .numStars(5)
+                        .size(28.dp)
+                        .inactiveColor(Color.LightGray)
+                        .style(RatingBarStyle.Normal),
+                    onValueChange = { },
+                    onRatingChanged = { },
+                    modifier = Modifier
+                        .offset(y = (-14).dp)
+                        .align(Alignment.TopCenter)
+                )
+            }
+
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestQuestInfo.shouldPlace,
