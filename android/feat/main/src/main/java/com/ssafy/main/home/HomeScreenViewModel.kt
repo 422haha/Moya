@@ -60,7 +60,8 @@ class HomeScreenViewModel
                                 ImageCardWithTitleDescriptionState(
                                     id = it.parkId,
                                     title = it.parkName,
-                                    description = it.distance.toString(),
+                                    imageUrl = it.imageUrl,
+                                    description = it.description ?: "",
                                 )
                             } ?: emptyList(),
                         closeParks =
