@@ -14,6 +14,7 @@ import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.exploration.dto.quest.complete.QuestCompleteResponseDto;
 import com.e22e.moya.exploration.dto.quest.list.QuestDto;
 import com.e22e.moya.exploration.dto.quest.list.QuestListResponseDto;
+import com.e22e.moya.exploration.repository.ExplorationRepositoryExploration;
 import com.e22e.moya.exploration.repository.ParkRepositoryExploration;
 import com.e22e.moya.exploration.repository.QuestCompletedRepositoryExploration;
 import com.e22e.moya.exploration.repository.QuestRepositoryExploration;
@@ -37,16 +38,19 @@ import org.springframework.transaction.annotation.Transactional;
 public class QuestServiceImpl implements QuestService {
 
     private static final Logger log = LoggerFactory.getLogger(QuestServiceImpl.class);
+    private final ExplorationRepositoryExploration explorationRepository;
     private final QuestRepositoryExploration questRepository;
     private final QuestCompletedRepositoryExploration questCompletedRepository;
     private final ParkRepositoryExploration parkRepository;
     private final SpeciesRepositoryExploration speciesRepository;
     private final Random random = new Random();
 
-    public QuestServiceImpl(QuestRepositoryExploration questRepository,
+    public QuestServiceImpl(ExplorationRepositoryExploration explorationRepository,
+        QuestRepositoryExploration questRepository,
         QuestCompletedRepositoryExploration questCompletedRepository,
         ParkRepositoryExploration parkRepository,
         SpeciesRepositoryExploration speciesRepository) {
+        this.explorationRepository = explorationRepository;
         this.questRepository = questRepository;
         this.questCompletedRepository = questCompletedRepository;
         this.parkRepository = parkRepository;
@@ -81,8 +85,12 @@ public class QuestServiceImpl implements QuestService {
 
         while (true) {
             // 3개의 퀘스트 생성
-            int questType = random.nextInt(3) + 1;
-            ParkSpecies randomParkSpecies = species.get(random.nextInt(species.size()));
+//            int questType = random.nextInt(3) + 1;
+
+            // questType <- 1로 고정
+            int questType = 1;
+            ParkSpecies randomParkSpecies = species.get(
+                random.nextInt(Math.min(3, species.size())));
             ParkNpcs randomParkNpcs = parkNpcs.get(random.nextInt(parkNpcs.size()));
 
             Species randomSpecies = randomParkSpecies.getSpecies();
@@ -122,6 +130,9 @@ public class QuestServiceImpl implements QuestService {
     @Transactional(readOnly = true)
     public QuestListResponseDto getQuestList(long userId, Long explorationId) {
 
+        Exploration exploration = explorationRepository.findById(explorationId).orElseThrow(() ->
+            new EntityNotFoundException("도전과제를 찾을 수 없습니다."));
+
         List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationId(
             explorationId);
 
@@ -139,6 +150,7 @@ public class QuestServiceImpl implements QuestService {
             NpcPos npcPos = questList.getNpcPos();
             questDTO.setNpcId(npcPos.getParkNpc().getNpc().getId());
             questDTO.setNpcPosId(npcPos.getId());
+            questDTO.setNpcName(npcPos.getParkNpc().getNpc().getName());
 
             // npc 위치 정보 조회
             Point<G2D> point = npcPos.getPos();
