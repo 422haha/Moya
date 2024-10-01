@@ -65,10 +65,6 @@ fun ExploreStartScreenContent(
     Scaffold(
         content = { paddingValues ->
             when (exploreStartScreenState) {
-                is ExploreStartScreenState.Loading -> {
-                    LoadingScreen(modifier = modifier.padding(paddingValues))
-                }
-
                 is ExploreStartScreenState.Loaded -> {
                     ExploreStartScreenLoaded(
                         modifier = modifier.padding(paddingValues),
@@ -82,6 +78,10 @@ fun ExploreStartScreenContent(
                         modifier = modifier.padding(paddingValues),
                         message = exploreStartScreenState.message,
                     )
+                }
+
+                else -> {
+                    LoadingScreen(modifier = modifier.padding(paddingValues))
                 }
             }
         },

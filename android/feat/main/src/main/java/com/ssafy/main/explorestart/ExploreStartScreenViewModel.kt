@@ -1,6 +1,5 @@
 package com.ssafy.main.explorestart
 
-import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
@@ -26,8 +25,7 @@ class ExploreStartScreenViewModel
         private val _state = MutableStateFlow<ExploreStartScreenState>(ExploreStartScreenState.Loading)
         val state: StateFlow<ExploreStartScreenState> = _state
 
-        private val _dialogState =
-            MutableStateFlow<ExploreStartDialogState>(ExploreStartDialogState.Closed)
+        private val _dialogState = MutableStateFlow<ExploreStartDialogState>(ExploreStartDialogState.Closed)
         val dialogState: StateFlow<ExploreStartDialogState> = _dialogState
 
         fun loadInitialData(parkId: Long) {
@@ -73,7 +71,10 @@ class ExploreStartScreenViewModel
                     _dialogState.value = ExploreStartDialogState.Exit
                 }
 
-                is ExploreStartUserIntent.OnExitExplorationConfirmed -> endExploration(onEnd = intent.onExit)
+                is ExploreStartUserIntent.OnExitExplorationConfirmed -> {
+                    _dialogState.value = ExploreStartDialogState.Closed
+                    endExploration()
+                }
 
                 is ExploreStartUserIntent.OnOpenChallengeList -> {
                     _dialogState.value = ExploreStartDialogState.Challenge
@@ -81,7 +82,7 @@ class ExploreStartScreenViewModel
             }
         }
 
-        private fun endExploration(onEnd: () -> Unit = {}) {
+        private fun endExploration() {
             viewModelScope.launch {
                 if (state.value is ExploreStartScreenState.Loaded) {
                     val uiState = state.value as ExploreStartScreenState.Loaded
@@ -94,10 +95,8 @@ class ExploreStartScreenViewModel
                                     route = emptyList(), // TODO : 이동경로 저장
                                     steps = 0,
                                 ),
-                        ).collectLatest { response ->
-                            Log.d("TAG", "endExploration: $response")
-                            onEnd()
-                        }
+                        )
+                    _state.value = ExploreStartScreenState.Exit
                 }
             }
         }

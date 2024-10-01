@@ -13,14 +13,15 @@ sealed interface ExploreStartScreenState {
         val npcPositions: List<LatLng> = listOf(),
         val discoveredPositions: List<LatLng> = listOf(),
         val speciesPositions: List<LatLng> = listOf(),
-        val showExitDialog: Boolean = false,
-        val showChallengeDialog: Boolean = false,
     ) : ExploreStartScreenState
 
     @Immutable
     data class Error(
         val message: String,
     ) : ExploreStartScreenState
+
+    @Immutable
+    data object Exit : ExploreStartScreenState
 }
 
 @Immutable
