@@ -13,4 +13,5 @@ android {
 
 dependencies {
     implementation(libs.onnxruntime)
+    implementation(libs.androidx.camera.core)
 }
