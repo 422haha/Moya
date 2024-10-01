@@ -40,14 +40,15 @@ import com.ssafy.ui.theme.StarYellowColor
 import com.ssafy.ui.theme.customTypography
 
 @Composable
-fun ChallengeDialog(
+fun ChallengeDialogContent(
+    modifier: Modifier = Modifier,
     missions: List<Missions> = listOf(),
     onConfirm: (id: Long) -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
     Surface(
         modifier =
-            Modifier
+            modifier
                 .fillMaxWidth(),
         shape = RoundedCornerShape(16.dp),
         color = SecondaryColor,
@@ -154,7 +155,7 @@ fun ChallengeDialogPreview() {
         )
 
     if (showDialog.value) {
-        ChallengeDialog(
+        ChallengeDialogContent(
             missions = sampleMissions,
             onDismiss = { showDialog.value = false },
         )
