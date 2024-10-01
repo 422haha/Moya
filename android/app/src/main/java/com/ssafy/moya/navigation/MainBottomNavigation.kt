@@ -4,7 +4,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -20,7 +19,6 @@ import com.ssafy.ui.navigationbar.BottomNavigationItemState
 @Composable
 fun MainBottomNavigation(
     modifier: Modifier = Modifier,
-    parentNavController: NavController? = null,
     navController: NavHostController = rememberNavController(),
     onNavigateToParkList: () -> Unit = {},
     onNavigateToEncyc: () -> Unit = {},
@@ -77,7 +75,9 @@ fun MainBottomNavigation(
                     onNavigateToParkList = {
                         onNavigateToParkList()
                     },
-                    onNavigateToEncyc = {},
+                    onNavigateToEncycDetail = { id ->
+                        onNavigateToEncycDetail(id)
+                    },
                     onNavigateToParkDetail = { id ->
                         onNavigateToParkDetail(id)
                     },

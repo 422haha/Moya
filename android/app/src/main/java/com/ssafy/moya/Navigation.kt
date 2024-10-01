@@ -50,18 +50,10 @@ fun MainNavigation(
                 onNavigateToParkDetail = { id ->
                     navController.navigate(ParkDetail(itemId = id))
                 },
+                onNavigateToEncycDetail = { id ->
+                    navController.navigate(EncycDetail(itemId = id))
+                }
             )
-//            HomeScreen(
-//                onNavigateToParkList = {
-//                    navController.navigate(ParkList)
-//                },
-//                onNavigateToParkDetail = { id ->
-//                    navController.navigate(ParkDetail(itemId = id))
-//                },
-//                onNavigateToEncyc = { id ->
-//                    navController.navigate(EncycDetail(itemId = id))
-//                }
-//            )
         }
         composable<ExploreList> {
             ExploreListScreen(onExploreItemClick = { itemId ->
