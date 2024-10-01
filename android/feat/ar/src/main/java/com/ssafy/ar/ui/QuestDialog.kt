@@ -33,8 +33,7 @@ import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.data.ScriptInfo
-import com.ssafy.ar.dummy.scripts
+import com.ssafy.ar.data.scripts
 
 @Composable
 fun QuestDialog(

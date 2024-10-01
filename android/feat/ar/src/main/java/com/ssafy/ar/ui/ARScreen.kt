@@ -7,6 +7,8 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,7 +41,7 @@ import com.ssafy.ar.R
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.SpeciesType
 import com.ssafy.ar.data.getImageResource
-import com.ssafy.ar.dummy.scripts
+import com.ssafy.ar.data.scripts
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
@@ -298,21 +300,27 @@ fun ARSceneComposable(
                                 "%.2f m".format(it)
                         } ?: "검색중.."
                     } ")
-                RatingBar(
-                    value = animatedRating,
-                    config = RatingBarConfig()
-                        .isIndicator(true)
-                        .stepSize(StepSize.HALF)
-                        .numStars(5)
-                        .size(28.dp)
-                        .inactiveColor(Color.LightGray)
-                        .style(RatingBarStyle.Normal),
-                    onValueChange = { },
-                    onRatingChanged = { },
+                Card(
                     modifier = Modifier
-                        .offset(y = (-14).dp)
-                        .align(Alignment.TopCenter)
-                )
+                        .offset(y = (-20).dp)
+                        .align(Alignment.TopCenter),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Gray)
+                ) {
+                    RatingBar(
+                        value = animatedRating,
+                        config = RatingBarConfig()
+                            .isIndicator(true)
+                            .stepSize(StepSize.HALF)
+                            .numStars(5)
+                            .size(28.dp)
+                            .inactiveColor(Color.LightGray)
+                            .style(RatingBarStyle.Normal),
+                        onValueChange = { },
+                        onRatingChanged = { },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp)
+                    )
+                }
             }
 
             ArStatusText(
