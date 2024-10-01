@@ -9,6 +9,7 @@ sealed interface ExploreStartScreenState {
 
     @Immutable
     data class Loaded(
+        val explorationId: Long,
         val npcPositions: List<LatLng> = listOf(),
         val discoveredPositions: List<LatLng> = listOf(),
         val speciesPositions: List<LatLng> = listOf(),

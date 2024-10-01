@@ -42,7 +42,7 @@ import com.ssafy.ui.theme.customTypography
 @Composable
 fun ChallengeDialog(
     missions: List<Missions> = listOf(),
-    onConfirm: () -> Unit = {},
+    onConfirm: (id: Long) -> Unit = {},
     onDismiss: () -> Unit = {},
 ) {
     Surface(
@@ -84,7 +84,7 @@ fun ChallengeDialog(
             missions.forEach { mission ->
                 ChallengeItem(
                     text = mission.missionTitle,
-                    onConfirm = onConfirm,
+                    onConfirm = { onConfirm(mission.id) },
                     isSuccess = mission.isSuccess,
                 )
                 Spacer(modifier = Modifier.height(12.dp))
