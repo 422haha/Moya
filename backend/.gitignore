@@ -18,6 +18,7 @@ target/
 ### IntelliJ IDEA ###
 application.properties
 application-oauth-kakao.properties
+application-oauth-naver.properties
 .idea
 *.iws
 *.iml
