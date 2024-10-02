@@ -100,9 +100,9 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
-VALUES (1, 'AUTUMN'), -- 단풍잎: 가을
-       (2, 'SPRING'), -- 강아지풀: 봄, 여름
-       (2, 'SUMMER'), -- 강아지풀: 봄, 여름
+VALUES (1, 'SPRING'), -- 강아지풀: 봄, 여름
+       (1, 'SUMMER'), -- 강아지풀: 봄, 여름
+       (2, 'AUTUMN'), -- 단풍잎: 가을
        (3, 'SPRING'), -- 솔방울: 봄, 여름, 가을
        (3, 'SUMMER'), -- 솔방울: 봄, 여름, 가을
        (3, 'AUTUMN'), -- 솔방울: 봄, 여름, 가을
@@ -144,19 +144,19 @@ VALUES (1, 'AUTUMN'), -- 단풍잎: 가을
 
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
-VALUES (1, 2),  -- 1 싸피 뒷뜰 - 단풍잎
-       (1, 1),  -- 2 싸피 뒷뜰 - 강아지풀
+VALUES (1, 1),  -- 1 싸피 뒷뜰 - 강아지풀
+       (1, 2),  -- 2 싸피 뒷뜰 - 단풍잎
        (1, 3),  -- 3 싸피 뒷뜰 - 솔방울
-       (2, 2),  -- 4 동락공원 - 단풍잎
-       (2, 1),  -- 5 동락공원 - 강아지풀
+       (2, 1),  -- 4 동락공원 - 강아지풀
+       (2, 2),  -- 5 동락공원 - 단풍잎
        (2, 3),  -- 6 동락공원 - 솔방울
        (2, 8),  -- 7 동락공원 - 장미
        (2, 16), -- 8 동락공원 - 해바라기
-       (3, 2),  -- 9 환경 연수원 - 단풍잎
-       (3, 1),  -- 10 환경 연수원 - 강아지풀
+       (3, 1),  -- 9 환경 연수원 - 강아지풀
+       (3, 2),  -- 10 환경 연수원 - 단풍잎
        (3, 3),  -- 11 환경 연수원 - 솔방울
        (3, 8),  -- 12 환경 연수원 - 장미
-       (3, 16); -- 13 환경 연수원 - 해바라기
+       (3, 16)  -- 13 환경 연수원 - 해바라기
 ON CONFLICT
     (park_id, species_id)
 DO NOTHING;
@@ -164,34 +164,34 @@ DO NOTHING;
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
-    -- 싸피 뒷뜰 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326), 1),
-    (ST_SetSRID(ST_MakePoint(128.416100, 36.107100), 4326), 1),
-    (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 1),
     -- 싸피 뒷뜰 - 강아지풀
+    (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 1),
+    (ST_SetSRID(ST_MakePoint(128.416300, 36.107300), 4326), 1),
+    (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 1),
+    -- 싸피 뒷뜰 - 단풍잎
+    (ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326), 2),
+    (ST_SetSRID(ST_MakePoint(128.416100, 36.107100), 4326), 2),
     (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 2),
-    (ST_SetSRID(ST_MakePoint(128.416300, 36.107300), 4326), 2),
-    (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 2),
     -- 싸피 뒷뜰 - 솔방울
     (ST_SetSRID(ST_MakePoint(128.416500, 36.107500), 4326), 3),
     (ST_SetSRID(ST_MakePoint(128.416600, 36.107600), 4326), 3),
-    -- 동락공원 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 4),
-    (ST_SetSRID(ST_MakePoint(128.402100, 36.100100), 4326), 4),
     -- 동락공원 - 강아지풀
-    (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 5),
-    (ST_SetSRID(ST_MakePoint(128.402600, 36.095100), 4326), 5),
+    (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 4),
+    (ST_SetSRID(ST_MakePoint(128.402600, 36.095100), 4326), 4),
+    -- 동락공원 - 단풍잎
+    (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),
+    (ST_SetSRID(ST_MakePoint(128.402100, 36.100100), 4326), 5),
     -- 동락공원 - 솔방울
     (ST_SetSRID(ST_MakePoint(128.402700, 36.095200), 4326), 6),
     -- 동락공원 - 장미
     (ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326), 7),
     -- 동락공원 - 해바라기
     (ST_SetSRID(ST_MakePoint(128.403100, 36.090100), 4326), 8),
-    -- 환경 연수원 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 9),
-    (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 9),
     -- 환경 연수원 - 강아지풀
-    (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 10),
+    (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 9),
+    -- 환경 연수원 - 단풍잎
+    (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 10),
+    (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 10),
     -- 환경 연수원 - 솔방울
     (ST_SetSRID(ST_MakePoint(128.311800, 36.119600), 4326), 11),
     (ST_SetSRID(ST_MakePoint(128.311900, 36.119700), 4326), 11),
@@ -201,22 +201,22 @@ VALUES
     (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
 
 -- ==============================================test
--- 1. 멀찍히 떨어진 개별 점 (단풍잎)
-INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 1);
 -- 1. 멀찍히 떨어진 개별 점 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.412100, 36.109100), 4326), 2);
+VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.412100, 36.109100), 4326), 1);
+-- 1. 멀찍히 떨어진 개별 점 (단풍잎)
+INSERT INTO species_pos (pos, park_species_id)
+VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 2),
+       (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 2);
 
 -- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 2);
+VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 1),
+       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 1);
 -- 2. 반경 20m 안에 3점이 존재하는 경우 (솔방울)
 INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
@@ -268,31 +268,31 @@ VALUES (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09
                 4326), true);
 
 -- Discovery Data Insertion (발견 데이터 삽입)
--- 단풍잎 발견 데이터
-INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
-SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
-       1,                                                                                                                                   -- species_id ('단풍잎')
-       sp.id,                                                                                                                               -- species_pos_id
-       '2024-09-23 10:30:00',                                                                                                               -- discovery_time
-       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (단풍잎 이미지)
-FROM species_pos sp
-         JOIN park_species ps ON ps.id = sp.park_species_id
-WHERE ps.park_id = 1    -- '싸피 뒷뜰'
-  AND ps.species_id = 1 -- 단풍잎
-  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
-
 -- 강아지풀 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
-       2,                                                                                                                                   -- species_id ('강아지풀')
+       1,                                                                                                                                   -- species_id ('강아지풀')
        sp.id,                                                                                                                               -- species_pos_id
        '2024-09-23 11:00:00',                                                                                                               -- discovery_time
        'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (강아지풀 이미지)
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
-  AND ps.species_id = 2 -- 강아지풀
+  AND ps.species_id = 1 -- 강아지풀
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326));
+
+-- 단풍잎 발견 데이터
+INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
+SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
+       2,                                                                                                                                   -- species_id ('단풍잎')
+       sp.id,                                                                                                                               -- species_pos_id
+       '2024-09-23 10:30:00',                                                                                                               -- discovery_time
+       'https://i.ibb.co/hXpwwkt/test-camera.png'                                                                                           -- image_url (단풍잎 이미지)
+FROM species_pos sp
+         JOIN park_species ps ON ps.id = sp.park_species_id
+WHERE ps.park_id = 1    -- '싸피 뒷뜰'
+  AND ps.species_id = 2 -- 단풍잎
+  AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
 
 -- 솔방울 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
