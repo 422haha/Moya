@@ -172,7 +172,7 @@ fun ExploreDetailItem(
                     TextBox(
                         modifier = Modifier.weight(1f),
                         "성공한 미션 수",
-                        "${state.exploreDetail.questCompletedCount}걸음",
+                        "${state.exploreDetail.questCompletedCount}개",
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),
