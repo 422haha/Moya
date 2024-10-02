@@ -1,7 +1,7 @@
 package com.ssafy.network.repositoryImpl
 
-import com.ssafy.model.encyclopediadetail.EncyclopediaDetail
-import com.ssafy.model.encyclopedialist.EncyclopediaList
+import com.ssafy.model.encyclopediadetail.EncyclopediaData
+import com.ssafy.model.encyclopedialist.Encyclopedia
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.apiHandler
@@ -10,14 +10,69 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import javax.inject.Inject
 
-class EncyclopediaRepositoryImpl @Inject constructor(
-    private val encyclopediaApi: EncyclopediaApi
-) : EncyclopediaRepository {
-    override suspend fun getEncyclopedia(parkId: Long): Flow<ApiResponse<EncyclopediaList>> {
-        return flow {
-            val response = apiHandler {
-                encyclopediaApi.getEncyclopedia(parkId)
+class EncyclopediaRepositoryImpl
+    @Inject
+    constructor(
+        private val encyclopediaApi: EncyclopediaApi,
+    ) : EncyclopediaRepository {
+        override suspend fun getEncyclopediaByParkId(
+            parkId: Long,
+            page: Int,
+            size: Int,
+            filter: String,
+        ): Flow<ApiResponse<Encyclopedia>> =
+            flow {
+                val response =
+                    apiHandler {
+                        encyclopediaApi.getEncyclopediaByParkId(parkId, page, size, filter)
+                    }
+                when (response) {
+                    is ApiResponse.Success -> {
+                        emit(ApiResponse.Success(response.body?.data))
+                    }
+
+                    is ApiResponse.Error -> {
+                        emit(
+                            ApiResponse.Error(
+                                errorCode = response.errorCode,
+                                errorMessage = response.errorMessage,
+                            ),
+                        )
+                    }
+                }
             }
+
+        override suspend fun getEncyclopediaDetail(itemId: Long): Flow<ApiResponse<EncyclopediaData>> =
+            flow {
+                val response =
+                    apiHandler {
+                        encyclopediaApi.getEncyclopediaDetail(itemId)
+                    }
+                when (response) {
+                    is ApiResponse.Success -> {
+                        emit(ApiResponse.Success(response.body?.data))
+                    }
+
+                    is ApiResponse.Error -> {
+                        emit(
+                            ApiResponse.Error(
+                                errorCode = response.errorCode,
+                                errorMessage = response.errorMessage,
+                            ),
+                        )
+                    }
+                }
+            }
+
+        override suspend fun getEncyclopediaAll(
+            page: Int,
+            size: Int,
+            filter: String,
+        ) = flow {
+            val response =
+                apiHandler {
+                    encyclopediaApi.getEncyclopediaAll(page, size, filter)
+                }
             when (response) {
                 is ApiResponse.Success -> {
                     emit(ApiResponse.Success(response.body?.data))
@@ -27,33 +82,10 @@ class EncyclopediaRepositoryImpl @Inject constructor(
                     emit(
                         ApiResponse.Error(
                             errorCode = response.errorCode,
-                            errorMessage = response.errorMessage
-                        )
+                            errorMessage = response.errorMessage,
+                        ),
                     )
                 }
             }
         }
     }
-
-    override suspend fun getEncyclopediaDetail(parkId: Long): Flow<ApiResponse<EncyclopediaDetail>> {
-        return flow {
-            val response = apiHandler {
-                encyclopediaApi.getEncyclopediaDetail(parkId)
-            }
-            when (response) {
-                is ApiResponse.Success -> {
-                    emit(ApiResponse.Success(response.body?.data))
-                }
-
-                is ApiResponse.Error -> {
-                    emit(
-                        ApiResponse.Error(
-                            errorCode = response.errorCode,
-                            errorMessage = response.errorMessage
-                        )
-                    )
-                }
-            }
-        }
-    }
-}

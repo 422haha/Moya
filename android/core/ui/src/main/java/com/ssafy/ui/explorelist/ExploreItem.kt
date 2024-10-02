@@ -33,6 +33,7 @@ import com.ssafy.ui.exploredetail.ExploreDetail
 import com.ssafy.ui.exploredetail.ExploreDetailScreenState
 import com.ssafy.ui.exploredetail.TextBox
 import com.ssafy.ui.formatDate
+import com.ssafy.ui.formatDistance
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.customTypography
 import java.util.Date
@@ -93,7 +94,7 @@ fun ExploreDetailItem(
             horizontalAlignment = Alignment.Start,
         ) {
             AsyncImage(
-                model = "",
+                model = state.exploreDetail.imageUrl,
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
                 modifier =
@@ -134,7 +135,7 @@ fun ExploreDetailItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = formatDate(state.exploreDetail.date),
+                        text = state.exploreDetail.date.formatDate(),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray,
@@ -152,7 +153,7 @@ fun ExploreDetailItem(
                     TextBox(
                         modifier = Modifier.weight(1f),
                         "이동거리",
-                        "${state.exploreDetail.distance}km",
+                        state.exploreDetail.distance.toString().formatDistance(),
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),
@@ -170,8 +171,8 @@ fun ExploreDetailItem(
                 ) {
                     TextBox(
                         modifier = Modifier.weight(1f),
-                        "걸음 수",
-                        "${state.exploreDetail.stepCount}걸음",
+                        "성공한 미션 수",
+                        "${state.exploreDetail.questCompletedCount}개",
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),
@@ -206,11 +207,13 @@ fun ExploreDetailItemPreview() {
                 exploreDetail =
                     ExploreDetail(
                         id = 0,
-                        distance = 3.0f,
+                        distance = 3.0,
                         runningTime = 20,
-                        stepCount = 100,
+                        questCompletedCount = 100,
                         registerCount = 8,
                         date = Date(),
+                        parkName = "동락공원",
+                        imageUrl = "",
                     ),
             ),
         isSelected = true,

@@ -12,6 +12,7 @@ viewmodel-compose = "2.6.2"
 kotlinxSerializationCore = "1.5.1"
 navigation-compose = "2.8.0"
 coil = "2.7.0"
+onnx = "1.19.0"
 
 ksp = "1.9.22-1.0.16"
 
@@ -46,6 +47,9 @@ playServicesLocation = "21.3.0"
 toolbar-compose = "2.3.5"
 playServicesMaps = "19.0.0"
 pagingCommonAndroid = "3.3.2"
+appcompatVersion = "1.7.0"
+materialVersion = "1.12.0"
+cameraCore = "1.3.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -103,6 +107,12 @@ naver-map-compose = { group = "io.github.fornewid", name = "naver-map-compose", 
 toolbar-compose = { group = "me.onebone", name = "toolbar-compose", version.ref = "toolbar-compose" }
 play-services-maps = { group = "com.google.android.gms", name = "play-services-maps", version.ref = "playServicesMaps" }
 androidx-paging-common-android = { group = "androidx.paging", name = "paging-common-android", version.ref = "pagingCommonAndroid" }
+androidx-appcompat = { group = "androidx.appcompat", name = "appcompat", version.ref = "appcompatVersion" }
+material = { group = "com.google.android.material", name = "material", version.ref = "materialVersion" }
+
+# ai
+onnxruntime = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnx" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]

@@ -68,9 +68,9 @@ fun EncycCard(
                     .align(Alignment.BottomCenter),
             color =
                 if (state.isDiscovered) {
-                    SurfaceColor.copy(alpha = 0.5f)
+                    SurfaceColor.copy(alpha = 0.8f)
                 } else {
-                    Color.Black.copy(alpha = 0.5f)
+                    Color.Black.copy(alpha = 0.8f)
                 },
         ) {
             Box(
@@ -101,7 +101,7 @@ fun EncycCircleCard(
         modifier = Modifier.clickable { onClick(state.id) },
     ) {
         AsyncImage(
-            model = state.name,
+            model = state.imageUrl,
             contentDescription = "plant",
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
             contentScale = ContentScale.Crop,
