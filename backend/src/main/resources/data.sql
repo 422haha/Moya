@@ -84,42 +84,83 @@ INSERT INTO species (name, scientific_name, description, image_url)
 VALUES ('단풍잎', 'Acer palmatum', '가을이 되면 물드는 단풍잎', 'https://i.ibb.co/pKK53HC/maple-leaves.jpg'),
        ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 귀여운 강아지풀', 'https://i.ibb.co/C1LcfHw/foxtail.jpg'),
        ('솔방울', 'Pinus densiflora Siebold & Zucc', '씨앗이 들어있는 자그마한 비늘들이 둥글게 모인 소나무 열매의 송이', 'https://i.ibb.co/QNNzcmD/pine-cones.jpg'),
-       ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
-       ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
-       ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
+       ('란타나', 'Lantana camara', '다양한 색깔의 꽃을 피우는 관목', 'https://i.ibb.co/8dGKhGW/lantana.jpg'),
+       ('히비스커스', 'Hibiscus rosa-sinensis', '큰 꽃을 피우는 열대성 식물', 'https://i.ibb.co/v11zD2b/hibiscus.jpg'),
+       ('야트로파 쿠르카스', 'Jatropha curcas', '고소한 향을 가진 꽃을 피우는 나무', 'https://i.ibb.co/km4Kr9w/jatropha-curcas.jpg'),
+       ('메리골드', 'Tagetes erecta', '주황색 꽃을 피우는 한해살이 식물', 'https://i.ibb.co/TqzJCvS/marigold.jpg'),
+       ('장미', 'Rosa', '전 세계적으로 사랑받는 꽃으로 다양한 품종이 존재', 'https://i.ibb.co/QvG5PmX/rose.jpg'),
+       ('참파카초령목', 'Magnolia champaca', '향기로운 꽃을 피우는 나무', 'https://i.ibb.co/7RV78TG/champaca.jpg'),
+       ('백화단', 'Plumbago zeylanica', '작은 흰색 꽃을 피우는 관목', 'https://i.ibb.co/5nf0K2k/plumbago-zeylanica.jpg'),
+       ('인동덩굴', 'Lonicera', '달콤한 향을 가진 덩굴식물', 'https://i.ibb.co/R6KwF1t/lonicera.jpg'),
+       ('아부틸론 인디쿰', 'Abutilon indicum', '작은 노란 꽃을 피우는 식물', 'https://i.ibb.co/7g7c0Y8/abutilon-indicum.jpg'),
+       ('야모란과', 'Melastoma malabathricum', '보라색 꽃을 피우는 관목', 'https://i.ibb.co/kq40NHH/melastoma-malabathricum.jpg'),
+       ('버터플라이피', 'Clitoria ternatea', '파란색 꽃을 피우는 덩굴식물', 'https://i.ibb.co/mv6jpYk/clitoria-ternatea.jpg'),
+       ('히메노칼리스', 'Hymenocallis littoralis', '거미 모양의 꽃을 피우는 식물', 'https://i.ibb.co/ZTr3pd2/hymenocallis-littoralis.jpg'),
+       ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'https://i.ibb.co/fnL24Z9/sunflowers.jpg');
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
 VALUES (1, 'AUTUMN'), -- 단풍잎: 가을
-       (2, 'SPRING'), -- 강어지풀: 봄, 여름
-       (2, 'SUMMER'), -- 강어지풀: 봄, 여름
+       (2, 'SPRING'), -- 강아지풀: 봄, 여름
+       (2, 'SUMMER'), -- 강아지풀: 봄, 여름
        (3, 'SPRING'), -- 솔방울: 봄, 여름, 가을
        (3, 'SUMMER'), -- 솔방울: 봄, 여름, 가을
        (3, 'AUTUMN'), -- 솔방울: 봄, 여름, 가을
-       (4, 'SPRING'),
+       (4, 'SPRING'), -- 란타나: 봄, 여름
        (4, 'SUMMER'),
-       (4, 'AUTUMN'),
-       (4, 'WINTER'), -- 참새: 모든 계절
-       (5, 'AUTUMN'), -- 단풍나무: 가을
-       (6, 'SPRING'),
-       (6, 'SUMMER');
--- 개구리: 봄, 여름
+       (4, 'AUTUMN'), -- 란타나: 가을
+       (5, 'SPRING'), -- 히비스커스: 봄, 여름, 가을
+       (5, 'SUMMER'),
+       (5, 'AUTUMN'),
+       (6, 'SPRING'), -- 야트로파 쿠르카스: 봄, 여름
+       (6, 'SUMMER'),
+       (7, 'SPRING'), -- 메리골드: 봄, 여름, 가을
+       (7, 'SUMMER'),
+       (7, 'AUTUMN'),
+       (8, 'SPRING'), -- 장미: 봄, 여름, 가을, 겨울 (모든 계절)
+       (8, 'SUMMER'),
+       (8, 'AUTUMN'),
+       (8, 'WINTER'),
+       (9, 'SPRING'), -- 참파카초령목: 봄, 여름
+       (9, 'SUMMER'),
+       (10, 'SPRING'), -- 백화단: 봄, 여름
+       (10, 'SUMMER'),
+       (11, 'SPRING'), -- 인동덩굴: 봄
+       (12, 'SPRING'), -- 아부틸론 인디쿰: 봄, 여름
+       (12, 'SUMMER'),
+       (13, 'SPRING'), -- 야모란과: 봄, 여름, 가을
+       (13, 'SUMMER'),
+       (13, 'AUTUMN'),
+       (14, 'SUMMER'), -- 버터플라이피: 여름, 가을
+       (14, 'AUTUMN'),
+       (15, 'SUMMER'), -- 히메노칼리스: 여름, 가을
+       (15, 'AUTUMN'),
+       (16, 'SUMMER'), -- 해바라기: 여름, 가을
+       (16, 'AUTUMN');
+
+-- park_species 테이블에 유일 제약 조건 추가
+-- ALTER TABLE park_species
+--     ADD CONSTRAINT unique_park_species UNIQUE (park_id, species_id);
 
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
-VALUES (1, 1), -- 1 싸피 뒷뜰 - 단풍잎
-       (1, 2), -- 2 싸피 뒷뜰 - 강아지풀
-       (1, 3), -- 3 싸피 뒷뜰 - 솔방울
-       (2, 2), -- 4 동락공원 - 강아지풀
-       (2, 3), -- 5 동락공원 - 솔방울
-       (2, 5), -- 6 동락공원 - 단풍나무
-       (3, 1), -- 7 환경 연수원 - 단풍잎
-       (3, 5), -- 8 환경 연수원 - 단풍나무
-       (3, 6)
--- 9 환경 연수원 - 개구리
+VALUES (1, 1),  -- 1 싸피 뒷뜰 - 단풍잎
+       (1, 2),  -- 2 싸피 뒷뜰 - 강아지풀
+       (1, 3),  -- 3 싸피 뒷뜰 - 솔방울
+       (2, 1),  -- 4 동락공원 - 단풍잎
+       (2, 2),  -- 5 동락공원 - 강아지풀
+       (2, 3),  -- 6 동락공원 - 솔방울
+       (2, 8),  -- 7 동락공원 - 장미
+       (2, 16), -- 8 동락공원 - 해바라기
+       (3, 1),  -- 9 환경 연수원 - 단풍잎
+       (3, 2),  -- 10 환경 연수원 - 강아지풀
+       (3, 3),  -- 11 환경 연수원 - 솔방울
+       (3, 8),  -- 12 환경 연수원 - 장미
+       (3, 16)  -- 13 환경 연수원 - 해바라기
 ON CONFLICT
     (park_id, species_id)
 DO NOTHING;
+
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
@@ -130,30 +171,34 @@ VALUES
     -- 싸피 뒷뜰 - 강아지풀
     (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 2),
     (ST_SetSRID(ST_MakePoint(128.416300, 36.107300), 4326), 2),
-    -- 싸피 뒷뜰 - 참새
-    (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 3),
+    (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 2),
+    -- 싸피 뒷뜰 - 솔방울
     (ST_SetSRID(ST_MakePoint(128.416500, 36.107500), 4326), 3),
     (ST_SetSRID(ST_MakePoint(128.416600, 36.107600), 4326), 3),
-    -- 동락공원 - 강아지풀
+    -- 동락공원 - 단풍잎
     (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 4),
     (ST_SetSRID(ST_MakePoint(128.402100, 36.100100), 4326), 4),
-    -- 동락공원 - 솔방울
+    -- 동락공원 - 강아지풀
     (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 5),
     (ST_SetSRID(ST_MakePoint(128.402600, 36.095100), 4326), 5),
-    (ST_SetSRID(ST_MakePoint(128.402700, 36.095200), 4326), 5),
-    -- 동락공원 - 단풍나무
-    (ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326), 6),
-    (ST_SetSRID(ST_MakePoint(128.403100, 36.090100), 4326), 6),
+    -- 동락공원 - 솔방울
+    (ST_SetSRID(ST_MakePoint(128.402700, 36.095200), 4326), 6),
+    -- 동락공원 - 장미
+    (ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326), 7),
+    -- 동락공원 - 해바라기
+    (ST_SetSRID(ST_MakePoint(128.403100, 36.090100), 4326), 8),
     -- 환경 연수원 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 7),
-    (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 7),
-    -- 환경 연수원 - 단풍나무
-    (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 8),
-    (ST_SetSRID(ST_MakePoint(128.311800, 36.119600), 4326), 8),
-    (ST_SetSRID(ST_MakePoint(128.311900, 36.119700), 4326), 8),
-    -- 환경 연수원 - 개구리
-    (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 9),
-    (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 9);
+    (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 9),
+    (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 9),
+    -- 환경 연수원 - 강아지풀
+    (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 10),
+    -- 환경 연수원 - 솔방울
+    (ST_SetSRID(ST_MakePoint(128.311800, 36.119600), 4326), 11),
+    (ST_SetSRID(ST_MakePoint(128.311900, 36.119700), 4326), 11),
+    -- 환경 연수원 - 장미
+    (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 12),
+    -- 환경 연수원 - 해바라기
+    (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
 
 -- ==============================================test
 -- 1. 멀찍히 떨어진 개별 점 (단풍잎)
@@ -161,7 +206,7 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 1),
        (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 1),
        (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 1);
--- 1. 멀찍히 떨어진 개별 점 (왕벛나무)
+-- 1. 멀찍히 떨어진 개별 점 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 2),
@@ -172,13 +217,13 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 2);
--- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
+-- 2. 반경 20m 안에 3점이 존재하는 경우 (솔방울)
 INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
 
--- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (참새)
+-- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (솔방울)
 INSERT INTO species_pos (pos, park_species_id)
 SELECT ST_SetSRID(ST_MakePoint(
                           128.414000 + (random() * 0.001),
@@ -262,7 +307,7 @@ WHERE ps.park_id = 2    -- 동락공원
   AND ps.species_id = 3 -- 솔방울
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326));
 
--- 단풍나무 발견 데이터
+-- 장미 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                                                                                                                                   -- user_id (테스트사용자2)
        5,                                                                                                                                   -- species_id ('단풍나무')
@@ -272,10 +317,10 @@ SELECT 1,                                                                       
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 2    -- 동락공원
-  AND ps.species_id = 5 -- 단풍나무
+  AND ps.species_id = 8 -- 장미
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326));
 
--- 개구리 발견 데이터
+-- 해바라기 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                                                                                                                                   -- user_id (테스트사용자1)
        6,                                                                                                                                   -- species_id ('개구리')
@@ -285,7 +330,7 @@ SELECT 1,                                                                       
 FROM species_pos sp
          JOIN park_species ps ON ps.id = sp.park_species_id
 WHERE ps.park_id = 3    -- 환경 연수원
-  AND ps.species_id = 6 -- 개구리
+  AND ps.species_id = 16 -- 해바라기
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));
 
 
