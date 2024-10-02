@@ -92,9 +92,8 @@ fun MainNavigation(
         }
         composable<Encyc> {
             EncycScreen(
+                isDialog = false,
                 parkId = 1,
-                page = 1,
-                size = 10,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
                 },

@@ -56,6 +56,7 @@ val chipLabels = listOf("전체", "수집완료", "미발견")
 @Composable
 fun EncycScreenContent(
     modifier: Modifier = Modifier,
+    isClosable: Boolean,
     encycScreenState: EncycScreenState,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
@@ -70,6 +71,7 @@ fun EncycScreenContent(
                         .padding(paddingValues),
             ) {
                 TopTitle(
+                    isClosable = isClosable,
                     onCloseClick = { onIntent(EncycUserIntent.OnPop) },
                 )
                 when (encycScreenState) {
@@ -105,6 +107,7 @@ fun EncycScreenContent(
 @Composable
 fun TopTitle(
     modifier: Modifier = Modifier,
+    isClosable: Boolean,
     onCloseClick: () -> Unit = {},
 ) {
     Row(
@@ -124,14 +127,16 @@ fun TopTitle(
                 Modifier
                     .padding(start = 8.dp),
         )
-        Icon(
-            imageVector = Icons.Default.Clear,
-            contentDescription = "onPop",
-            modifier =
-                Modifier
-                    .padding(horizontal = 8.dp)
-                    .clickable { onCloseClick() },
-        )
+        if(!isClosable){
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "onPop",
+                modifier =
+                    Modifier
+                        .padding(horizontal = 8.dp)
+                        .clickable { onCloseClick() },
+            )
+        }
     }
 }
 
@@ -296,6 +301,7 @@ fun CollectionProgress(
 @Composable
 fun EncycScreenPreview() {
     EncycScreenContent(
+        isClosable = true,
         encycScreenState =
             EncycScreenState.Loaded(
                 selectedChipIndex = 0,
