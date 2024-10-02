@@ -93,7 +93,26 @@ class ExplorationRepositoryImpl @Inject constructor(
         explorationId: Long,
         questId: Long
     ): Flow<ApiResponse<CompletedQuest>> {
-        TODO("Not yet implemented")
+        return flow {
+            val response =
+                apiHandler {
+                    explorationApi.completeQuest(explorationId, questId)
+                }
+            when (response) {
+                is ApiResponse.Success -> {
+                    emit(ApiResponse.Success(response.body?.data))
+                }
+
+                is ApiResponse.Error -> {
+                    emit(
+                        ApiResponse.Error(
+                            errorCode = response.errorCode,
+                            errorMessage = response.errorMessage,
+                        ),
+                    )
+                }
+            }
+        }
     }
 
 }
