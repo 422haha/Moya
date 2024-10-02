@@ -37,8 +37,7 @@ fun CustomCard(
 ) {
     Card(
         modifier = modifier
-            .fillMaxWidth()
-            .padding(top = 60.dp, start = 40.dp, end = 40.dp),
+            .fillMaxWidth(),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp)
     ) {
         Row(
@@ -65,6 +64,7 @@ fun CustomCard(
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
+                Spacer(modifier = Modifier.height(4.dp))
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,

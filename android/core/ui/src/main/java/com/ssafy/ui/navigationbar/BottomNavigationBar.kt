@@ -34,13 +34,13 @@ data class BottomNavigationItemState<T>(
 )
 
 @Composable
-fun <T> BottomNavigationBar(
+fun <T : Any> BottomNavigationBar(
     modifier: Modifier = Modifier,
     items: List<BottomNavigationItemState<T>>,
     onSelected: (route: T) -> Unit,
-    startDestination: T,
+    startDestination: String?,
 ) {
-    var selectedRoute by remember { mutableStateOf(startDestination) }
+    var selectedRoute by remember(startDestination) { mutableStateOf(startDestination) }
 
     BottomAppBar {
         Row(
@@ -50,12 +50,12 @@ fun <T> BottomNavigationBar(
         ) {
             for (item in items) {
                 BottomNavigationItem(
-                    isSelected = item.route == selectedRoute,
+                    isSelected = item.route::class.qualifiedName.toString() == selectedRoute,
                     label = item.label,
                     icon = item.icon,
                     selectedIcon = item.selectedIcon,
                     onClick = {
-                        selectedRoute = item.route
+                        selectedRoute = item.route::class.qualifiedName.toString()
                         onSelected(item.route)
                     },
                 )

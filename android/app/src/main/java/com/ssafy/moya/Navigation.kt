@@ -2,7 +2,6 @@ package com.ssafy.moya
 
 import android.Manifest
 import androidx.compose.runtime.Composable
-import androidx.compose.ui.platform.LocalContext
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -27,18 +26,13 @@ fun MainNavigation(
     ttsHelper: TTSHelper,
     sttHelper: STTHelper,
 ) {
-
-    val context = LocalContext.current
-
     MultiplePermissionHandler(
         permissions =
-        listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ),
-    ){
-
-    }
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+    ) {}
 
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
@@ -50,21 +44,10 @@ fun MainNavigation(
                 onNavigateToParkDetail = { id ->
                     navController.navigate(ParkDetail(itemId = id))
                 },
-                onNavigateToEncyc = { id ->
+                onNavigateToEncycDetail = { id ->
                     navController.navigate(EncycDetail(itemId = id))
                 },
             )
-//            HomeScreen(
-//                onNavigateToParkList = {
-//                    navController.navigate(ParkList)
-//                },
-//                onNavigateToParkDetail = { id ->
-//                    navController.navigate(ParkDetail(itemId = id))
-//                },
-//                onNavigateToEncyc = { id ->
-//                    navController.navigate(EncycDetail(itemId = id))
-//                }
-//            )
         }
         composable<ExploreList> {
             ExploreListScreen(
@@ -92,8 +75,8 @@ fun MainNavigation(
                 navController.popBackStack()
             })
         }
-        composable<ParkDetail> {
-            val parkDetail = it.toRoute<ParkDetail>()
+        composable<ParkDetail> { navBackStackEntry ->
+            val parkDetail = navBackStackEntry.toRoute<ParkDetail>()
             ParkDetailScreen(
                 parkId = parkDetail.itemId,
                 onNavigateToEncycDetail = { itemId ->
@@ -150,13 +133,14 @@ fun MainNavigation(
                 onEnterEncyc = {
                     navController.navigate(Encyc)
                 },
-                onEnterAR = {
-                    navController.navigate(ARCamera)
+                onEnterAR = { id ->
+                    navController.navigate(ARCamera(explrationId = id))
                 },
             )
         }
-        composable<ARCamera> {
-            ARSceneComposable(onPermissionDenied = {})
+        composable<ARCamera> { navBackStackEntry ->
+            val route = navBackStackEntry.toRoute<ARCamera>()
+            ARSceneComposable(explorationId = route.explrationId, onPermissionDenied = {})
         }
         composable<Login> {
             LoginScreen(
