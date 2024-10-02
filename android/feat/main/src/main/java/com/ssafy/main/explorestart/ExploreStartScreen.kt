@@ -20,7 +20,7 @@ fun ExploreStartScreen(
     viewModel: ExploreStartScreenViewModel = hiltViewModel(),
     onExitExplore: () -> Unit,
     onEnterEncyc: () -> Unit,
-    onEnterAR: () -> Unit,
+    onEnterAR: (explorationId: Long) -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
@@ -77,7 +77,11 @@ fun ExploreStartScreen(
     ExploreStartScreenContent(exploreStartScreenState = uiState, onIntent = { intent ->
         when (intent) {
             is ExploreStartUserIntent.OnEnterEncyc -> onEnterEncyc()
-            is ExploreStartUserIntent.OnCameraClicked -> onEnterAR()
+            is ExploreStartUserIntent.OnCameraClicked -> {
+                if(uiState is ExploreStartScreenState.Loaded){
+                    onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
+                }
+            }
             else -> viewModel.onIntent(intent)
         }
     })
