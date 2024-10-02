@@ -10,6 +10,7 @@ public class QuestDto {
     private Long questId;
     private Long npcId;
     private Long npcPosId;
+    private String npcName;
     private double longitude;
     private double latitude;
     private int questType;

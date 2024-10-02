@@ -15,6 +15,7 @@ public class ParkResponseDto {
 
     private Long parkId;
     private String parkName;
+    private String description;
     private int distance;
     private String imageUrl;
 }

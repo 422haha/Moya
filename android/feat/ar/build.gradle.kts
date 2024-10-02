@@ -19,4 +19,6 @@ dependencies {
     implementation(libs.play.services.maps)
     implementation(project(":core:network"))
     implementation(project(":core:model"))
+    implementation(project(":feat:ai"))
+    implementation(libs.onnxruntime)
 }
