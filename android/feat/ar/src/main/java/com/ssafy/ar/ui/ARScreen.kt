@@ -68,11 +68,9 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
-import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.File
 
 private const val TAG = "ArScreen"
 
@@ -139,20 +137,21 @@ fun ARSceneComposable(
 
     // LaunchedEffect를 사용하여 DataProcess의 모델 및 라벨 로딩
     LaunchedEffect(Unit) {
-        Log.d("DataProcess", "Launching loadModel() in coroutine")
         dataProcess.loadModel()
-        ortSession = ortEnvironment.createSession(
-            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
-            OrtSession.SessionOptions()
-        )
+        ortSession =
+            ortEnvironment.createSession(
+                context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+                OrtSession.SessionOptions(),
+            )
         dataProcess.loadLabel()
     }
 
     MultiplePermissionsHandler(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+        permissions =
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
     ) { permissionResults ->
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
@@ -209,12 +208,14 @@ fun ARSceneComposable(
 
                             // AI 처리
                             ortSession?.let { session ->
-                                val results = dataProcess.processImage(bitmap, ortEnvironment, session)
+                                val results =
+                                    dataProcess.processImage(bitmap, ortEnvironment, session)
 
                                 // 결과를 메인 스레드에서 업데이트
                                 withContext(Dispatchers.Main) {
                                     detectionResults = results
                                 }
+                                Log.d("DataProcess","인식 결과 : $detectionResults")
                             }
                         } catch (e: Exception) {
                             // 예외 처리
@@ -229,15 +230,18 @@ fun ARSceneComposable(
 
                 if (trackingFailureReason == null) {
                     val desiredPlaneFindingMode =
-                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
+                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
                             Config.PlaneFindingMode.HORIZONTAL
-                        else
+                        } else {
                             Config.PlaneFindingMode.DISABLED
+                        }
 
                     if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        session.configure(session.config.apply {
-                            setPlaneFindingMode(desiredPlaneFindingMode)
-                        })
+                        session.configure(
+                            session.config.apply {
+                                setPlaneFindingMode(desiredPlaneFindingMode)
+                            },
+                        )
                     }
                 }
 
@@ -256,24 +260,25 @@ fun ARSceneComposable(
                                     engine,
                                     modelLoader,
                                     materialLoader,
-                                    childNodes
+                                    childNodes,
                                 )
                             }
                         }
                     }
                 }
             },
-            onGestureListener = rememberOnGestureListener(
-                onSingleTapConfirmed = { motionEvent, node ->
-                    if (node is ModelNode || node?.parent is ModelNode) {
-                        val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+            onGestureListener =
+                rememberOnGestureListener(
+                    onSingleTapConfirmed = { motionEvent, node ->
+                        if (node is ModelNode || node?.parent is ModelNode) {
+                            val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
 
-                        val anchorNode = modelNode?.parent as? AnchorNode
+                            val anchorNode = modelNode?.parent as? AnchorNode
 
-                        val anchorId = anchorNode?.name?.toLong()
+                            val anchorId = anchorNode?.name?.toLong()
 
-                        if (anchorId != null) {
-                            val quest = questInfos[anchorId]
+                            if (anchorId != null) {
+                                val quest = questInfos[anchorId]
 
                             quest?.let {
                                 when (quest.isComplete) {
@@ -350,8 +355,8 @@ fun ARSceneComposable(
                                 }
                             }
                         }
-                    }
-                })
+                    },
+                ),
         )
 
         Column(modifier = Modifier.padding(16.dp)) {
@@ -360,7 +365,7 @@ fun ARSceneComposable(
                 detectionResults.forEach { result ->
                     Text(
                         text = "Class: ${dataProcess.classes[result.classIndex]}, Score: ${result.score}",
-                        color = Color.Black
+                        color = Color.Black,
                     )
                 }
             }
@@ -410,13 +415,13 @@ fun ARSceneComposable(
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestQuestInfo.shouldPlace,
-                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
+                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) },
             )
         }
 
         SnackbarHost(
             hostState = snackBarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         ) { snackbarData ->
             Snackbar(snackbarData = snackbarData)
         }
@@ -426,62 +431,65 @@ fun ARSceneComposable(
         QuestDialog(
             dialogData,
             onConfirm = { viewModel.onDialogConfirm() },
-            onDismiss = { viewModel.onDialogDismiss() }
+            onDismiss = { viewModel.onDialogDismiss() },
         )
     }
 }
 
-suspend fun imageToBitmap(image: Image): Bitmap = withContext(Dispatchers.Default) {
-    // ARCore 카메라 이미지는 기본적으로 YUV_420_888 형식일 가능성이 높음
-    val planes = image.planes
-    val yBuffer = planes[0].buffer
-    val uBuffer = planes[1].buffer
-    val vBuffer = planes[2].buffer
+suspend fun imageToBitmap(image: Image): Bitmap =
+    withContext(Dispatchers.Default) {
+        // ARCore 카메라 이미지는 기본적으로 YUV_420_888 형식일 가능성이 높음
+        val planes = image.planes
+        val yBuffer = planes[0].buffer
+        val uBuffer = planes[1].buffer
+        val vBuffer = planes[2].buffer
 
-    // 이미지의 너비, 높이 및 stride 계산
-    val width = image.width
-    val height = image.height
-    val ySize = yBuffer.remaining()
-    val uSize = uBuffer.remaining()
-    val vSize = vBuffer.remaining()
+        // 이미지의 너비, 높이 및 stride 계산
+        val width = image.width
+        val height = image.height
+        val ySize = yBuffer.remaining()
+        val uSize = uBuffer.remaining()
+        val vSize = vBuffer.remaining()
 
-    // YUV 데이터를 하나의 배열로 합침
-    val nv21 = ByteArray(ySize + uSize + vSize)
+        // YUV 데이터를 하나의 배열로 합침
+        val nv21 = ByteArray(ySize + uSize + vSize)
 
-    yBuffer.get(nv21, 0, ySize)
-    vBuffer.get(nv21, ySize, vSize)
-    uBuffer.get(nv21, ySize + vSize, uSize)
+        yBuffer.get(nv21, 0, ySize)
+        vBuffer.get(nv21, ySize, vSize)
+        uBuffer.get(nv21, ySize + vSize, uSize)
 
-    // NV21 포맷을 Bitmap으로 변환
-    val yuvImage = android.graphics.YuvImage(nv21, android.graphics.ImageFormat.NV21, width, height, null)
-    val out = java.io.ByteArrayOutputStream()
-    yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
-    val imageBytes = out.toByteArray()
+        // NV21 포맷을 Bitmap으로 변환
+        val yuvImage =
+            android.graphics.YuvImage(nv21, android.graphics.ImageFormat.NV21, width, height, null)
+        val out = java.io.ByteArrayOutputStream()
+        yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
+        val imageBytes = out.toByteArray()
 
-    // JPEG로 변환된 데이터를 Bitmap으로 디코딩
-    return@withContext BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-}
+        // JPEG로 변환된 데이터를 Bitmap으로 디코딩
+        return@withContext BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    }
 
 private fun findPlaneInView(
     frame: Frame,
     width: Int,
     height: Int,
-    camera: Camera
+    camera: Camera,
 ): Pair<Plane, Pose>? {
     val center = android.graphics.PointF(width / 2f, height / 2f)
     val hits = frame.hitTest(center.x, center.y)
 
-    val planeHit = hits.firstOrNull {
-        it.isValid(
-            depthPoint = true,
-            point = true,
-            planePoseInPolygon = true,
-            instantPlacementPoint = false,
-            minCameraDistance = Pair(camera, 0.5f),
-            predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
-            planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING)
-        )
-    }
+    val planeHit =
+        hits.firstOrNull {
+            it.isValid(
+                depthPoint = true,
+                point = true,
+                planePoseInPolygon = true,
+                instantPlacementPoint = false,
+                minCameraDistance = Pair(camera, 0.5f),
+                predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+                planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
+            )
+        }
 
     return planeHit?.let { hit ->
         val plane = hit.trackable as Plane
@@ -489,4 +497,3 @@ private fun findPlaneInView(
         Pair(plane, pose)
     }
 }
-
