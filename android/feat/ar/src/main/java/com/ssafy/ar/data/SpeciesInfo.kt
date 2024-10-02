@@ -3,7 +3,7 @@ package com.ssafy.ar.data
 import com.ssafy.ar.R
 
 enum class SpeciesType(val type: Long) {
-    MAPLE(1L), FOXTAIL(2L), CONE(3L);
+    FOXTAIL(0L), MAPLE(1L), CONE(2L);
 
     companion object {
         fun fromLong(value: Long): SpeciesType? = entries.find { it.type == value }

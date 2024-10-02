@@ -71,6 +71,7 @@ import io.github.sceneview.rememberView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import kotlin.math.log
 
 private const val TAG = "ArScreen"
 
@@ -135,15 +136,61 @@ fun ARSceneComposable(
     var frameCounter = 0
     var isProcessingImage = false
 
-    // LaunchedEffect를 사용하여 DataProcess의 모델 및 라벨 로딩
-    LaunchedEffect(Unit) {
-        dataProcess.loadModel()
-        ortSession =
-            ortEnvironment.createSession(
-                context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
-                OrtSession.SessionOptions(),
-            )
-        dataProcess.loadLabel()
+    LaunchedEffect(detectionResults) {
+        Log.d(TAG, "ARSceneComposable: $detectionResults")
+        
+        val detectedClassIndexes = detectionResults.map { it.classIndex }
+
+        val progressQuests = questInfos
+            .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
+            .map { it.value }
+
+        val completeQuests = progressQuests.filter { quest ->
+            quest.speciesId.toInt() in detectedClassIndexes
+        }
+
+        completeQuests.forEach {
+            coroutineScope.launch {
+                val anchorId: Long = it.id
+
+                val modelNode: ModelNode? = childNodes
+                    .flatMap { it.childNodes }
+                    .filterIsInstance<ModelNode>().firstOrNull { it.name == anchorId.toString() }
+
+                modelNode?.let {
+                    val result =
+                        viewModel.completeQuest(
+                            explorationId,
+                            anchorId,
+                        )
+                    when (result) {
+                        true -> {
+                            viewModel.updateQuestState(
+                                anchorId,
+                                QuestState.COMPLETE,
+                            )
+
+                            val imageNode =
+                                modelNode.childNodes
+                                    .filterIsInstance<ImageNode>()
+                                    .firstOrNull()
+
+                            imageNode?.let {
+                                viewModel.updateModelNode(
+                                    imageNode,
+                                    modelNode,
+                                    materialLoader,
+                                )
+                            }
+
+                            snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                        }
+
+                        false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
+                    }
+                }
+            }
+        }
     }
 
     MultiplePermissionsHandler(
@@ -159,6 +206,20 @@ fun ARSceneComposable(
             viewModel.locationManager.startLocationUpdates()
 
             viewModel.getAllQuests(explorationId)
+
+            coroutineScope.launch {
+                withContext(Dispatchers.IO) {
+                    dataProcess.loadModel()
+
+                    ortSession =
+                        ortEnvironment.createSession(
+                            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+                            OrtSession.SessionOptions(),
+                        )
+
+                    dataProcess.loadLabel()
+                }
+            }
         } else {
             hasPermission = false
 
@@ -211,11 +272,13 @@ fun ARSceneComposable(
                                 val results =
                                     dataProcess.processImage(bitmap, ortEnvironment, session)
 
-                                // 결과를 메인 스레드에서 업데이트
-                                withContext(Dispatchers.Main) {
-                                    detectionResults = results
+                                if(results.isNotEmpty()) {
+                                    // 결과를 메인 스레드에서 업데이트
+                                    withContext(Dispatchers.Main) {
+                                        detectionResults = results
+                                    }
+                                    Log.d("DataProcess", "인식 결과 : $detectionResults")
                                 }
-                                Log.d("DataProcess", "인식 결과 : $detectionResults")
                             }
                         } catch (e: Exception) {
                             // 예외 처리
@@ -308,42 +371,7 @@ fun ARSceneComposable(
                                             viewModel.showQuestDialog(
                                                 quest,
                                             ) { accepted ->
-                                                if (accepted) {
-                                                    // TODO 온디바이스 AI로 검사
-                                                    coroutineScope.launch {
-                                                        val result =
-                                                            viewModel.completeQuest(
-                                                                explorationId,
-                                                                anchorId,
-                                                            )
-
-                                                        when (result) {
-                                                            true -> {
-                                                                viewModel.updateQuestState(
-                                                                    anchorId,
-                                                                    QuestState.COMPLETE,
-                                                                )
-
-                                                                val imageNode =
-                                                                    modelNode.childNodes
-                                                                        .filterIsInstance<ImageNode>()
-                                                                        .firstOrNull()
-
-                                                                imageNode?.let {
-                                                                    viewModel.updateModelNode(
-                                                                        imageNode,
-                                                                        modelNode,
-                                                                        materialLoader,
-                                                                    )
-                                                                }
-
-                                                                snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
-                                                            }
-
-                                                            false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
-                                                        }
-                                                    }
-                                                }
+                                                if (accepted) { }
                                             }
                                         }
                                         // 퀘스트 완료
@@ -400,9 +428,9 @@ fun ARSceneComposable(
                 )
                 Card(
                     modifier =
-                        Modifier
-                            .offset(y = (-20).dp)
-                            .align(Alignment.TopCenter),
+                    Modifier
+                        .offset(y = (-20).dp)
+                        .align(Alignment.TopCenter),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Gray),
                 ) {
