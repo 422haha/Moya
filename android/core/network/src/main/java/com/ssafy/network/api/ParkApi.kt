@@ -1,8 +1,10 @@
 package com.ssafy.network.api
 
+import com.ssafy.model.Park
 import com.ssafy.model.ParkDetail
 import com.ssafy.model.ParkList
 import com.ssafy.network.ResponseBody
+import com.ssafy.network.ResponseListBody
 import retrofit2.Response
 import retrofit2.http.GET
 import retrofit2.http.Path
@@ -23,4 +25,18 @@ interface ParkApi {
     suspend fun getParkDetail(
         @Path("parkId") parkId: Long,
     ): Response<ResponseBody<ParkDetail>>
+
+    // /park/home?latitude=127&longitude=34
+    @GET("/park/home")
+    suspend fun getClosePark(
+        @Query("latitude")latitude: Double,
+        @Query("longitude")longitude: Double,
+    ): Response<ResponseBody<Park>>
+
+    // /park/home/famous?latitude=127&longitude=34
+    @GET("/park/home/famous")
+    suspend fun getFamousParks(
+        @Query("latitude")latitude: Double,
+        @Query("longitude")longitude: Double,
+    ): Response<ResponseListBody<Park>>
 }
