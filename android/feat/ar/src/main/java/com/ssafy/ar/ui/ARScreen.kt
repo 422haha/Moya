@@ -1,13 +1,22 @@
 package com.ssafy.ar.ui
 
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.Manifest
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.media.Image
+import android.util.Log
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +25,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -31,6 +42,8 @@ import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.QuestType
 import com.ssafy.ar.data.getImageResource
 import com.ssafy.ar.util.MultiplePermissionsHandler
+import com.ssafy.moya.ai.DataProcess
+import com.ssafy.moya.ai.Result
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.arcore.isValid
@@ -45,7 +58,11 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
 
 private const val TAG = "ArScreen"
 
@@ -89,6 +106,29 @@ fun ARSceneComposable(
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
+
+    val context = LocalContext.current
+
+    // AI 모델 초기화 및 세션 설정
+    val dataProcess = remember { DataProcess(context = context) }
+    val ortEnvironment = remember { OrtEnvironment.getEnvironment() }
+    var ortSession by remember { mutableStateOf<OrtSession?>(null) }
+
+    var detectionResults by remember { mutableStateOf(listOf<Result>()) }
+
+    var frameCounter = 0
+    var isProcessingImage = false
+
+    // LaunchedEffect를 사용하여 DataProcess의 모델 및 라벨 로딩
+    LaunchedEffect(Unit) {
+        Log.d("DataProcess", "Launching loadModel() in coroutine")
+        dataProcess.loadModel()
+        ortSession = ortEnvironment.createSession(
+            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+            OrtSession.SessionOptions()
+        )
+        dataProcess.loadLabel()
+    }
 
     MultiplePermissionsHandler(
         permissions = listOf(
@@ -139,6 +179,39 @@ fun ARSceneComposable(
             planeRenderer = planeRenderer,
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
+                frameCounter++
+                if (frameCounter % 10 == 0 && !isProcessingImage) {
+                    isProcessingImage = true
+
+                    coroutineScope.launch(Dispatchers.IO) {
+                        var image: Image? = null
+                        try {
+                            // 이미지 획득
+                            image = frame.acquireCameraImage()
+
+                            // 이미지 변환 (백그라운드 스레드)
+                            val bitmap = imageToBitmap(image)
+
+                            // AI 처리
+                            ortSession?.let { session ->
+                                val results = dataProcess.processImage(bitmap, ortEnvironment, session)
+
+                                // 결과를 메인 스레드에서 업데이트
+                                withContext(Dispatchers.Main) {
+                                    detectionResults = results
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // 예외 처리
+                            Log.e("errorInAR", e.toString())
+                        } finally {
+                            // 이미지 닫기 및 상태 업데이트
+                            image?.close()
+                            isProcessingImage = false
+                        }
+                    }
+                }
+
                 if (trackingFailureReason == null) {
                     val desiredPlaneFindingMode =
                         if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
@@ -265,6 +338,18 @@ fun ARSceneComposable(
                 })
         )
 
+        Column(modifier = Modifier.padding(16.dp)) {
+            if (detectionResults.isNotEmpty()) {
+                Text("Detected Objects:", color = Color.Black)
+                detectionResults.forEach { result ->
+                    Text(
+                        text = "Class: ${dataProcess.classes[result.classIndex]}, Score: ${result.score}",
+                        color = Color.Black
+                    )
+                }
+            }
+        }
+
         Column {
             CustomCard(
                 imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)
@@ -302,6 +387,37 @@ fun ARSceneComposable(
             onDismiss = { viewModel.onDialogDismiss() }
         )
     }
+}
+
+suspend fun imageToBitmap(image: Image): Bitmap = withContext(Dispatchers.Default) {
+    // ARCore 카메라 이미지는 기본적으로 YUV_420_888 형식일 가능성이 높음
+    val planes = image.planes
+    val yBuffer = planes[0].buffer
+    val uBuffer = planes[1].buffer
+    val vBuffer = planes[2].buffer
+
+    // 이미지의 너비, 높이 및 stride 계산
+    val width = image.width
+    val height = image.height
+    val ySize = yBuffer.remaining()
+    val uSize = uBuffer.remaining()
+    val vSize = vBuffer.remaining()
+
+    // YUV 데이터를 하나의 배열로 합침
+    val nv21 = ByteArray(ySize + uSize + vSize)
+
+    yBuffer.get(nv21, 0, ySize)
+    vBuffer.get(nv21, ySize, vSize)
+    uBuffer.get(nv21, ySize + vSize, uSize)
+
+    // NV21 포맷을 Bitmap으로 변환
+    val yuvImage = android.graphics.YuvImage(nv21, android.graphics.ImageFormat.NV21, width, height, null)
+    val out = java.io.ByteArrayOutputStream()
+    yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
+    val imageBytes = out.toByteArray()
+
+    // JPEG로 변환된 데이터를 Bitmap으로 디코딩
+    return@withContext BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
 }
 
 private fun findPlaneInView(

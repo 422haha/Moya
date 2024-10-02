@@ -49,6 +49,7 @@ playServicesMaps = "19.0.0"
 pagingCommonAndroid = "3.3.2"
 appcompatVersion = "1.7.0"
 materialVersion = "1.12.0"
+cameraCore = "1.3.4"
 
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
@@ -111,6 +112,7 @@ material = { group = "com.google.android.material", name = "material", version.r
 
 # ai
 onnxruntime = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnx" }
+androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]
