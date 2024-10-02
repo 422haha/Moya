@@ -81,23 +81,21 @@ VALUES (ST_SetSRID(ST_MakePoint(128.4162641, 36.1067967), 4326), 1), -- 싸피 �
 -- 환경 연수원 - 마법사 너구리
 -- Species
 INSERT INTO species (name, scientific_name, description, image_url)
-VALUES ('청설모', 'Sciurus vulgaris', '귀여운 다람쥐과의 포유류', 'https://i.ibb.co/HnfJcXB/image.jpg'),
-       ('왕벚나무', 'Prunus yedoensis', '봄에 아름다운 꽃을 피우는 나무', 'https://i.ibb.co/ftzKQ97/image.jpg'),
-       ('잉어', 'Cyprinus carpio', '연못에서 흔히 볼 수 있는 물고기', 'https://i.ibb.co/brQGP4d/image.jpg'),
+VALUES ('단풍잎', 'Acer palmatum', '가을이 되면 물드는 단풍잎', 'https://i.ibb.co/HnfJcXB/image.jpg'),
+       ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 귀여운 강아지풀', 'https://i.ibb.co/ftzKQ97/image.jpg'),
+       ('솔방울', 'Pinus densiflora Siebold & Zucc', '씨앗이 들어있는 자그마한 비늘들이 둥글게 모인 소나무 열매의 송이', 'https://i.ibb.co/brQGP4d/image.jpg'),
        ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
        ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
        ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
-VALUES (1, 'SPRING'),
-       (1, 'SUMMER'),
-       (1, 'AUTUMN'),
-       (1, 'WINTER'), -- 청설모: 모든 계절
-       (2, 'SPRING'), -- 왕벚나무: 봄
-       (3, 'SPRING'),
-       (3, 'SUMMER'),
-       (3, 'AUTUMN'), -- 잉어: 봄, 여름, 가을
+VALUES (1, 'AUTUMN'), -- 단풍잎: 가을
+       (2, 'SPRING'), -- 강어지풀: 봄, 여름
+       (2, 'SUMMER'), -- 강어지풀: 봄, 여름
+       (3, 'SPRING'), -- 솔방울: 봄, 여름, 가을
+       (3, 'SUMMER'), -- 솔방울: 봄, 여름, 가을
+       (3, 'AUTUMN'), -- 솔방울: 봄, 여름, 가을
        (4, 'SPRING'),
        (4, 'SUMMER'),
        (4, 'AUTUMN'),
@@ -109,9 +107,9 @@ VALUES (1, 'SPRING'),
 
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
-VALUES (1, 1), -- 1 싸피 뒷뜰 - 청설모
-       (1, 2), -- 2 싸피 뒷뜰 - 왕벚나무
-       (1, 4), -- 3 싸피 뒷뜰 - 참새
+VALUES (1, 1), -- 1 싸피 뒷뜰 - 단풍잎
+       (1, 2), -- 2 싸피 뒷뜰 - 강아지풀
+       (1, 3), -- 3 싸피 뒷뜰 - 솔방울
        (2, 2), -- 4 동락공원 - 왕벚나무
        (2, 3), -- 5 동락공원 - 잉어
        (2, 5), -- 6 동락공원 - 단풍나무
