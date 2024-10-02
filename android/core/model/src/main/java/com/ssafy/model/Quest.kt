@@ -11,18 +11,18 @@ data class QuestList(
 data class Quest(
     val questId: Long,
     val npcId: Long,
-    val npcPosId: Long,
     val npcName: String,
+    val npcPosId: Long,
     val longitude: Double, // npc의 위치
     val latitude: Double, // npc의 위치
     val questType: Int,
     val speciesId: Long,
     val speciesName: String,
-    val completed: Int,
+    val completed: String,
 )
 
 @Serializable
 data class CompletedQuest(
     val completionDate: String,
-    val completedQuest: Int,
+    val completedQuests: Int,
 )

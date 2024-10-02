@@ -20,6 +20,7 @@ data class Park(
     val parkName: String,
     val distance: Long,
     val imageUrl: String,
+    val description: String? = null,
 )
 
 @Serializable

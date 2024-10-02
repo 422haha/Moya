@@ -27,7 +27,7 @@ data class EncycDetail(val itemId: Long)
 data class ExploreStart(val parkId: Long)
 
 @Serializable
-object ARCamera
+data class ARCamera(val explrationId: Long)
 
 //TODO 나중에 dataclass로 수정하고 userId 전송하도록
 @Serializable
