@@ -42,10 +42,10 @@ fun MainNavigation(
                     navController.navigate(ParkList)
                 },
                 onNavigateToParkDetail = { id ->
-                    navController.navigate(ParkDetail(itemId = id))
+                    navController.navigate(ParkDetail(parkId = id))
                 },
                 onNavigateToEncycDetail = { id ->
-                    navController.navigate(EncycDetail(itemId = id))
+                    navController.navigate(EncycDetail(encycId = id))
                 },
             )
         }
@@ -78,7 +78,7 @@ fun MainNavigation(
         composable<ParkDetail> { navBackStackEntry ->
             val parkDetail = navBackStackEntry.toRoute<ParkDetail>()
             ParkDetailScreen(
-                parkId = parkDetail.itemId,
+                parkId = parkDetail.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
                 },
@@ -86,7 +86,7 @@ fun MainNavigation(
                     navController.popBackStack()
                 },
                 onEnterExplore = {
-                    navController.navigate(ExploreStart(parkId = parkDetail.itemId))
+                    navController.navigate(ExploreStart(parkId = parkDetail.parkId))
                 },
             )
         }
@@ -107,7 +107,7 @@ fun MainNavigation(
         composable<EncycDetail> {
             val item = it.toRoute<EncycDetail>()
             EncycDetailScreen(
-                itemId = item.itemId + 1,
+                itemId = item.encycId + 1,
                 onPop = {
                     navController.popBackStack()
                 },
@@ -130,8 +130,8 @@ fun MainNavigation(
                         popUpTo(Home) { inclusive = true }
                     }
                 },
-                onEnterEncyc = {
-                    navController.navigate(Encyc)
+                onEnterEncyc = { parkId ->
+                    navController.navigate(Encyc(parkId))
                 },
                 onEnterAR = { id ->
                     navController.navigate(ARCamera(explrationId = id))
