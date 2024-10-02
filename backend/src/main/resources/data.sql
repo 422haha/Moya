@@ -1,12 +1,11 @@
 CREATE
 EXTENSION IF NOT EXISTS postgis;
 -- 기본 사용자 추가
-INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url, locale)
-VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url',
-        'ko-KR');
+INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
+VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url');
 
-INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url, locale)
-VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2', 'profile_image_url', 'ko-KR');
+INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
+VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2', 'profile_image_url');
 
 -- Parksp
 INSERT INTO park (name, description, image_url)
@@ -47,11 +46,12 @@ VALUES ('수달'),      -- 1
        ('마법사 너구리'), -- 5
        ('병아리'),     -- 6
        ('거북이'),     -- 7
-       ('갈색 거북이'), -- 8
-       ('토끼'),       -- 9
+       ('갈색 거북이'),  -- 8
+       ('토끼'),      -- 9
        ('이정표'),     -- 10
-       ('펭귄'),       -- 11
-       ('돛새치');     -- 12
+       ('펭귄'),      -- 11
+       ('돛새치');
+-- 12
 -- Park NPCs
 INSERT INTO park_npc (park_id, npc_id)
 VALUES (1, 1),  -- 1 싸피 뒷뜰, 수달
@@ -83,7 +83,8 @@ VALUES (ST_SetSRID(ST_MakePoint(128.4162641, 36.1067967), 4326), 1), -- 싸피 �
 INSERT INTO species (name, scientific_name, description, image_url)
 VALUES ('단풍잎', 'Acer palmatum', '가을이 되면 물드는 단풍잎', 'https://i.ibb.co/HnfJcXB/image.jpg'),
        ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 귀여운 강아지풀', 'https://i.ibb.co/ftzKQ97/image.jpg'),
-       ('솔방울', 'Pinus densiflora Siebold & Zucc', '씨앗이 들어있는 자그마한 비늘들이 둥글게 모인 소나무 열매의 송이', 'https://i.ibb.co/brQGP4d/image.jpg'),
+       ('솔방울', 'Pinus densiflora Siebold & Zucc', '씨앗이 들어있는 자그마한 비늘들이 둥글게 모인 소나무 열매의 송이',
+        'https://i.ibb.co/brQGP4d/image.jpg'),
        ('참새', 'Passer montanus', '도시에서 흔히 볼 수 있는 작은 새', 'https://i.ibb.co/my2KB2k/image.jpg'),
        ('단풍나무', 'Acer palmatum', '가을에 아름다운 단풍을 보여주는 나무', 'https://i.ibb.co/V2wXDVt/image.jpg'),
        ('개구리', 'Rana coreana', '한국에서 흔히 볼 수 있는 개구리', 'https://i.ibb.co/hfRc519/image.jpg');
