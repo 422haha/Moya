@@ -11,10 +11,10 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface QuestCompletedRepositoryExploration extends JpaRepository<QuestCompleted, Long> {
 
-    List<QuestCompleted> findByExplorationUserIdAndExplorationId(long userId, Long explorationId);
-
     @Query("SELECT COUNT(qc) FROM QuestCompleted qc WHERE qc.exploration.id = :explorationId AND qc.status = :status")
-    int countCompletedQuestsByExplorationId(@Param("explorationId") Long explorationId, @Param("status") QuestStatus status);
+    int countCompletedQuestsByExplorationId(@Param("explorationId") Long explorationId,
+        @Param("status") QuestStatus status);
 
-    List<QuestCompleted> findByExplorationId(Long explorationId);
+    @Query("SELECT qc FROM QuestCompleted qc WHERE qc.exploration.id = :explorationId")
+    List<QuestCompleted> findByExplorationId(@Param("explorationId") Long explorationId);
 }

@@ -28,12 +28,12 @@ interface ExplorationApi {
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<ExplorationData>>
 
-    @GET("/explorations/{explorationId}/quest/list")
+    @GET("/exploration/{explorationId}/quest/list")
     suspend fun getQuestList(
         @Path("explorationId") explorationId: Long,
     ): Response<ResponseBody<QuestList>>
 
-    @POST("/explorations/{explorationId}/quest/{questId}/complete")
+    @POST("/exploration/{explorationId}/quest/{questId}/complete")
     suspend fun completeQuest(
         @Path("explorationId") explorationId: Long,
         @Path("questId") questId: Long,

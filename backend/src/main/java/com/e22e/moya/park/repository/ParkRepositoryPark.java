@@ -88,7 +88,8 @@ public interface ParkRepositoryPark extends JpaRepository<Park, Long> {
      * @param radius    탐색 반경
      * @return 공원 정보
      */
-    @Query(value = "SELECT p.id as id, p.name as name, p.image_url as imageUrl, " +
+    @Query(value = "SELECT p.id as id, p.name as name, p.image_url as imageUrl, p.description as description,"
+        +
         "MIN(ST_Distance(CAST(pp.pos AS geography), CAST(ST_SetSRID(ST_MakePoint(:longitude, :latitude), 4326) AS geography))) as distance "
         +
         "FROM park p " +

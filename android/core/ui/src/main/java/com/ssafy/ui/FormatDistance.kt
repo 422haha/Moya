@@ -17,9 +17,8 @@ fun String.formatDistance(): String {
     val distance = this.toIntOrNull() ?: return this
     return if (distance >= 1000) {
         val km = distance / 1000
-        val meters = distance % 1000
-        "${km}.${String.format(Locale.KOREA, "%02d", meters / 10)}km"
+        String.format(Locale.KOREA, "%.1fkm", km)
     } else {
-        "${distance}m"
+        "${distance.toInt()}m"
     }
 }

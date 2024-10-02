@@ -1,7 +1,6 @@
 package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -50,6 +49,7 @@ import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.customTypography
+import java.util.Locale
 
 val chipLabels = listOf("전체", "수집완료", "미발견")
 
@@ -83,6 +83,10 @@ fun EncycScreenContent(
                             state = encycScreenState,
                             selectedChipIndex = selectedChipIndex,
                             onIntent = onIntent,
+                            onChipSelected = { index ->
+                                selectedChipIndex = index
+                                onIntent(EncycUserIntent.OnChipSelected(index))
+                            },
                         )
                     }
 
@@ -106,7 +110,6 @@ fun TopTitle(
     Row(
         modifier =
             Modifier
-                .background(color = LightBackgroundColor)
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -138,6 +141,7 @@ fun EncycScreenLoaded(
     state: EncycScreenState.Loaded,
     selectedChipIndex: Int,
     onIntent: (EncycUserIntent) -> Unit = {},
+    onChipSelected: (Int) -> Unit = {},
 ) {
     Column(
         modifier =
@@ -147,9 +151,7 @@ fun EncycScreenLoaded(
         CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = selectedChipIndex,
-            onChipSelected = { index ->
-                onIntent(EncycUserIntent.OnChipSelected(index))
-            },
+            onChipSelected = onChipSelected,
         )
         EncycGrid(
             items = state.items,
@@ -255,11 +257,8 @@ fun CollectionProgress(
             horizontalAlignment = Alignment.Start,
             modifier =
                 Modifier
-                    .fillMaxWidth()
-                    .background(LightBackgroundColor),
+                    .fillMaxWidth(),
         ) {
-            Spacer(modifier = Modifier.height(12.dp))
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
@@ -272,7 +271,7 @@ fun CollectionProgress(
                 Text(text = "수집률")
                 Spacer(modifier = Modifier.padding(4.dp))
                 Text(
-                    text = "$progress%",
+                    text = String.format(Locale.KOREA, "%.1f%%", progress),
                     color = Color.Gray,
                 )
             }

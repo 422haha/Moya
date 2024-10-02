@@ -77,7 +77,7 @@ class ARNodeManager {
     ): AnchorNode = withContext(Dispatchers.Main) {
         val stateNpcId = if(questState != QuestState.WAIT) npcId else 0
 
-        val url = ModelType.fromId(stateNpcId).modelUrl
+        val url = ModelType.fromLong(stateNpcId).modelUrl
 
         val imageNode = createImageNode(questState, materialLoader)
 

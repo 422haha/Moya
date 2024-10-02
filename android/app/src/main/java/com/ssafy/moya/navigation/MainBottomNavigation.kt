@@ -23,7 +23,7 @@ fun MainBottomNavigation(
     modifier: Modifier = Modifier,
     navController: NavHostController = rememberNavController(),
     onNavigateToParkList: () -> Unit = {},
-    onNavigateToEncyc: () -> Unit = {},
+    onNavigateToEncyc: (Long) -> Unit = {},
     onNavigateToJournal: () -> Unit = {},
     onNavigateToParkDetail: (Long) -> Unit = {},
     onNavigateToEncycDetail: (Long) -> Unit = {},
@@ -89,12 +89,17 @@ fun MainBottomNavigation(
             }
             composable<MainBottomNavigationRoute.Encyc> {
                 EncycScreen(
+                    parkId = 1,
+                    page = 1,
+                    size = 10,
                     onNavigateToEncycDetail = {},
                     onPop = {},
                 )
             }
             composable<MainBottomNavigationRoute.ExploreJournal> {
                 ExploreListScreen(
+                    page = 1,
+                    size = 10,
                     onExploreItemClick = {},
                     onPop = {},
                 )
