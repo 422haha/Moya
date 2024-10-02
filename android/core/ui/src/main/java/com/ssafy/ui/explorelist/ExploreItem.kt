@@ -153,7 +153,7 @@ fun ExploreDetailItem(
                     TextBox(
                         modifier = Modifier.weight(1f),
                         "이동거리",
-                        formatDistance(state.exploreDetail.distance.toString()),
+                        state.exploreDetail.distance.toString().formatDistance(),
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),

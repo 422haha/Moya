@@ -32,7 +32,7 @@ class ChallengeDialogViewModel
                                         Missions(
                                             id = quest.questId,
                                             missionTitle = "", // TODO 미션 타이틀 받아오기
-                                            isSuccess = quest.completed == 1,
+                                            isSuccess = quest.completed == "WAIT",
                                         )
                                     }
                                 } ?: emptyList()
