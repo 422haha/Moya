@@ -135,7 +135,7 @@ fun ExploreDetailItem(
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = formatDate(state.exploreDetail.date),
+                        text = state.exploreDetail.date.formatDate(),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray,
@@ -153,7 +153,7 @@ fun ExploreDetailItem(
                     TextBox(
                         modifier = Modifier.weight(1f),
                         "이동거리",
-                        formatDistance(state.exploreDetail.distance.toString()),
+                        state.exploreDetail.distance.toString().formatDistance(),
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),

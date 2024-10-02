@@ -3,12 +3,13 @@ package com.ssafy.moya.navigation
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.navigation.NavController
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import com.ssafy.main.encyclopedia.EncycScreen
 import com.ssafy.main.explorelist.ExploreListScreen
@@ -20,7 +21,6 @@ import com.ssafy.ui.navigationbar.BottomNavigationItemState
 @Composable
 fun MainBottomNavigation(
     modifier: Modifier = Modifier,
-    parentNavController: NavController? = null,
     navController: NavHostController = rememberNavController(),
     onNavigateToParkList: () -> Unit = {},
     onNavigateToEncyc: (Long) -> Unit = {},
@@ -28,11 +28,13 @@ fun MainBottomNavigation(
     onNavigateToParkDetail: (Long) -> Unit = {},
     onNavigateToEncycDetail: (Long) -> Unit = {},
 ) {
+    val bottomRoute by navController.currentBackStackEntryAsState()
+
     Scaffold(
         modifier = modifier,
         bottomBar = {
             BottomNavigationBar(
-                startDestination = MainBottomNavigationRoute.Home,
+                startDestination = bottomRoute?.destination?.route,
                 items =
                     listOf(
                         BottomNavigationItemState(
@@ -77,7 +79,9 @@ fun MainBottomNavigation(
                     onNavigateToParkList = {
                         onNavigateToParkList()
                     },
-                    onNavigateToEncyc = {},
+                    onNavigateToEncycDetail = { id ->
+                        onNavigateToEncycDetail(id)
+                    },
                     onNavigateToParkDetail = { id ->
                         onNavigateToParkDetail(id)
                     },

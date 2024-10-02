@@ -27,7 +27,6 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.window.Dialog
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.LocationServices
 import com.naver.maps.geometry.LatLng
@@ -42,10 +41,8 @@ import com.naver.maps.map.compose.rememberCameraPositionState
 import com.naver.maps.map.compose.rememberFusedLocationSource
 import com.naver.maps.map.overlay.OverlayImage
 import com.ssafy.ui.R
-import com.ssafy.ui.component.ChallengeDialog
 import com.ssafy.ui.component.CustomButtonWithImage
 import com.ssafy.ui.component.ErrorScreen
-import com.ssafy.ui.component.ExploreDialog
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
@@ -68,10 +65,6 @@ fun ExploreStartScreenContent(
     Scaffold(
         content = { paddingValues ->
             when (exploreStartScreenState) {
-                is ExploreStartScreenState.Loading -> {
-                    LoadingScreen(modifier = modifier.padding(paddingValues))
-                }
-
                 is ExploreStartScreenState.Loaded -> {
                     ExploreStartScreenLoaded(
                         modifier = modifier.padding(paddingValues),
@@ -86,29 +79,13 @@ fun ExploreStartScreenContent(
                         message = exploreStartScreenState.message,
                     )
                 }
+
+                else -> {
+                    LoadingScreen(modifier = modifier.padding(paddingValues))
+                }
             }
         },
     )
-    if (exploreStartScreenState is ExploreStartScreenState.Loaded) {
-        if (exploreStartScreenState.showExitDialog) {
-            Dialog(onDismissRequest = { onIntent(ExploreStartUserIntent.OnExitExploreDismissed) }) {
-                ExploreDialog(
-                    title = "탐험을 끝마칠까요?",
-                    onConfirm = { onIntent(ExploreStartUserIntent.OnExitExploreConfirmed) },
-                    onDismiss = { onIntent(ExploreStartUserIntent.OnExitExploreDismissed) },
-                )
-            }
-        }
-
-        if (exploreStartScreenState.showChallengeDialog) {
-            Dialog(onDismissRequest = { onIntent(ExploreStartUserIntent.OnChallengeDismissed) }) {
-                ChallengeDialog(
-                    onConfirm = { onIntent(ExploreStartUserIntent.OnChallengeConfirmed) },
-                    onDismiss = { onIntent(ExploreStartUserIntent.OnChallengeDismissed) },
-                )
-            }
-        }
-    }
 }
 
 @OptIn(ExperimentalNaverMapApi::class)
@@ -145,7 +122,7 @@ fun ExploreStartScreenLoaded(
         }
     }
 
-    Box(modifier = modifier.fillMaxSize()) {
+    ExploreStartScreenLayout(onIntent = onIntent) {
         NaverMap(
             modifier =
                 Modifier
@@ -176,6 +153,17 @@ fun ExploreStartScreenLoaded(
                 )
             }
         }
+    }
+}
+
+@Composable
+fun ExploreStartScreenLayout(
+    modifier: Modifier = Modifier,
+    onIntent: (ExploreStartUserIntent) -> Unit = {},
+    content: @Composable () -> Unit,
+) {
+    Box(modifier = modifier.fillMaxSize()) {
+        content()
 
         Column(
             horizontalAlignment = Alignment.End,
@@ -192,7 +180,7 @@ fun ExploreStartScreenLoaded(
             ) {
                 CustomButtonWithImage(
                     text = "탐험 끝내기",
-                    onClick = { onIntent(ExploreStartUserIntent.OnExitExploreRequested) },
+                    onClick = { onIntent(ExploreStartUserIntent.OnExitClicked) },
                     buttonColor = PrimaryColor,
                 )
                 CustomButtonWithImage(
@@ -205,7 +193,7 @@ fun ExploreStartScreenLoaded(
             Spacer(modifier = Modifier.height(16.dp))
             CustomButtonWithImage(
                 text = "도전과제",
-                onClick = { onIntent(ExploreStartUserIntent.OnChallengeConfirmed) },
+                onClick = { onIntent(ExploreStartUserIntent.OnOpenChallengeList) },
                 textColor = SecondarySurfaceColor,
                 imagePainter = R.drawable.assignment_late,
             )
@@ -232,11 +220,6 @@ fun ExploreStartScreenLoaded(
 
 @Preview(showBackground = true)
 @Composable
-fun ExploreStartScreenPreview() {
-    ExploreStartScreenContent(
-        exploreStartScreenState =
-            ExploreStartScreenState.Loaded(
-                npcPositions = listOf(LatLng(36.106646, 128.421260)),
-            ),
-    )
+fun ExploreStartScreenLayoutPreview() {
+    ExploreStartScreenLayout {}
 }
