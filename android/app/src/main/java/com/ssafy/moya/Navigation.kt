@@ -91,9 +91,10 @@ fun MainNavigation(
             )
         }
         composable<Encyc> {
+            val route = it.toRoute<Encyc>()
             EncycScreen(
                 isDialog = false,
-                parkId = 1,
+                parkId = route.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
                 },
