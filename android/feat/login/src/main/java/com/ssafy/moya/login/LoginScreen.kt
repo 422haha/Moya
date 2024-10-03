@@ -4,6 +4,7 @@ import android.widget.Toast
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -15,6 +16,7 @@ import com.ssafy.moya.login.BuildConfig.OAUTH_CLIENT_NAME
 import com.ssafy.moya.login.BuildConfig.OAUTH_CLIENT_SECRET
 import com.ssafy.ui.login.LoginScreenContent
 import com.ssafy.ui.login.LoginUserIntent
+import kotlinx.coroutines.launch
 
 @Composable
 fun LoginScreen(
@@ -25,6 +27,8 @@ fun LoginScreen(
     val context = LocalContext.current
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
+    val coroutineScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         NaverIdLoginSDK.initialize(context, OAUTH_CLIENT_ID, OAUTH_CLIENT_SECRET, OAUTH_CLIENT_NAME)
         viewModel.load()
@@ -34,8 +38,17 @@ fun LoginScreen(
         val oauthLoginCallback =
             object : OAuthLoginCallback {
                 override fun onSuccess() {
-                    //Log.d("TAG", "onSuccess: ${NaverIdLoginSDK.getAccessToken()}")
-                    onLoginSuccess()
+                    coroutineScope.launch {
+                        if (viewModel.login(
+                                "naver",
+                                NaverIdLoginSDK.getAccessToken().toString(),
+                            )
+                        ) {
+                            onLoginSuccess()
+                        } else {
+                            Toast.makeText(context, "로그인 실패", Toast.LENGTH_SHORT).show()
+                        }
+                    }
                 }
 
                 override fun onFailure(
