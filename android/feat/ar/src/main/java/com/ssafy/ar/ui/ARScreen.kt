@@ -474,7 +474,13 @@ suspend fun imageToBitmap(image: Image): Bitmap =
 
         // NV21 포맷을 Bitmap으로 변환
         val yuvImage =
-            android.graphics.YuvImage(nv21, android.graphics.ImageFormat.NV21, width, height, null)
+            android.graphics.YuvImage(
+                nv21,
+                android.graphics.ImageFormat.NV21,
+                width,
+                height,
+                null,
+            )
         val out = java.io.ByteArrayOutputStream()
         yuvImage.compressToJpeg(android.graphics.Rect(0, 0, width, height), 100, out)
         val imageBytes = out.toByteArray()

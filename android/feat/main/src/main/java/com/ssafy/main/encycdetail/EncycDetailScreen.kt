@@ -15,11 +15,13 @@ fun EncycDetailScreen(
     onPop: () -> Unit,
     onTTSClicked: (String) -> Unit,
     onTTSShutDown: () -> Unit,
+    onTTSReStart: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(itemId) {
         viewModel.loadInitialData(itemId)
+        onTTSReStart()
     }
 
     EncycDetailScreenContent(encycDetailState = uiState, onIntent = { intent ->

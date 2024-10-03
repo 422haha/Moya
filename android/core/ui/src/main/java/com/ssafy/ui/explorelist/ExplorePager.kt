@@ -1,21 +1,31 @@
 package com.ssafy.ui.explorelist
 
-import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ssafy.ui.exploredetail.ExploreDetail
 import com.ssafy.ui.exploredetail.ExploreDetailScreenState
+import com.ssafy.ui.theme.PrimaryColor
+import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExplorePager(
     exploreDetails: List<ExploreDetail>,
@@ -23,27 +33,66 @@ fun ExplorePager(
 ) {
     if (exploreDetails.isNotEmpty()) {
         val pagerState = rememberPagerState(initialPage = 0, pageCount = { exploreDetails.size })
+        val coroutineScope = rememberCoroutineScope()
+        Box(modifier = Modifier.fillMaxHeight()) {
+            HorizontalPager(
+                state = pagerState,
+                modifier = Modifier.fillMaxHeight(),
+            ) { page ->
+                val exploreDetail = exploreDetails[page]
+                val isSelected = pagerState.currentPage == page
 
-        HorizontalPager(
-            state = pagerState,
-            modifier = Modifier.fillMaxHeight(),
-        ) { page ->
-            val exploreDetail = exploreDetails[page]
-            val isSelected = pagerState.currentPage == page
+                val filteredOffset =
+                    if (abs(pagerState.currentPage - page) < 2) {
+                        pagerState.currentPageOffsetFraction
+                    } else {
+                        0f
+                    }
 
-            val filteredOffset =
-                if (abs(pagerState.currentPage - page) < 2) {
-                    pagerState.currentPageOffsetFraction
-                } else {
-                    0f
-                }
+                ExploreDetailItem(
+                    state = ExploreDetailScreenState.Loaded(exploreDetail),
+                    isSelected = isSelected,
+                    offset = filteredOffset,
+                    onClick = { onIntent(ExploreListUserIntent.OnItemSelect(exploreDetail.id)) },
+                )
+            }
+            if (pagerState.currentPage > 0) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                    contentDescription = "Previous",
+                    tint = PrimaryColor,
+                    modifier = Modifier
+                        .align(Alignment.CenterStart)
+                        .padding(24.dp)
+                        .size(48.dp)
+                        .clickable {
+                            if (pagerState.currentPage > 0) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                }
+                            }
+                        }
+                )
+            }
 
-            ExploreDetailItem(
-                state = ExploreDetailScreenState.Loaded(exploreDetail),
-                isSelected = isSelected,
-                offset = filteredOffset,
-                onClick = { onIntent(ExploreListUserIntent.OnItemSelect(exploreDetail.id)) },
-            )
+            if (pagerState.currentPage < exploreDetails.size - 1) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
+                    contentDescription = "Next",
+                    tint = PrimaryColor,
+                    modifier = Modifier
+                        .align(Alignment.CenterEnd)
+                        .padding(24.dp)
+                        .size(48.dp)
+                        .clickable {
+                            if (pagerState.currentPage < exploreDetails.size - 1) {
+                                coroutineScope.launch {
+                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                }
+                            }
+                        }
+                )
+            }
         }
     } else {
         CircularProgressIndicator(
