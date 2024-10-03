@@ -107,7 +107,7 @@ fun MainNavigation(
         composable<EncycDetail> {
             val item = it.toRoute<EncycDetail>()
             EncycDetailScreen(
-                itemId = item.encycId + 1,
+                itemId = item.encycId,
                 onPop = {
                     navController.popBackStack()
                 },
