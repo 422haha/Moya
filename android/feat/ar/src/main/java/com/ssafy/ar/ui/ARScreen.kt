@@ -20,6 +20,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -53,7 +54,6 @@ import com.ssafy.ar.data.getImageResource
 import com.ssafy.ar.data.scripts
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import com.ssafy.moya.ai.DataProcess
-import com.ssafy.moya.ai.Result
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.arcore.isValid
@@ -71,6 +71,12 @@ import io.github.sceneview.rememberView
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
+import com.ssafy.moya.ai.Result
+import io.github.sceneview.model.ModelInstance
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Job
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlin.math.log
 
 private const val TAG = "ArScreen"
@@ -92,6 +98,7 @@ fun ARSceneComposable(
     // LifeCycle
     val viewModel: ARViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
+    val imageProcessingScope = remember { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 
     // Permission
     var hasPermission by remember { mutableStateOf(false) }
@@ -137,9 +144,9 @@ fun ARSceneComposable(
     var isProcessingImage = false
 
     LaunchedEffect(detectionResults) {
-        Log.d(TAG, "ARSceneComposable: $detectionResults")
-        
         val detectedClassIndexes = detectionResults.map { it.classIndex }
+
+        Log.d(TAG, "인식 결과3$detectedClassIndexes")
 
         val progressQuests = questInfos
             .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
@@ -149,7 +156,7 @@ fun ARSceneComposable(
             quest.speciesId.toInt() in detectedClassIndexes
         }
 
-        completeQuests.forEach {
+        completeQuests.firstOrNull()?.let {
             coroutineScope.launch {
                 val anchorId: Long = it.id
 
@@ -193,6 +200,13 @@ fun ARSceneComposable(
         }
     }
 
+    DisposableEffect(Unit) {
+        onDispose {
+            imageProcessingScope.cancel()
+            coroutineScope.cancel()
+        }
+    }
+
     MultiplePermissionsHandler(
         permissions =
             listOf(
@@ -207,7 +221,7 @@ fun ARSceneComposable(
 
             viewModel.getAllQuests(explorationId)
 
-            coroutineScope.launch {
+            imageProcessingScope.launch {
                 withContext(Dispatchers.IO) {
                     dataProcess.loadModel()
 
@@ -255,10 +269,12 @@ fun ARSceneComposable(
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
                 frameCounter++
-                if (frameCounter % 10 == 0 && !isProcessingImage) {
+                if (frameCounter % 120 == 0 && !isProcessingImage) {
                     isProcessingImage = true
 
-                    coroutineScope.launch(Dispatchers.IO) {
+                    Log.d(TAG, "인식 결과2")
+
+                    imageProcessingScope.launch(Dispatchers.IO) {
                         var image: Image? = null
                         try {
                             // 이미지 획득
@@ -273,10 +289,8 @@ fun ARSceneComposable(
                                     dataProcess.processImage(bitmap, ortEnvironment, session)
 
                                 if(results.isNotEmpty()) {
-                                    // 결과를 메인 스레드에서 업데이트
-                                    withContext(Dispatchers.Main) {
-                                        detectionResults = results
-                                    }
+                                    detectionResults = results
+
                                     Log.d("DataProcess", "인식 결과 : $detectionResults")
                                 }
                             }
@@ -291,40 +305,42 @@ fun ARSceneComposable(
                     }
                 }
 
-                if (trackingFailureReason == null) {
-                    val desiredPlaneFindingMode =
-                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
-                            Config.PlaneFindingMode.HORIZONTAL
-                        } else {
-                            Config.PlaneFindingMode.DISABLED
+                if(frameCounter % 30 == 0) {
+                    if (trackingFailureReason == null) {
+                        val desiredPlaneFindingMode =
+                            if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
+                                Config.PlaneFindingMode.HORIZONTAL
+                            } else {
+                                Config.PlaneFindingMode.DISABLED
+                            }
+
+                        if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                            session.configure(
+                                session.config.apply {
+                                    setPlaneFindingMode(desiredPlaneFindingMode)
+                                },
+                            )
                         }
-
-                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        session.configure(
-                            session.config.apply {
-                                setPlaneFindingMode(desiredPlaneFindingMode)
-                            },
-                        )
                     }
-                }
 
-                if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
-                    nearestQuestInfo.npc?.let { quest ->
-                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                    if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
+                        nearestQuestInfo.npc?.let { quest ->
+                            val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
-                        if (planeAndPose != null) {
-                            val (plane, pose) = planeAndPose
+                            if (planeAndPose != null) {
+                                val (plane, pose) = planeAndPose
 
-                            if (childNodes.all { it.name != quest.id.toString() }) {
-                                viewModel.placeNode(
-                                    plane,
-                                    pose,
-                                    quest,
-                                    engine,
-                                    modelLoader,
-                                    materialLoader,
-                                    childNodes,
-                                )
+                                if (childNodes.all { it.name != quest.id.toString() }) {
+                                    viewModel.placeNode(
+                                        plane,
+                                        pose,
+                                        quest,
+                                        engine,
+                                        modelLoader,
+                                        materialLoader,
+                                        childNodes,
+                                    )
+                                }
                             }
                         }
                     }
