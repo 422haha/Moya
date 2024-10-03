@@ -1,9 +1,7 @@
 version: '3.8'
 services:
   springboot-blue:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: aldus0422/moya:blue
     container_name: springboot-blue
     ports:
       - "8081:8080"
@@ -18,9 +16,7 @@ services:
     restart: unless-stopped
 
   springboot-green:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: aldus0422/moya:green
     container_name: springboot-green
     ports:
       - "8082:8080"
