@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -41,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ssafy.ui.R
+import com.ssafy.ui.component.BackButton
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
@@ -78,14 +77,12 @@ fun EncycDetailScreenContent(
                         ImageSection(imageUrl = "")
                     }
                 }
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "back",
+                BackButton(
                     modifier =
                         Modifier
                             .padding(16.dp)
-                            .size(32.dp)
-                            .clickable { onIntent(EncycDetailUserIntent.OnPop) },
+                            .size(32.dp),
+                    onClick = { onIntent(EncycDetailUserIntent.OnPop)}
                 )
                 ButtonSection(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(horizontal = 4.dp),
