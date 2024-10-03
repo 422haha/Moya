@@ -1,6 +1,7 @@
 package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import com.ssafy.ui.theme.DarkGrayColor
 import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.customTypography
 import java.util.Locale
 
@@ -113,6 +115,7 @@ fun TopTitle(
     Row(
         modifier =
             Modifier
+                .background(SurfaceColor)
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -127,7 +130,7 @@ fun TopTitle(
                 Modifier
                     .padding(start = 8.dp),
         )
-        if(!isClosable){
+        if(isClosable){
             Icon(
                 imageVector = Icons.Default.Clear,
                 contentDescription = "onPop",
@@ -191,7 +194,7 @@ fun FilterChipComponent(
                 labelColor = if (isSelected) LightBackgroundColor else DarkGrayColor,
             ),
         border =
-            if (!isSelected) {
+            if (isSelected) {
                 BorderStroke(1.dp, DarkGrayColor)
             } else {
                 null
@@ -240,12 +243,7 @@ fun EncycGrid(
     ) {
         itemsIndexed(items) { index, item ->
             EncycCard(
-                EncycCardState(
-                    id = item.id,
-                    name = item.name,
-                    imageUrl = item.imageUrl,
-                    isDiscovered = item.isDiscovered,
-                ),
+                item,
                 onClick = { onItemClicked(index.toLong()) },
             )
         }
