@@ -105,7 +105,9 @@ fun HomeScreenLoaded(
         }
         item { ItemDivider() }
         item {
-            HorizontalCircleCardLayout(state = state.plantInSeason, onSelected = { id ->
+            HorizontalCircleCardLayout(
+                modifier = Modifier.padding(bottom = 32.dp),
+                state = state.plantInSeason, onSelected = { id ->
                 onIntent(HomeUserIntent.OnSelectEncyc(id))
             })
         }
