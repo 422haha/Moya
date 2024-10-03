@@ -17,6 +17,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -39,6 +40,7 @@ import com.ssafy.ui.component.ImageCardWithTitleDescriptionState
 import com.ssafy.ui.component.ImageCardWithValue
 import com.ssafy.ui.component.ImageCardWithValueState
 import com.ssafy.ui.component.LoadingScreen
+import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.OnPrimaryColor
 import com.ssafy.ui.theme.SecondaryColor
 
@@ -93,17 +95,29 @@ fun HomeScreenLoaded(
                 onIntent(HomeUserIntent.OnSelectPopularPark(id))
             })
         }
+        item { ItemDivider() }
         item {
             VerticalImageCardLayout(state = state.closeParks, onSelected = { id ->
                 onIntent(HomeUserIntent.OnSelectClosePark(id))
+            }, onMore = {
+                onIntent(HomeUserIntent.OnNavigateToParkList)
             })
         }
+        item { ItemDivider() }
         item {
             HorizontalCircleCardLayout(state = state.plantInSeason, onSelected = { id ->
                 onIntent(HomeUserIntent.OnSelectEncyc(id))
             })
         }
     }
+}
+
+@Composable
+fun ItemDivider(){
+    HorizontalDivider(
+        thickness = 8.dp,
+        color = GrayColor
+    )
 }
 
 @Composable
@@ -114,9 +128,9 @@ fun HomeTopImage(
 ) {
     Box(
         modifier =
-            modifier
-                .fillMaxWidth()
-                .height(200.dp),
+        modifier
+            .fillMaxWidth()
+            .height(200.dp),
     ) {
         AsyncImage(
             model = image,
@@ -131,9 +145,9 @@ fun HomeTopImage(
             fontWeight = FontWeight.SemiBold,
             color = OnPrimaryColor,
             modifier =
-                Modifier
-                    .align(Alignment.TopStart)
-                    .padding(16.dp),
+            Modifier
+                .align(Alignment.TopStart)
+                .padding(16.dp),
         )
     }
 }
@@ -169,7 +183,9 @@ fun VerticalImageCardLayout(
     onSelected: (id: Long) -> Unit = {},
     onMore: () -> Unit = {},
 ) {
-    Column(modifier = modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
+    Column(modifier = modifier
+        .padding(horizontal = 16.dp)
+        .padding(top = 12.dp)) {
         Row(
             modifier.padding(bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,
