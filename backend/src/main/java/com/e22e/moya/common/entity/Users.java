@@ -29,8 +29,6 @@ public class Users {
     @Column(length = 512)
     private String profileImageUrl;
 
-    private String locale;
-
     @OneToMany
     @JoinColumn(name = "user_id")
     @Exclude
@@ -92,14 +90,6 @@ public class Users {
 
     public void setOauthId(String oauthId) {
         this.oauthId = oauthId;
-    }
-
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
     }
 
     public List<Exploration> getExplorations() {
