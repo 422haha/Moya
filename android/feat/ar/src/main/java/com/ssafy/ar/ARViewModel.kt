@@ -2,6 +2,7 @@ package com.ssafy.ar
 
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -16,8 +17,10 @@ import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.getModelUrl
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.model.SpeciesMinimumInfo
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
+import com.ssafy.network.request.RegisterSpeciesRequestBody
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.sceneview.ar.node.AnchorNode
@@ -91,8 +94,9 @@ class ARViewModel @Inject constructor(
     fun getAllQuests(explorationId: Long) {
         viewModelScope.launch {
             explorationRepository.getQuestList(explorationId).collectLatest { response ->
-                when(response) {
-                            is ApiResponse.Success -> {
+                Log.d("TAG", "getAllQuests: $response")
+                when (response) {
+                    is ApiResponse.Success -> {
                         response.body?.let { body ->
                             _questInfos.value = body.quest.associate { quest ->
                                 quest.questId to QuestInfo(
@@ -103,25 +107,28 @@ class ARViewModel @Inject constructor(
                                     questType = quest.questType,
                                     latitude = quest.latitude,
                                     longitude = quest.longitude,
-                                    speciesId = quest.speciesId,
+                                    speciesId = quest.speciesId - 1,
                                     speciesName = quest.speciesName,
                                     isComplete = when (quest.completed) {
                                         "WAIT" -> QuestState.WAIT
-                                        else -> QuestState.COMPLETE
+                                        else -> QuestState.WAIT
                                     },
                                     isPlace = false
                                 )
                             }
                         } ?: "Failed to load initial data"
                     }
+
                     is ApiResponse.Error -> {
-                        response.errorMessage?: "Unknown error"
+                        response.errorMessage ?: "Unknown error"
                     }
                 }
             }
 
-            updateRating(_questInfos.value.count { it.value.isComplete == QuestState.COMPLETE }.toFloat(),
-                _questInfos.value.size.toFloat())
+            updateRating(
+                _questInfos.value.count { it.value.isComplete == QuestState.COMPLETE }.toFloat(),
+                _questInfos.value.size.toFloat()
+            )
         }
     }
 
@@ -135,20 +142,41 @@ class ARViewModel @Inject constructor(
         }
     }
 
+    fun registerSpecies(explorationId: Long,
+                                body: RegisterSpeciesRequestBody,
+                                onSuccess: (SpeciesMinimumInfo) -> Unit,
+                                onError: (String) -> Unit) {
+        viewModelScope.launch {
+            explorationRepository.registerSpecies(explorationId, body).collect { response ->
+                when(response) {
+                    is ApiResponse.Success -> {
+                        response.body?.let { onSuccess(it) }
+                    }
+                    is ApiResponse.Error -> {
+                        onError(response.errorMessage ?: "Unknown error")
+                    }
+                }
+            }
+        }
+    }
+
     suspend fun completeQuest(explorationId: Long, questId: Long): Boolean {
         return withContext(Dispatchers.IO) {
             try {
                 var result = false
                 explorationRepository.completeQuest(explorationId, questId).collect { response ->
-                    when(response) {
+                    when (response) {
                         is ApiResponse.Success -> {
                             response.body?.let {
-                                updateRating(it.completedQuests.toFloat(),
-                                    _questInfos.value.size.toFloat())
+                                updateRating(
+                                    it.completedQuests.toFloat(),
+                                    _questInfos.value.size.toFloat()
+                                )
 
                                 result = true
                             } ?: "Failed to load initial data"
                         }
+
                         is ApiResponse.Error -> {
                             response.errorMessage ?: "Unknown error"
                         }
@@ -253,9 +281,9 @@ class ARViewModel @Inject constructor(
     }
 
     private fun updateRating(numerator: Float, denominator: Float) {
-        if(denominator == 0f) return
+        if (denominator == 0f) return
 
-        val ratingValue: Float = (numerator)/(denominator) * 5
+        val ratingValue: Float = (numerator) / (denominator) * 3
 
         val roundedRatingValue = (ratingValue * 10).roundToInt() / 10f
 

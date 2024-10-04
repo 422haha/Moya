@@ -1,5 +1,6 @@
 package com.ssafy.network.repository
 
+import com.ssafy.model.Chatting
 import com.ssafy.model.CompletedQuest
 import com.ssafy.model.ExplorationData
 import com.ssafy.model.ExplorationEndData
@@ -35,4 +36,9 @@ interface ExplorationRepository {
         explorationId: Long,
         questId: Long,
     ): Flow<ApiResponse<CompletedQuest>>
+
+    suspend fun chattingNPC(
+        explorationId: Long,
+        npcPosId: Long
+    ): Flow<ApiResponse<Chatting>>
 }
