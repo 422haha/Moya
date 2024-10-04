@@ -270,13 +270,13 @@ class DataProcess
                 rect1.right - rect2.right < threshold &&
                 rect1.bottom - rect2.bottom < threshold
 
-        // classIndex와 위치(RectF)를 기준으로 연속된 3프레임에서 동일한 객체가 인식되었는지 확인
+        // classIndex와 위치(RectF)를 기준으로 연속된 2프레임에서 동일한 객체가 인식되었는지 확인
         private fun isSameObject(
             result1: Result,
             result2: Result,
         ): Boolean = result1.classIndex == result2.classIndex && isSameRect(result1.rectF, result2.rectF)
 
-        // 각 프레임에서 동일한 객체가 연속으로 3번 인식되었는지 확인하는 함수
+        // 각 프레임에서 동일한 객체가 연속으로 2번 인식되었는지 확인하는 함수
         private fun isSameObjectInTwoFrames(): Boolean {
             if (previousResults.size < 2) return false
 
@@ -284,8 +284,7 @@ class DataProcess
             val secondFrameResults = previousResults[1]
 
             return secondFrameResults.all { secondResult ->
-                secondFrameResults.any { isSameObject(secondResult, it) } &&
-                    firstFrameResults.any { isSameObject(secondResult, it) }
+                firstFrameResults.any { isSameObject(secondResult, it) }
             }
         }
 
