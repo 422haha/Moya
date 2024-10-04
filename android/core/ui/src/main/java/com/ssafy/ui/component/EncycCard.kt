@@ -81,7 +81,7 @@ fun EncycCard(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = state.name,
+                    text = if(state.isDiscovered) state.name else state.name + " (미발견)",
                     fontSize = 14.sp,
                     color = if (state.isDiscovered) Color.Black else LightBackgroundColor,
                 )
