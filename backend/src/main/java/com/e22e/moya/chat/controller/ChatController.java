@@ -55,14 +55,14 @@ public class ChatController {
             return ResponseEntity.ok(response);
 
         } catch (EntityNotFoundException e) {
-            log.error("엔티티 찾을 수 없음: {}", e.getMessage());
-            response.put("message", "적절한 대답을 찾지 못했어요.");
+            log.error("엔티티를 찾을 수 없습니다: {}", e.getMessage(), e);
+            response.put("message", "엔티티를 찾을 수 없습니다");
             response.put("data", new ChatResponseDto("적절한 대답을 찾지 못했어요."));
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
         } catch (Exception e) {
-            log.error("internal server error: {}", e.getMessage());
-            response.put("message", "잘 못알아들었어요.");
+            log.error("내부 서버 오류: {}", e.getMessage(), e);
+            response.put("message", "내부 서버 오류");
             response.put("data", new ChatResponseDto("잘 못알아들었어요."));
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
