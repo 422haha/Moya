@@ -148,31 +148,35 @@ fun ARSceneComposable(
     var frameCounter = 0
     var isProcessingImage = false
     var filePath by remember { mutableStateOf<String?>(null) }
+    val registeredSpecies = mutableSetOf<Int>()
 
     LaunchedEffect(detectionResults) {
         // 도감 등록
         detectionResults.forEach {
-            viewModel.registerSpecies(
-                explorationId,
-                RegisterSpeciesRequestBody(
-                    it.classIndex.toLong(),
-                    "",
-                    viewModel.locationManager.currentLocation.value
-                        ?.latitude ?: 0.0,
-                    viewModel.locationManager.currentLocation.value
-                        ?.longitude ?: 0.0,
-                ),
-                onSuccess = {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
-                    }
-                },
-                onError = {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(it)
-                    }
-                },
-            )
+            if (!registeredSpecies.contains(it.classIndex)) {
+                viewModel.registerSpecies(
+                    explorationId,
+                    RegisterSpeciesRequestBody(
+                        it.classIndex.toLong(),
+                        "",
+                        viewModel.locationManager.currentLocation.value
+                            ?.latitude ?: 0.0,
+                        viewModel.locationManager.currentLocation.value
+                            ?.longitude ?: 0.0,
+                    ),
+                    onSuccess = { result ->
+                        registeredSpecies.add((result.speciesId - 1).toInt())
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                        }
+                    },
+                    onError = {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(it)
+                        }
+                    },
+                )
+            }
         }
 
         // 미션 등록
@@ -320,17 +324,23 @@ fun ARSceneComposable(
                                 val results =
                                     dataProcess.processImage(bitmap, ortEnvironment, session)
 
+                                var updatedResults = results
+
                                 // 로컬에 이미지 저장
                                 if (results.isNotEmpty()) {
                                     val fileName = generateUniqueFileName()
                                     val file = File(context.filesDir, fileName)
                                     saveImageToInternalStorage(image, file)
                                     filePath = file.absolutePath
+                                    updatedResults =
+                                        results.map { result ->
+                                            result.copy(imageUrl = filePath ?: "")
+                                        }
                                 }
 
                                 // 결과를 메인 스레드에서 업데이트
                                 withContext(Dispatchers.Main) {
-                                    detectionResults = results
+                                    detectionResults = updatedResults
 
                                     Log.d("DataProcess", "인식 결과 : $detectionResults")
                                 }
