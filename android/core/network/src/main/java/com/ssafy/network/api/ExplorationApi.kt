@@ -1,5 +1,6 @@
 package com.ssafy.network.api
 
+import com.ssafy.model.Chatting
 import com.ssafy.model.CompletedQuest
 import com.ssafy.model.ExplorationData
 import com.ssafy.model.ExplorationEndData
@@ -50,4 +51,10 @@ interface ExplorationApi {
         @Path("explorationId") explorationId: Long,
         @Body body: RegisterSpeciesRequestBody,
     ): Response<ResponseBody<SpeciesMinimumInfo>>
+
+    @POST("/exploration/{explorationId}/chat/{npcPosId}")
+    suspend fun chattingNPC(
+        @Path("explorationId") explorationId: Long,
+        @Path("npcPosId") npcPosId: Long,
+    ): Response<ResponseBody<Chatting>>
 }
