@@ -209,7 +209,7 @@ fun ARSceneComposable(
                             // AI 처리
                             ortSession?.let { session ->
                                 val results =
-                                    dataProcess.processImage(bitmap, ortEnvironment, session)
+                                    dataProcess.processImage(bitmap, ortEnvironment, session, image)
 
                                 // 결과를 메인 스레드에서 업데이트
                                 withContext(Dispatchers.Main) {
