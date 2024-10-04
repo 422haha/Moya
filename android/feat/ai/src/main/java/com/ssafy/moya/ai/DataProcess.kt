@@ -6,7 +6,6 @@ import ai.onnxruntime.OrtSession
 import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.RectF
-import android.media.Image
 import android.util.Log
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -112,7 +111,6 @@ class DataProcess
 
         private fun outputsToNPMSPredictions(
             outputs: Array<*>,
-            image: Image,
         ): ArrayList<Result> {
             val confidenceThreshold = 0.35f
             val results = ArrayList<Result>()
@@ -160,7 +158,7 @@ class DataProcess
                             min(INPUT_SIZE - 1f, xPos + width / 2f),
                             min(INPUT_SIZE - 1f, yPos + height / 2f),
                         )
-                    val result = Result(detectionClass, maxScore, rectF, image)
+                    val result = Result(detectionClass, maxScore, rectF)
                     results.add(result)
                     Log.d(
                         "DataProcess",
@@ -292,7 +290,6 @@ class DataProcess
             bitmap: Bitmap,
             ortEnvironment: OrtEnvironment,
             session: OrtSession,
-            image: Image,
         ): List<Result> =
             withContext(Dispatchers.IO) {
                 try {
@@ -311,7 +308,7 @@ class DataProcess
                     val resultTensor = session.run(Collections.singletonMap(inputName, inputTensor))
 
                     val outputs = resultTensor[0].value as Array<*>
-                    val currentResults = outputsToNPMSPredictions(outputs, image)
+                    val currentResults = outputsToNPMSPredictions(outputs)
 
                     if (previousResults.size >= 2) {
                         previousResults.removeAt(0) // 오래된 결과 제거
