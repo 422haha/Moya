@@ -5,8 +5,8 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ParkRepository
-import com.ssafy.ui.component.BoxWithImageState
-import com.ssafy.ui.explorelist.BoxWithImageStateWithData
+import com.ssafy.ui.component.ImageCardWithValueState
+import com.ssafy.ui.formatDistance
 import com.ssafy.ui.parklist.ParkListScreenState
 import com.ssafy.ui.parklist.ParkListUserIntent
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -36,13 +36,11 @@ class ParkListScreenViewModel @Inject constructor(
                         response.body?.let { body ->
                             ParkListScreenState.Loaded(
                                 list = body.parks.map { park ->
-                                    BoxWithImageStateWithData(
+                                    ImageCardWithValueState(
                                         id = park.parkId,
-                                        state = BoxWithImageState(
-                                            info = park.distance.toString(),
-                                            title = park.parkName,
-                                            image = park.imageUrl
-                                        )
+                                        title = park.parkName,
+                                        value = park.distance.toString().formatDistance(),
+                                        imageUrl = park.imageUrl,
                                     )
                                 }
                             )

@@ -23,6 +23,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -57,6 +58,7 @@ import com.ssafy.ar.data.scripts
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import com.ssafy.moya.ai.DataProcess
 import com.ssafy.moya.ai.Result
+import com.ssafy.network.request.RegisterSpeciesRequestBody
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.arcore.isValid
@@ -71,7 +73,10 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.io.ByteArrayOutputStream
@@ -99,6 +104,7 @@ fun ARSceneComposable(
     // LifeCycle
     val viewModel: ARViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
+    val imageProcessingScope = remember { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 
     // Permission
     var hasPermission by remember { mutableStateOf(false) }
@@ -144,15 +150,96 @@ fun ARSceneComposable(
     var isProcessingImage = false
     var filePath by remember { mutableStateOf<String?>(null) }
 
-    // LaunchedEffect를 사용하여 DataProcess의 모델 및 라벨 로딩
-    LaunchedEffect(Unit) {
-        dataProcess.loadModel()
-        ortSession =
-            ortEnvironment.createSession(
-                context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
-                OrtSession.SessionOptions(),
+    LaunchedEffect(detectionResults) {
+        // 도감 등록
+        detectionResults.forEach {
+            viewModel.registerSpecies(
+                explorationId,
+                RegisterSpeciesRequestBody(
+                    it.classIndex.toLong(),
+                    "",
+                    viewModel.locationManager.currentLocation.value
+                        ?.latitude ?: 0.0,
+                    viewModel.locationManager.currentLocation.value
+                        ?.longitude ?: 0.0,
+                ),
+                onSuccess = {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                    }
+                },
+                onError = {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(it)
+                    }
+                },
             )
-        dataProcess.loadLabel()
+        }
+
+        // 미션 등록
+        val detectedClassIndexes = detectionResults.map { it.classIndex }
+
+        val progressQuests =
+            questInfos
+                .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
+                .map { it.value }
+
+        val completeQuests =
+            progressQuests.filter { quest ->
+                quest.speciesId.toInt() in detectedClassIndexes
+            }
+
+        completeQuests.firstOrNull()?.let {
+            coroutineScope.launch {
+                val anchorId: Long = it.id
+
+                val modelNode: ModelNode? =
+                    childNodes
+                        .flatMap { it.childNodes }
+                        .filterIsInstance<ModelNode>()
+                        .firstOrNull { it.name == anchorId.toString() }
+
+                modelNode?.let {
+                    val result =
+                        viewModel.completeQuest(
+                            explorationId,
+                            anchorId,
+                        )
+                    when (result) {
+                        true -> {
+                            viewModel.updateQuestState(
+                                anchorId,
+                                QuestState.COMPLETE,
+                            )
+
+                            val imageNode =
+                                modelNode.childNodes
+                                    .filterIsInstance<ImageNode>()
+                                    .firstOrNull()
+
+                            imageNode?.let {
+                                viewModel.updateModelNode(
+                                    imageNode,
+                                    modelNode,
+                                    materialLoader,
+                                )
+                            }
+
+                            snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                        }
+
+                        false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
+                    }
+                }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            imageProcessingScope.cancel()
+            coroutineScope.cancel()
+        }
     }
 
     MultiplePermissionsHandler(
@@ -168,6 +255,20 @@ fun ARSceneComposable(
             viewModel.locationManager.startLocationUpdates()
 
             viewModel.getAllQuests(explorationId)
+
+            imageProcessingScope.launch {
+                withContext(Dispatchers.IO) {
+                    dataProcess.loadModel()
+
+                    ortSession =
+                        ortEnvironment.createSession(
+                            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+                            OrtSession.SessionOptions(),
+                        )
+
+                    dataProcess.loadLabel()
+                }
+            }
         } else {
             hasPermission = false
 
@@ -203,7 +304,7 @@ fun ARSceneComposable(
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
                 frameCounter++
-                if (frameCounter % 10 == 0 && !isProcessingImage) {
+                if (frameCounter % 120 == 0 && !isProcessingImage) {
                     isProcessingImage = true
 
                     coroutineScope.launch(Dispatchers.IO) {
@@ -231,8 +332,9 @@ fun ARSceneComposable(
                                 // 결과를 메인 스레드에서 업데이트
                                 withContext(Dispatchers.Main) {
                                     detectionResults = results
+
+                                    Log.d("DataProcess", "인식 결과 : $detectionResults")
                                 }
-                                Log.d("DataProcess", "인식 결과 : $detectionResults")
                             }
                         } catch (e: Exception) {
                             // 예외 처리
@@ -245,40 +347,43 @@ fun ARSceneComposable(
                     }
                 }
 
-                if (trackingFailureReason == null) {
-                    val desiredPlaneFindingMode =
-                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
-                            Config.PlaneFindingMode.HORIZONTAL
-                        } else {
-                            Config.PlaneFindingMode.DISABLED
+                if (frameCounter % 30 == 0) {
+                    if (trackingFailureReason == null) {
+                        val desiredPlaneFindingMode =
+                            if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
+                                Config.PlaneFindingMode.HORIZONTAL
+                            } else {
+                                Config.PlaneFindingMode.DISABLED
+                            }
+
+                        if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                            session.configure(
+                                session.config.apply {
+                                    setPlaneFindingMode(desiredPlaneFindingMode)
+                                },
+                            )
                         }
-
-                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        session.configure(
-                            session.config.apply {
-                                setPlaneFindingMode(desiredPlaneFindingMode)
-                            },
-                        )
                     }
-                }
 
-                if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
-                    nearestQuestInfo.npc?.let { quest ->
-                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                    if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
+                        nearestQuestInfo.npc?.let { quest ->
+                            val planeAndPose =
+                                findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
-                        if (planeAndPose != null) {
-                            val (plane, pose) = planeAndPose
+                            if (planeAndPose != null) {
+                                val (plane, pose) = planeAndPose
 
-                            if (childNodes.all { it.name != quest.id.toString() }) {
-                                viewModel.placeNode(
-                                    plane,
-                                    pose,
-                                    quest,
-                                    engine,
-                                    modelLoader,
-                                    materialLoader,
-                                    childNodes,
-                                )
+                                if (childNodes.all { it.name != quest.id.toString() }) {
+                                    viewModel.placeNode(
+                                        plane,
+                                        pose,
+                                        quest,
+                                        engine,
+                                        modelLoader,
+                                        materialLoader,
+                                        childNodes,
+                                    )
+                                }
                             }
                         }
                     }
@@ -432,7 +537,7 @@ fun ARSceneComposable(
                             RatingBarConfig()
                                 .isIndicator(true)
                                 .stepSize(StepSize.HALF)
-                                .numStars(5)
+                                .numStars(3)
                                 .size(28.dp)
                                 .inactiveColor(Color.LightGray)
                                 .style(RatingBarStyle.Normal),

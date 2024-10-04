@@ -16,8 +16,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.Scaffold
@@ -41,6 +39,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.ssafy.ui.R
+import com.ssafy.ui.component.BackButton
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
@@ -78,14 +77,12 @@ fun EncycDetailScreenContent(
                         ImageSection(imageUrl = "")
                     }
                 }
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "back",
+                BackButton(
                     modifier =
-                    Modifier
-                        .padding(16.dp)
-                        .size(32.dp)
-                        .clickable { onIntent(EncycDetailUserIntent.OnPop) },
+                        Modifier
+                            .padding(16.dp)
+                            .size(32.dp),
+                    onClick = { onIntent(EncycDetailUserIntent.OnPop)}
                 )
                 ButtonSection(
                     modifier = Modifier
@@ -155,8 +152,8 @@ fun EncycDetailScreenLoaded(
 fun ImageSection(imageUrl: String) {
     Surface(
         modifier =
-        Modifier
-            .fillMaxWidth(),
+            Modifier
+                .fillMaxWidth(),
         shadowElevation = 4.dp,
     ) {
         AsyncImage(
@@ -164,9 +161,9 @@ fun ImageSection(imageUrl: String) {
             contentDescription = "도감 사진",
             contentScale = ContentScale.Crop,
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .height(250.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .height(250.dp),
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
         )
     }
@@ -179,11 +176,11 @@ fun ButtonSection(
 ) {
     Surface(
         modifier =
-        modifier
-            .height(60.dp)
-            .padding(8.dp)
-            .padding(bottom = 16.dp)
-            .clickable { onIntent(EncycDetailUserIntent.OnImageButtonClicked) },
+            modifier
+                .height(60.dp)
+                .padding(8.dp)
+                .padding(bottom = 16.dp)
+                .clickable { onIntent(EncycDetailUserIntent.OnImageButtonClicked) },
         border = BorderStroke(1.dp, PrimaryColor),
         shape = RoundedCornerShape(50),
         color = SurfaceColor,
@@ -192,8 +189,8 @@ fun ButtonSection(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Center,
             modifier =
-            Modifier
-                .padding(horizontal = 16.dp),
+                Modifier
+                    .padding(horizontal = 16.dp),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.flip_image),
@@ -216,9 +213,9 @@ fun ButtonSection(
 fun TitleAndDividerSection(title: String) {
     Column(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(16.dp),
     ) {
         Text(
             text = title,
@@ -229,10 +226,10 @@ fun TitleAndDividerSection(title: String) {
 
         Spacer(
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .background(PrimaryColor)
-                .height(2.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .background(PrimaryColor)
+                    .height(2.dp),
         )
     }
 }
@@ -243,9 +240,9 @@ fun DescriptionSection(fullText: String) {
 
     Column(
         modifier =
-        Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
     ) {
         if (expanded) {
             Text(
@@ -266,10 +263,10 @@ fun DescriptionSection(fullText: String) {
         Text(
             text = if (expanded) "접기" else "더보기",
             modifier =
-            Modifier
-                .align(Alignment.End)
-                .padding(top = 4.dp)
-                .clickable { expanded = !expanded },
+                Modifier
+                    .align(Alignment.End)
+                    .padding(top = 4.dp)
+                    .clickable { expanded = !expanded },
             style = TextStyle(color = PrimaryColor, fontFamily = jua),
         )
 
@@ -284,8 +281,8 @@ fun TTSButton(
 ) {
     Box(
         modifier =
-        Modifier
-            .padding(horizontal = 16.dp),
+            Modifier
+                .padding(horizontal = 16.dp),
     ) {
         IconButton(
             onClick = {

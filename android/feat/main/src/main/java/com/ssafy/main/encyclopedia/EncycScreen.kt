@@ -10,9 +10,8 @@ import com.ssafy.ui.encyclopedia.EncycUserIntent
 
 @Composable
 fun EncycScreen(
+    isDialog: Boolean,
     parkId: Long,
-    page: Int,
-    size: Int,
     viewModel: EncycScreenViewModel = hiltViewModel(),
     onNavigateToEncycDetail: (Long) -> Unit,
     onPop: () -> Unit,
@@ -21,14 +20,16 @@ fun EncycScreen(
 
     //TODO 추후에 filter를 intent를 통해서 수정
     LaunchedEffect(Unit) {
-        viewModel.loadInitialParkEncyclopedia(parkId, page, size, filter = "all")
+        viewModel.loadInitialParkEncyclopedia(parkId)
     }
 
-    EncycScreenContent(encycScreenState = uiState, onIntent = { intent ->
+    EncycScreenContent(
+        isClosable = isDialog,
+        encycScreenState = uiState, onIntent = { intent ->
         when (intent) {
             is EncycUserIntent.OnItemSelect -> onNavigateToEncycDetail(intent.id)
             is EncycUserIntent.OnPop -> onPop()
-            else -> viewModel.onIntent(intent)
+            else -> viewModel.onIntent(parkId = parkId, intent = intent)
         }
     })
 }
