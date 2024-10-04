@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.species;
 
 import com.e22e.moya.common.entity.park.Park;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -18,6 +19,7 @@ public class ParkSpecies {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
     @Exclude
@@ -28,6 +30,7 @@ public class ParkSpecies {
     @Exclude
     private Species species;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "parkSpecies", cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
     private List<SpeciesPos> positions = new ArrayList<>();
