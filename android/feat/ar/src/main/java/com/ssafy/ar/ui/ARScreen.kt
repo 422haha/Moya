@@ -3,11 +3,6 @@ package com.ssafy.ar.ui
 import ai.onnxruntime.OrtEnvironment
 import ai.onnxruntime.OrtSession
 import android.Manifest
-import android.graphics.Bitmap
-import android.graphics.BitmapFactory
-import android.graphics.ImageFormat
-import android.graphics.Rect
-import android.graphics.YuvImage
 import android.media.Image
 import android.util.Log
 import androidx.compose.animation.core.animateFloatAsState
@@ -21,7 +16,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -55,8 +49,13 @@ import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.SpeciesType
 import com.ssafy.ar.data.getImageResource
 import com.ssafy.ar.data.scripts
+import com.ssafy.ar.manager.generateUniqueFileName
+import com.ssafy.ar.manager.imageToBitmap
+import com.ssafy.ar.manager.saveImageToInternalStorage
 import com.ssafy.ar.util.MultiplePermissionsHandler
 import com.ssafy.moya.ai.DataProcess
+import com.ssafy.moya.ai.Result
+import com.ssafy.network.request.RegisterSpeciesRequestBody
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.arcore.isValid
@@ -71,14 +70,13 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.io.ByteArrayOutputStream
 import java.io.File
-import java.io.FileOutputStream
-import java.text.SimpleDateFormat
-import java.util.Date
 
 private const val TAG = "ArScreen"
 
@@ -144,49 +142,59 @@ fun ARSceneComposable(
     var frameCounter = 0
     var isProcessingImage = false
     var filePath by remember { mutableStateOf<String?>(null) }
+    val registeredSpecies = mutableSetOf<Int>()
 
     LaunchedEffect(detectionResults) {
         // 도감 등록
         detectionResults.forEach {
-            viewModel.registerSpecies(explorationId,
-                RegisterSpeciesRequestBody(
-                    (it.classIndex + 1).toLong(),
-                    "",
-                    viewModel.locationManager.currentLocation.value?.latitude ?: 0.0,
-                    viewModel.locationManager.currentLocation.value?.longitude ?: 0.0),
-                onSuccess = {
-                    coroutineScope.launch {
-                        Log.d(TAG, "ARSceneComposable: 성공 ${detectionResults.size}")
-                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
-                    }
-                },
-                onError = {
-                    coroutineScope.launch {
-                        Log.d(TAG, "ARSceneComposable1: 실패 ${detectionResults.size}")
-                        Log.d(TAG, "ARSceneComposable2: 실패 ${it}")
-                        snackBarHostState.showSnackbar(it)
-                    }
-                })
+            if (!registeredSpecies.contains(it.classIndex)) {
+                viewModel.registerSpecies(
+                    explorationId,
+                    RegisterSpeciesRequestBody(
+                        it.classIndex.toLong(),
+                        "",
+                        viewModel.locationManager.currentLocation.value
+                            ?.latitude ?: 0.0,
+                        viewModel.locationManager.currentLocation.value
+                            ?.longitude ?: 0.0,
+                    ),
+                    onSuccess = { result ->
+                        registeredSpecies.add((result.speciesId - 1).toInt())
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                        }
+                    },
+                    onError = {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(it)
+                        }
+                    },
+                )
+            }
         }
 
         // 미션 등록
         val detectedClassIndexes = detectionResults.map { it.classIndex }
 
-        val progressQuests = questInfos
-            .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
-            .map { it.value }
+        val progressQuests =
+            questInfos
+                .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
+                .map { it.value }
 
-        val completeQuests = progressQuests.filter { quest ->
-            quest.speciesId.toInt() in detectedClassIndexes
-        }
+        val completeQuests =
+            progressQuests.filter { quest ->
+                quest.speciesId.toInt() in detectedClassIndexes
+            }
 
         completeQuests.firstOrNull()?.let {
             coroutineScope.launch {
                 val anchorId: Long = it.id
 
-                val modelNode: ModelNode? = childNodes
-                    .flatMap { it.childNodes }
-                    .filterIsInstance<ModelNode>().firstOrNull { it.name == anchorId.toString() }
+                val modelNode: ModelNode? =
+                    childNodes
+                        .flatMap { it.childNodes }
+                        .filterIsInstance<ModelNode>()
+                        .firstOrNull { it.name == anchorId.toString() }
 
                 modelNode?.let {
                     val result =
@@ -310,17 +318,20 @@ fun ARSceneComposable(
                                 val results =
                                     dataProcess.processImage(bitmap, ortEnvironment, session)
 
+                                var updatedResults = results
+
                                 // 로컬에 이미지 저장
                                 if (results.isNotEmpty()) {
                                     val fileName = generateUniqueFileName()
                                     val file = File(context.filesDir, fileName)
                                     saveImageToInternalStorage(image, file)
                                     filePath = file.absolutePath
-                                }
+                                    updatedResults =
+                                        results.map { result ->
+                                            result.copy(imageUrl = filePath ?: "")
+                                        }
 
-                                // 결과를 메인 스레드에서 업데이트
-                                withContext(Dispatchers.Main) {
-                                    detectionResults = results
+                                    detectionResults = updatedResults
 
                                     Log.d("DataProcess", "인식 결과 : $detectionResults")
                                 }
@@ -336,7 +347,7 @@ fun ARSceneComposable(
                     }
                 }
 
-                if(frameCounter % 30 == 0) {
+                if (frameCounter % 30 == 0) {
                     if (trackingFailureReason == null) {
                         val desiredPlaneFindingMode =
                             if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
@@ -356,7 +367,8 @@ fun ARSceneComposable(
 
                     if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
                         nearestQuestInfo.npc?.let { quest ->
-                            val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                            val planeAndPose =
+                                findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
                             if (planeAndPose != null) {
                                 val (plane, pose) = planeAndPose
@@ -419,45 +431,7 @@ fun ARSceneComposable(
                                             viewModel.showQuestDialog(
                                                 quest,
                                             ) { accepted ->
-                                                if (accepted) {
-                                                    // TODO 온디바이스 AI로 검사
-                                                    coroutineScope.launch {
-                                                        val result =
-                                                            viewModel.completeQuest(
-                                                                explorationId,
-                                                                anchorId,
-                                                            )
-
-                                                        when (result) {
-                                                            true -> {
-                                                                viewModel.updateQuestState(
-                                                                    anchorId,
-                                                                    QuestState.COMPLETE,
-                                                                )
-
-                                                                val imageNode =
-                                                                    modelNode.childNodes
-                                                                        .filterIsInstance<ImageNode>()
-                                                                        .firstOrNull()
-
-                                                                imageNode?.let {
-                                                                    viewModel.updateModelNode(
-                                                                        imageNode,
-                                                                        modelNode,
-                                                                        materialLoader,
-                                                                    )
-                                                                }
-
-                                                                snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
-                                                            }
-
-                                                            false ->
-                                                                snackBarHostState.showSnackbar(
-                                                                    "알 수 없는 오류가 발생했습니다.",
-                                                                )
-                                                        }
-                                                    }
-                                                }
+                                                if (accepted) { }
                                             }
                                         }
                                         // 퀘스트 완료
@@ -501,9 +475,9 @@ fun ARSceneComposable(
                 )
                 Card(
                     modifier =
-                    Modifier
-                        .offset(y = (-20).dp)
-                        .align(Alignment.TopCenter),
+                        Modifier
+                            .offset(y = (-20).dp)
+                            .align(Alignment.TopCenter),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Gray),
                 ) {
@@ -546,71 +520,6 @@ fun ARSceneComposable(
             onDismiss = { viewModel.onDialogDismiss() },
         )
     }
-}
-
-fun imageToNV21(image: Image): ByteArray {
-    val planes = image.planes
-    val yBuffer = planes[0].buffer
-    val uBuffer = planes[1].buffer
-    val vBuffer = planes[2].buffer
-
-    val ySize = yBuffer.remaining()
-    val uSize = uBuffer.remaining()
-    val vSize = vBuffer.remaining()
-
-    // YUV 데이터를 하나의 배열로 합침
-    val nv21 = ByteArray(ySize + uSize + vSize)
-    yBuffer.get(nv21, 0, ySize)
-    vBuffer.get(nv21, ySize, vSize)
-    uBuffer.get(nv21, ySize + vSize, uSize)
-
-    return nv21
-}
-
-// Bitmap으로 변환
-suspend fun imageToBitmap(image: Image): Bitmap =
-    withContext(Dispatchers.Default) {
-        val nv21 = imageToNV21(image)
-
-        // NV21 포맷을 Bitmap으로 변환
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-        val out = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
-        val imageBytes = out.toByteArray()
-
-        // JPEG로 변환된 데이터를 Bitmap으로 디코딩
-        return@withContext BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
-    }
-
-// 내부 저장소에 이미지 저장
-suspend fun saveImageToInternalStorage(
-    image: Image,
-    file: File,
-): Boolean =
-    withContext(Dispatchers.IO) {
-        val nv21 = imageToNV21(image)
-
-        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
-        val outStream = ByteArrayOutputStream()
-        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, outStream)
-        val imageBytes = outStream.toByteArray()
-
-        try {
-            FileOutputStream(file).use { output ->
-                output.write(imageBytes)
-            }
-            true
-        } catch (e: Exception) {
-            e.printStackTrace()
-            false
-        } finally {
-            image.close()
-        }
-    }
-
-fun generateUniqueFileName(): String {
-    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
-    return "captured_image_$timeStamp.jpg"
 }
 
 private fun findPlaneInView(
