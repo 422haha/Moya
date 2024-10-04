@@ -150,17 +150,20 @@ fun ARSceneComposable(
         detectionResults.forEach {
             viewModel.registerSpecies(explorationId,
                 RegisterSpeciesRequestBody(
-                    it.classIndex.toLong(),
+                    (it.classIndex + 1).toLong(),
                     "",
                     viewModel.locationManager.currentLocation.value?.latitude ?: 0.0,
                     viewModel.locationManager.currentLocation.value?.longitude ?: 0.0),
                 onSuccess = {
                     coroutineScope.launch {
+                        Log.d(TAG, "ARSceneComposable: 성공 ${detectionResults.size}")
                         snackBarHostState.showSnackbar("도감에 등록되었습니다!")
                     }
                 },
                 onError = {
                     coroutineScope.launch {
+                        Log.d(TAG, "ARSceneComposable1: 실패 ${detectionResults.size}")
+                        Log.d(TAG, "ARSceneComposable2: 실패 ${it}")
                         snackBarHostState.showSnackbar(it)
                     }
                 })
