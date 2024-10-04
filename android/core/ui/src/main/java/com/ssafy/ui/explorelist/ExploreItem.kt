@@ -33,6 +33,7 @@ import com.ssafy.ui.exploredetail.ExploreDetail
 import com.ssafy.ui.exploredetail.ExploreDetailScreenState
 import com.ssafy.ui.exploredetail.TextBox
 import com.ssafy.ui.formatDate
+import com.ssafy.ui.formatDistance
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.customTypography
 import java.util.Date
@@ -70,23 +71,22 @@ fun ExploreDetailItem(
 
     Card(
         elevation =
-            CardDefaults.elevatedCardElevation(
-                animateDpAsState(
-                    animateElevation,
-                    label = "",
-                ).value,
-            ),
+        CardDefaults.elevatedCardElevation(
+            animateDpAsState(
+                animateElevation,
+                label = "",
+            ).value,
+        ),
         modifier =
-            Modifier
-                .width(animateWidth)
-                .height(animateHeight)
-                .padding(24.dp)
-                .clickable { onClick(state.exploreDetail.id) },
+        Modifier
+            .width(animateWidth)
+            .height(animateHeight)
+            .padding(24.dp),
         shape = RoundedCornerShape(16.dp),
         colors =
-            CardDefaults.cardColors(
-                containerColor = LightBackgroundColor,
-            ),
+        CardDefaults.cardColors(
+            containerColor = LightBackgroundColor,
+        ),
     ) {
         Column(
             verticalArrangement = Arrangement.SpaceEvenly,
@@ -97,17 +97,18 @@ fun ExploreDetailItem(
                 contentScale = ContentScale.Crop,
                 contentDescription = null,
                 modifier =
-                    Modifier
-                        .fillMaxWidth()
-                        .height(420.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .weight(0.6f),
                 placeholder = painterResource(id = R.drawable.ic_launcher_background),
             )
             Column(
                 modifier =
-                    Modifier
-                        .padding(8.dp)
-                        .padding(vertical = 12.dp)
-                        .fillMaxHeight(),
+                Modifier
+                    .padding(8.dp)
+                    .padding(vertical = 12.dp)
+                    .fillMaxHeight()
+                    .weight(0.4f),
                 verticalArrangement = Arrangement.Top,
             ) {
                 Text(
@@ -117,24 +118,24 @@ fun ExploreDetailItem(
                 )
                 Row(
                     modifier =
-                        Modifier
-                            .fillMaxWidth()
-                            .padding(4.dp),
+                    Modifier
+                        .fillMaxWidth()
+                        .padding(4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
                     Icon(
                         painterResource(id = R.drawable.baseline_calendar_month_24),
                         contentDescription = "캘린더",
                         modifier =
-                            Modifier
-                                .size(32.dp),
+                        Modifier
+                            .size(32.dp),
                         tint = Color.Gray,
                     )
 
                     Spacer(modifier = Modifier.height(12.dp))
 
                     Text(
-                        text = formatDate(state.exploreDetail.date),
+                        text = state.exploreDetail.date.formatDate(),
                         fontSize = 24.sp,
                         fontWeight = FontWeight.Bold,
                         color = Color.Gray,
@@ -152,7 +153,7 @@ fun ExploreDetailItem(
                     TextBox(
                         modifier = Modifier.weight(1f),
                         "이동거리",
-                        "${state.exploreDetail.distance}km",
+                        state.exploreDetail.distance.toString().formatDistance(),
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),
@@ -170,8 +171,8 @@ fun ExploreDetailItem(
                 ) {
                     TextBox(
                         modifier = Modifier.weight(1f),
-                        "걸음 수",
-                        "${state.exploreDetail.questCompletedCount}걸음",
+                        "성공한 미션 수",
+                        "${state.exploreDetail.questCompletedCount}개",
                     )
                     TextBox(
                         modifier = Modifier.weight(1f),
@@ -202,19 +203,19 @@ private fun getOffsetBasedValue(
 fun ExploreDetailItemPreview() {
     ExploreDetailItem(
         state =
-            ExploreDetailScreenState.Loaded(
-                exploreDetail =
-                    ExploreDetail(
-                        id = 0,
-                        distance = 3.0,
-                        runningTime = 20,
-                        questCompletedCount = 100,
-                        registerCount = 8,
-                        date = Date(),
-                        parkName = "동락공원",
-                        imageUrl = "",
-                    ),
+        ExploreDetailScreenState.Loaded(
+            exploreDetail =
+            ExploreDetail(
+                id = 0,
+                distance = 3000.0,
+                runningTime = 20,
+                questCompletedCount = 100,
+                registerCount = 8,
+                date = Date(),
+                parkName = "동락공원",
+                imageUrl = "",
             ),
+        ),
         isSelected = true,
         offset = 0.5f,
     )

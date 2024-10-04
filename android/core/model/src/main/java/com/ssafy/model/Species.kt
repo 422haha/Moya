@@ -25,3 +25,15 @@ data class SpeciesWithCollectionInfo(
     val imageUrl: String,
     val discovered: Boolean,
 )
+
+@Serializable
+data class SpeciesInSeason(
+    @SerialName("speciesId")
+    val speciesId: Long,
+    @SerialName("name")
+    val name: String,
+    @SerialName("imageUrl")
+    val imageUrl: String,
+    @SerialName("score")
+    val score: Float,
+)

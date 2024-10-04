@@ -4,11 +4,13 @@ import androidx.compose.runtime.Immutable
 import com.ssafy.ui.component.EncycCardState
 
 sealed interface EncycScreenState {
+
     @Immutable
     data object Loading : EncycScreenState
 
     @Immutable
     data class Loaded(
+        val page: Int = 1,
         val selectedChipIndex: Int = 0,
         val items: List<EncycCardState> = listOf(),
         val progress: Float = 0f,

@@ -96,6 +96,7 @@ public class PopularParkServiceImpl implements PopularParkService {
                 result.add(new ParkResponseDto(
                     parkInfo.getId(),
                     parkInfo.getName(),
+                    parkInfo.getDescription(),
                     (int) Math.round(parkInfo.getDistance()),
                     parkInfo.getImageUrl()
                 ));

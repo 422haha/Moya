@@ -1,6 +1,7 @@
 package com.ssafy.ui.encyclopedia
 
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -48,6 +49,7 @@ import com.ssafy.ui.theme.DarkGrayColor
 import com.ssafy.ui.theme.GrayColor
 import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SurfaceColor
 import com.ssafy.ui.theme.customTypography
 import java.util.Locale
 
@@ -56,6 +58,7 @@ val chipLabels = listOf("전체", "수집완료", "미발견")
 @Composable
 fun EncycScreenContent(
     modifier: Modifier = Modifier,
+    isClosable: Boolean,
     encycScreenState: EncycScreenState,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
@@ -70,6 +73,7 @@ fun EncycScreenContent(
                         .padding(paddingValues),
             ) {
                 TopTitle(
+                    isClosable = isClosable,
                     onCloseClick = { onIntent(EncycUserIntent.OnPop) },
                 )
                 when (encycScreenState) {
@@ -83,6 +87,10 @@ fun EncycScreenContent(
                             state = encycScreenState,
                             selectedChipIndex = selectedChipIndex,
                             onIntent = onIntent,
+                            onChipSelected = { index ->
+                                selectedChipIndex = index
+                                onIntent(EncycUserIntent.OnChipSelected(index))
+                            },
                         )
                     }
 
@@ -101,12 +109,13 @@ fun EncycScreenContent(
 @Composable
 fun TopTitle(
     modifier: Modifier = Modifier,
+    isClosable: Boolean,
     onCloseClick: () -> Unit = {},
 ) {
     Row(
         modifier =
             Modifier
-                .background(color = LightBackgroundColor)
+                .background(SurfaceColor)
                 .padding(top = 8.dp)
                 .fillMaxWidth(),
         verticalAlignment = Alignment.CenterVertically,
@@ -121,14 +130,16 @@ fun TopTitle(
                 Modifier
                     .padding(start = 8.dp),
         )
-        Icon(
-            imageVector = Icons.Default.Clear,
-            contentDescription = "onPop",
-            modifier =
-                Modifier
-                    .padding(horizontal = 8.dp)
-                    .clickable { onCloseClick() },
-        )
+        if(isClosable){
+            Icon(
+                imageVector = Icons.Default.Clear,
+                contentDescription = "onPop",
+                modifier =
+                    Modifier
+                        .padding(horizontal = 8.dp)
+                        .clickable { onCloseClick() },
+            )
+        }
     }
 }
 
@@ -138,6 +149,7 @@ fun EncycScreenLoaded(
     state: EncycScreenState.Loaded,
     selectedChipIndex: Int,
     onIntent: (EncycUserIntent) -> Unit = {},
+    onChipSelected: (Int) -> Unit = {},
 ) {
     Column(
         modifier =
@@ -147,9 +159,7 @@ fun EncycScreenLoaded(
         CollectionProgress(progress = state.progress, onIntent = onIntent)
         FilterChips(
             selectedChipIndex = selectedChipIndex,
-            onChipSelected = { index ->
-                onIntent(EncycUserIntent.OnChipSelected(index))
-            },
+            onChipSelected = onChipSelected,
         )
         EncycGrid(
             items = state.items,
@@ -184,7 +194,7 @@ fun FilterChipComponent(
                 labelColor = if (isSelected) LightBackgroundColor else DarkGrayColor,
             ),
         border =
-            if (!isSelected) {
+            if (isSelected) {
                 BorderStroke(1.dp, DarkGrayColor)
             } else {
                 null
@@ -233,12 +243,7 @@ fun EncycGrid(
     ) {
         itemsIndexed(items) { index, item ->
             EncycCard(
-                EncycCardState(
-                    id = item.id,
-                    name = item.name,
-                    imageUrl = item.imageUrl,
-                    isDiscovered = item.isDiscovered,
-                ),
+                item,
                 onClick = { onItemClicked(index.toLong()) },
             )
         }
@@ -257,35 +262,6 @@ fun CollectionProgress(
                 Modifier
                     .fillMaxWidth(),
         ) {
-            Row(
-                modifier =
-                    Modifier
-                        .padding(top = 8.dp)
-                        .fillMaxWidth(),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.SpaceBetween,
-            ) {
-                Text(
-                    text = "도감",
-                    fontSize = 24.sp,
-                    fontWeight = FontWeight.Bold,
-                    style = customTypography.titleMedium,
-                    modifier =
-                        Modifier
-                            .padding(start = 8.dp),
-                )
-                Icon(
-                    imageVector = Icons.Default.Clear,
-                    contentDescription = "onPop",
-                    modifier =
-                        Modifier
-                            .padding(horizontal = 8.dp)
-                            .clickable { onIntent(EncycUserIntent.OnPop) },
-                )
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.End,
@@ -323,6 +299,7 @@ fun CollectionProgress(
 @Composable
 fun EncycScreenPreview() {
     EncycScreenContent(
+        isClosable = true,
         encycScreenState =
             EncycScreenState.Loaded(
                 selectedChipIndex = 0,

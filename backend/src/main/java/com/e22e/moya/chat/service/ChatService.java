@@ -1,13 +1,11 @@
 package com.e22e.moya.chat.service;
 
-import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
-import com.e22e.moya.exploration.dto.chat.ChatResponseDto;
-import org.springframework.transaction.annotation.Isolation;
-import org.springframework.transaction.annotation.Transactional;
+
+import com.e22e.moya.chat.dto.ChatRequestDto;
+import com.e22e.moya.chat.dto.ChatResponseDto;
 
 public interface ChatService {
 
-
-//    @Transactional(isolation = Isolation.READ_COMMITTED)
-//    ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long npcPosId, Long userId);
+    ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long npcPosId,
+        Long userId, Long parkId);
 }
