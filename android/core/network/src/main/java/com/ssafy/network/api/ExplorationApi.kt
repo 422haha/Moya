@@ -22,7 +22,7 @@ interface ExplorationApi {
         @Path("parkId") parkId: Long,
     ): Response<ResponseBody<ExplorationInitialData>>
 
-    @GET("/explorations/{parkId}/load/{explorationId}")
+    @GET("/exploration/{parkId}/load/{explorationId}")
     suspend fun getExplorationData(
         @Path("parkId") parkId: Long,
         @Path("explorationId") explorationId: Long,
@@ -39,13 +39,13 @@ interface ExplorationApi {
         @Path("questId") questId: Long,
     ): Response<ResponseBody<CompletedQuest>>
 
-    @POST("/explorations/{explorationId}/end")
+    @POST("/exploration/{explorationId}/end")
     suspend fun endExploration(
         @Path("explorationId") explorationId: Long,
         @Body body: ExplorationEndRequestBody,
     ): Response<ResponseBody<ExplorationEndData>>
 
-    @POST("/explorations/{explorationId}/camera")
+    @POST("/exploration/{explorationId}/camera")
     suspend fun registerSpecies(
         @Path("explorationId") explorationId: Long,
         @Body body: RegisterSpeciesRequestBody,
