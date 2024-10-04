@@ -26,7 +26,7 @@ fun ExploreStartScreen(
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
     LaunchedEffect(parkId) {
-        viewModel.loadInitialData(parkId)
+        viewModel.loadData(parkId)
     }
 
     BackHandler {
