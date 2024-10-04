@@ -330,10 +330,7 @@ fun ARSceneComposable(
                                         results.map { result ->
                                             result.copy(imageUrl = filePath ?: "")
                                         }
-                                }
 
-                                // 결과를 메인 스레드에서 업데이트
-                                withContext(Dispatchers.Main) {
                                     detectionResults = updatedResults
 
                                     Log.d("DataProcess", "인식 결과 : $detectionResults")
@@ -434,45 +431,7 @@ fun ARSceneComposable(
                                             viewModel.showQuestDialog(
                                                 quest,
                                             ) { accepted ->
-                                                if (accepted) {
-                                                    // TODO 온디바이스 AI로 검사
-                                                    coroutineScope.launch {
-                                                        val result =
-                                                            viewModel.completeQuest(
-                                                                explorationId,
-                                                                anchorId,
-                                                            )
-
-                                                        when (result) {
-                                                            true -> {
-                                                                viewModel.updateQuestState(
-                                                                    anchorId,
-                                                                    QuestState.COMPLETE,
-                                                                )
-
-                                                                val imageNode =
-                                                                    modelNode.childNodes
-                                                                        .filterIsInstance<ImageNode>()
-                                                                        .firstOrNull()
-
-                                                                imageNode?.let {
-                                                                    viewModel.updateModelNode(
-                                                                        imageNode,
-                                                                        modelNode,
-                                                                        materialLoader,
-                                                                    )
-                                                                }
-
-                                                                snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
-                                                            }
-
-                                                            false ->
-                                                                snackBarHostState.showSnackbar(
-                                                                    "알 수 없는 오류가 발생했습니다.",
-                                                                )
-                                                        }
-                                                    }
-                                                }
+                                                if (accepted) { }
                                             }
                                         }
                                         // 퀘스트 완료
