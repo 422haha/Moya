@@ -17,8 +17,10 @@ import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.getModelUrl
 import com.ssafy.ar.manager.ARLocationManager
 import com.ssafy.ar.manager.ARNodeManager
+import com.ssafy.model.SpeciesMinimumInfo
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
+import com.ssafy.network.request.RegisterSpeciesRequestBody
 import dagger.hilt.android.lifecycle.HiltViewModel
 import dagger.hilt.android.qualifiers.ApplicationContext
 import io.github.sceneview.ar.node.AnchorNode
@@ -135,6 +137,24 @@ class ARViewModel @Inject constructor(
             currentMap.toMutableMap().apply {
                 this[id]?.let { npcLocation ->
                     this[id] = npcLocation.copy(isPlace = state)
+                }
+            }
+        }
+    }
+
+    fun registerSpecies(explorationId: Long,
+                                body: RegisterSpeciesRequestBody,
+                                onSuccess: (SpeciesMinimumInfo) -> Unit,
+                                onError: (String) -> Unit) {
+        viewModelScope.launch {
+            explorationRepository.registerSpecies(explorationId, body).collect { response ->
+                when(response) {
+                    is ApiResponse.Success -> {
+                        response.body?.let { onSuccess(it) }
+                    }
+                    is ApiResponse.Error -> {
+                        onError(response.errorMessage ?: "Unknown error")
+                    }
                 }
             }
         }
@@ -263,7 +283,7 @@ class ARViewModel @Inject constructor(
     private fun updateRating(numerator: Float, denominator: Float) {
         if (denominator == 0f) return
 
-        val ratingValue: Float = (numerator) / (denominator) * 5
+        val ratingValue: Float = (numerator) / (denominator) * 3
 
         val roundedRatingValue = (ratingValue * 10).roundToInt() / 10f
 

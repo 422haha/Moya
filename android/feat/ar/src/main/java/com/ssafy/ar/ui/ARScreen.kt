@@ -72,6 +72,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import com.ssafy.moya.ai.Result
+import com.ssafy.network.request.RegisterSpeciesRequestBody
 import io.github.sceneview.model.ModelInstance
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Job
@@ -144,9 +145,28 @@ fun ARSceneComposable(
     var isProcessingImage = false
 
     LaunchedEffect(detectionResults) {
-        val detectedClassIndexes = detectionResults.map { it.classIndex }
+        // 도감 등록
+        detectionResults.forEach {
+            viewModel.registerSpecies(explorationId,
+                RegisterSpeciesRequestBody(
+                    it.classIndex.toLong(),
+                    "",
+                    viewModel.locationManager.currentLocation.value?.latitude ?: 0.0,
+                    viewModel.locationManager.currentLocation.value?.longitude ?: 0.0),
+                onSuccess = {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                    }
+                },
+                onError = {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(it)
+                    }
+                })
+        }
 
-        Log.d(TAG, "인식 결과3$detectedClassIndexes")
+        // 미션 등록
+        val detectedClassIndexes = detectionResults.map { it.classIndex }
 
         val progressQuests = questInfos
             .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
@@ -271,8 +291,6 @@ fun ARSceneComposable(
                 frameCounter++
                 if (frameCounter % 120 == 0 && !isProcessingImage) {
                     isProcessingImage = true
-
-                    Log.d(TAG, "인식 결과2")
 
                     imageProcessingScope.launch(Dispatchers.IO) {
                         var image: Image? = null
@@ -406,18 +424,6 @@ fun ARSceneComposable(
                 ),
         )
 
-        Column(modifier = Modifier.padding(16.dp)) {
-            if (detectionResults.isNotEmpty()) {
-                Text("Detected Objects:", color = Color.Black)
-                detectionResults.forEach { result ->
-                    Text(
-                        text = "Class: ${dataProcess.classes[result.classIndex]}, Score: ${result.score}",
-                        color = Color.Black,
-                    )
-                }
-            }
-        }
-
         Column {
             Box(
                 modifier =
@@ -456,7 +462,7 @@ fun ARSceneComposable(
                             RatingBarConfig()
                                 .isIndicator(true)
                                 .stepSize(StepSize.HALF)
-                                .numStars(5)
+                                .numStars(3)
                                 .size(28.dp)
                                 .inactiveColor(Color.LightGray)
                                 .style(RatingBarStyle.Normal),
