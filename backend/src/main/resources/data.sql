@@ -87,7 +87,7 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
        ('란타나', 'Lantana camara', '다양한 색깔의 꽃을 피우는 관목', 'https://i.ibb.co/8dGKhGW/lantana.jpg'),
        ('히비스커스', 'Hibiscus rosa-sinensis', '큰 꽃을 피우는 열대성 식물', 'https://i.ibb.co/v11zD2b/hibiscus.jpg'),
        ('야트로파 쿠르카스', 'Jatropha curcas', '고소한 향을 가진 꽃을 피우는 나무', 'https://i.ibb.co/km4Kr9w/jatropha-curcas.jpg'),
-       ('메리골드', 'Tagetes erecta', '주황색 꽃을 피우는 한해살이 식물', 'https://i.ibb.co/TqzJCvS/marigold.jpg'),
+       ('메리골드', 'Tagetes erecta', '주황색 꽃을 피우는 한해살이 식물', 'https://i.ibb.co/095W3tF/marigold.jpg'),
        ('장미', 'Rosa', '전 세계적으로 사랑받는 꽃으로 다양한 품종이 존재', 'https://i.ibb.co/QvG5PmX/rose.jpg'),
        ('참파카초령목', 'Magnolia champaca', '향기로운 꽃을 피우는 나무', 'https://i.ibb.co/7RV78TG/champaca.jpg'),
        ('백화단', 'Plumbago zeylanica', '작은 흰색 꽃을 피우는 관목', 'https://i.ibb.co/5nf0K2k/plumbago-zeylanica.jpg'),
