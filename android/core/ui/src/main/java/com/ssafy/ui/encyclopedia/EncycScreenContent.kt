@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -241,10 +241,10 @@ fun EncycGrid(
                 .fillMaxHeight()
                 .heightIn(min = 200.dp),
     ) {
-        itemsIndexed(items) { index, item ->
+        items(items) { item ->
             EncycCard(
                 item,
-                onClick = { onItemClicked(index.toLong()) },
+                onClick = { onItemClicked(item.id) },
             )
         }
     }
