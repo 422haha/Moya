@@ -3,12 +3,15 @@ package com.ssafy.ar.manager
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
+import com.google.ar.core.Camera
+import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.ssafy.ar.data.ModelType
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.getImageUrl
+import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
@@ -157,5 +160,35 @@ class ARNodeManager {
             parentNode.addChildNode(imageNode)
         }
     }
+
+    fun findPlaneInView(
+        frame: Frame,
+        width: Int,
+        height: Int,
+        camera: Camera,
+    ): Pair<Plane, Pose>? {
+        val center = android.graphics.PointF(width / 2f, height / 2f)
+        val hits = frame.hitTest(center.x, center.y)
+
+        val planeHit =
+            hits.firstOrNull {
+                it.isValid(
+                    depthPoint = true,
+                    point = true,
+                    planePoseInPolygon = true,
+                    instantPlacementPoint = false,
+                    minCameraDistance = Pair(camera, 0.5f),
+                    predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+                    planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
+                )
+            }
+
+        return planeHit?.let { hit ->
+            val plane = hit.trackable as Plane
+            val pose = hit.hitPose
+            Pair(plane, pose)
+        }
+    }
+
 }
 
