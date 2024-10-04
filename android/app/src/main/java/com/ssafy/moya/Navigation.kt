@@ -143,7 +143,22 @@ fun MainNavigation(
         }
         composable<ARCamera> { navBackStackEntry ->
             val route = navBackStackEntry.toRoute<ARCamera>()
-            ARSceneComposable(explorationId = route.explrationId, onPermissionDenied = {})
+            ARSceneComposable(
+                explorationId = route.explrationId,
+                onPermissionDenied = {},
+                onPop = {
+                    navController.popBackStack()
+                },
+                onTTSClicked = { fullText ->
+                    ttsHelper.speak(fullText)
+                },
+                onTTSShutDown = {
+                    ttsHelper.shutdown()
+                },
+                onTTSReStart = {
+                    ttsHelper.reStart()
+                }
+            )
         }
         composable<Login> {
             LoginScreen(
