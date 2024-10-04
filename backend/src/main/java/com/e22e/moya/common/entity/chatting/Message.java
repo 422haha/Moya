@@ -14,7 +14,7 @@ public class Message {
     @Column(nullable = false)
     private LocalDateTime messageTime;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)

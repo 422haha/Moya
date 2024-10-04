@@ -1,5 +1,6 @@
 package com.e22e.moya.exploration.service.exploration;
 
+import com.e22e.moya.chat.service.ChatService;
 import com.e22e.moya.common.entity.Discovery;
 import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.Users;
@@ -43,6 +44,7 @@ public class ExplorationServiceImpl implements ExplorationService {
     private final ParkSpeciesRepositoryExploration parkSpeciesRepository;
     private final SpeciesPosRepositoryExploration speciesPosRepository;
     private final PopularSpeciesService popularSpeciesService;
+    private final ChatService chatService;
 
     public ExplorationServiceImpl(UserRepository userRepository,
         SpeciesRepositoryExploration speciesRepository,
@@ -50,7 +52,7 @@ public class ExplorationServiceImpl implements ExplorationService {
         ExplorationRepositoryExploration explorationRepository,
         ParkSpeciesRepositoryExploration parkSpeciesRepository,
         SpeciesPosRepositoryExploration speciesPosRepository,
-        PopularSpeciesService popularSpeciesService) {
+        PopularSpeciesService popularSpeciesService, ChatService chatService) {
         this.userRepository = userRepository;
         this.speciesRepository = speciesRepository;
         this.discoveryRepository = discoveryRepository;
@@ -58,6 +60,7 @@ public class ExplorationServiceImpl implements ExplorationService {
         this.parkSpeciesRepository = parkSpeciesRepository;
         this.speciesPosRepository = speciesPosRepository;
         this.popularSpeciesService = popularSpeciesService;
+        this.chatService = chatService;
     }
 
     /**
@@ -89,9 +92,11 @@ public class ExplorationServiceImpl implements ExplorationService {
         ParkSpecies parkSpecies = parkSpeciesRepository.findByParkAndSpecies(park, species)
             .orElseGet(() -> {
                 // 공원에 없다면 새로운 종으로 등록
+                log.info("공원에 없는 종, 새롭게 추가");
                 ParkSpecies newParkSpecies = new ParkSpecies();
                 newParkSpecies.setPark(park);
                 newParkSpecies.setSpecies(species);
+                chatService.updateSpeciesCache(park.getId(), species);
                 return parkSpeciesRepository.save(newParkSpecies);
             });
 

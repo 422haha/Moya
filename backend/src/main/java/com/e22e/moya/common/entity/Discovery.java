@@ -2,6 +2,7 @@ package com.e22e.moya.common.entity;
 
 import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.common.entity.species.SpeciesPos;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
 import lombok.ToString;
@@ -23,11 +24,13 @@ public class Discovery {
 
     private String imageUrl;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "species_id")
     @Exclude
     private Species species;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "species_pos_id")
     @Exclude
