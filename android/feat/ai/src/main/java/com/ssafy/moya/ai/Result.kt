@@ -6,4 +6,5 @@ data class Result(
     val classIndex: Int,
     val score: Float,
     val rectF: RectF,
+    val imageUrl: String? = null,
 )
