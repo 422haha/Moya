@@ -47,7 +47,7 @@ class ARViewModel @Inject constructor(
     private val explorationRepository: ExplorationRepository
 ) : ViewModel() {
 
-    private lateinit var nodeManager: ARNodeManager
+    lateinit var nodeManager: ARNodeManager
     private lateinit var fusedLocationClient: FusedLocationProviderClient
     lateinit var locationManager: ARLocationManager
 
@@ -148,13 +148,11 @@ class ARViewModel @Inject constructor(
                                 onError: (String) -> Unit) {
         viewModelScope.launch {
             explorationRepository.registerSpecies(explorationId, body).collect { response ->
-                Log.d("TAG", "ARSceneComposable3: $response")
                 when(response) {
                     is ApiResponse.Success -> {
                         response.body?.let { onSuccess(it) }
                     }
                     is ApiResponse.Error -> {
-                        Log.d("TAG", "ARSceneComposable4: ${response.errorMessage}")
                         onError(response.errorMessage ?: "Unknown error")
                     }
                 }

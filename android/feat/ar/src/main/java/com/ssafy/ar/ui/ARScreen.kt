@@ -33,11 +33,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.google.ar.core.Camera
 import com.google.ar.core.Config
-import com.google.ar.core.Frame
-import com.google.ar.core.Plane
-import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
 import com.gowtham.ratingbar.RatingBar
 import com.gowtham.ratingbar.RatingBarConfig
@@ -58,7 +54,6 @@ import com.ssafy.moya.ai.Result
 import com.ssafy.network.request.RegisterSpeciesRequestBody
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
-import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.ar.rememberARCameraNode
 import io.github.sceneview.node.ImageNode
@@ -84,6 +79,10 @@ private const val TAG = "ArScreen"
 fun ARSceneComposable(
     explorationId: Long,
     onPermissionDenied: () -> Unit,
+    onPop: () -> Unit,
+    onTTSClicked: (String) -> Unit,
+    onTTSShutDown: () -> Unit,
+    onTTSReStart: () -> Unit,
 ) {
     // Screen Size
     val configuration = LocalConfiguration.current
@@ -95,6 +94,7 @@ fun ARSceneComposable(
     val heightPx = with(density) { screenHeight.toPx() }.toInt()
 
     // LifeCycle
+    val context = LocalContext.current
     val viewModel: ARViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
     val imageProcessingScope = remember { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
@@ -130,8 +130,6 @@ fun ARSceneComposable(
     val dialogData by viewModel.dialogData.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
-    val context = LocalContext.current
-
     // AI 모델 초기화 및 세션 설정
     val dataProcess = remember { DataProcess(context = context) }
     val ortEnvironment = remember { OrtEnvironment.getEnvironment() }
@@ -141,36 +139,33 @@ fun ARSceneComposable(
 
     var frameCounter = 0
     var isProcessingImage = false
-    var filePath by remember { mutableStateOf<String?>(null) }
     val registeredSpecies = mutableSetOf<Int>()
 
     LaunchedEffect(detectionResults) {
         // 도감 등록
         detectionResults.forEach {
-            if (!registeredSpecies.contains(it.classIndex)) {
-                viewModel.registerSpecies(
-                    explorationId,
-                    RegisterSpeciesRequestBody(
-                        it.classIndex.toLong(),
-                        "",
-                        viewModel.locationManager.currentLocation.value
-                            ?.latitude ?: 0.0,
-                        viewModel.locationManager.currentLocation.value
-                            ?.longitude ?: 0.0,
-                    ),
-                    onSuccess = { result ->
-                        registeredSpecies.add((result.speciesId - 1).toInt())
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar("도감에 등록되었습니다!")
-                        }
-                    },
-                    onError = {
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(it)
-                        }
-                    },
-                )
-            }
+            viewModel.registerSpecies(
+                explorationId,
+                RegisterSpeciesRequestBody(
+                    (it.classIndex + 1).toLong(),
+                    it.imageUrl ?: "",
+                    viewModel.locationManager.currentLocation.value
+                        ?.latitude ?: 0.0,
+                    viewModel.locationManager.currentLocation.value
+                        ?.longitude ?: 0.0,
+                ),
+                onSuccess = { result ->
+                    registeredSpecies.add((result.speciesId - 1).toInt())
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                    }
+                },
+                onError = {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(it)
+                    }
+                },
+            )
         }
 
         // 미션 등록
@@ -301,7 +296,7 @@ fun ARSceneComposable(
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
                 frameCounter++
-                if (frameCounter % 120 == 0 && !isProcessingImage) {
+                if (frameCounter % 30 == 0 && !isProcessingImage) {
                     isProcessingImage = true
 
                     imageProcessingScope.launch(Dispatchers.IO) {
@@ -325,10 +320,11 @@ fun ARSceneComposable(
                                     val fileName = generateUniqueFileName()
                                     val file = File(context.filesDir, fileName)
                                     saveImageToInternalStorage(image, file)
-                                    filePath = file.absolutePath
+
+                                    Log.d(TAG, "ARSceneComposable: ${file.absolutePath}")
                                     updatedResults =
                                         results.map { result ->
-                                            result.copy(imageUrl = filePath ?: "")
+                                            result.copy(imageUrl = file.absolutePath ?: "")
                                         }
 
                                     detectionResults = updatedResults
@@ -347,43 +343,41 @@ fun ARSceneComposable(
                     }
                 }
 
-                if (frameCounter % 30 == 0) {
-                    if (trackingFailureReason == null) {
-                        val desiredPlaneFindingMode =
-                            if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
-                                Config.PlaneFindingMode.HORIZONTAL
-                            } else {
-                                Config.PlaneFindingMode.DISABLED
-                            }
-
-                        if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                            session.configure(
-                                session.config.apply {
-                                    setPlaneFindingMode(desiredPlaneFindingMode)
-                                },
-                            )
+                if (trackingFailureReason == null) {
+                    val desiredPlaneFindingMode =
+                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
+                            Config.PlaneFindingMode.HORIZONTAL
+                        } else {
+                            Config.PlaneFindingMode.DISABLED
                         }
+
+                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                        session.configure(
+                            session.config.apply {
+                                setPlaneFindingMode(desiredPlaneFindingMode)
+                            },
+                        )
                     }
+                }
 
-                    if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
-                        nearestQuestInfo.npc?.let { quest ->
-                            val planeAndPose =
-                                findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
+                    nearestQuestInfo.npc?.let { quest ->
+                        val planeAndPose =
+                            viewModel.nodeManager.findPlaneInView(frame, widthPx, heightPx, frame.camera)
 
-                            if (planeAndPose != null) {
-                                val (plane, pose) = planeAndPose
+                        if (planeAndPose != null) {
+                            val (plane, pose) = planeAndPose
 
-                                if (childNodes.all { it.name != quest.id.toString() }) {
-                                    viewModel.placeNode(
-                                        plane,
-                                        pose,
-                                        quest,
-                                        engine,
-                                        modelLoader,
-                                        materialLoader,
-                                        childNodes,
-                                    )
-                                }
+                            if (childNodes.all { it.name != quest.id.toString() }) {
+                                viewModel.placeNode(
+                                    plane,
+                                    pose,
+                                    quest,
+                                    engine,
+                                    modelLoader,
+                                    materialLoader,
+                                    childNodes,
+                                )
                             }
                         }
                     }
@@ -475,9 +469,9 @@ fun ARSceneComposable(
                 )
                 Card(
                     modifier =
-                        Modifier
-                            .offset(y = (-20).dp)
-                            .align(Alignment.TopCenter),
+                    Modifier
+                        .offset(y = (-20).dp)
+                        .align(Alignment.TopCenter),
                     elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                     colors = CardDefaults.cardColors(containerColor = Color.Gray),
                 ) {
@@ -519,34 +513,5 @@ fun ARSceneComposable(
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() },
         )
-    }
-}
-
-private fun findPlaneInView(
-    frame: Frame,
-    width: Int,
-    height: Int,
-    camera: Camera,
-): Pair<Plane, Pose>? {
-    val center = android.graphics.PointF(width / 2f, height / 2f)
-    val hits = frame.hitTest(center.x, center.y)
-
-    val planeHit =
-        hits.firstOrNull {
-            it.isValid(
-                depthPoint = true,
-                point = true,
-                planePoseInPolygon = true,
-                instantPlacementPoint = false,
-                minCameraDistance = Pair(camera, 0.5f),
-                predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
-                planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
-            )
-        }
-
-    return planeHit?.let { hit ->
-        val plane = hit.trackable as Plane
-        val pose = hit.hitPose
-        Pair(plane, pose)
     }
 }
