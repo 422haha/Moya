@@ -93,7 +93,7 @@ fun MainNavigation(
         composable<Encyc> {
             val route = it.toRoute<Encyc>()
             EncycScreen(
-                isDialog = false,
+                isDialog = route.isDialog,
                 parkId = route.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
@@ -134,7 +134,7 @@ fun MainNavigation(
                     }
                 },
                 onEnterEncyc = { parkId ->
-                    navController.navigate(Encyc(parkId))
+                    navController.navigate(Encyc(true, parkId))
                 },
                 onEnterAR = { id ->
                     navController.navigate(ARCamera(explrationId = id))
