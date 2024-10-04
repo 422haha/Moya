@@ -6,4 +6,5 @@ COPY target/moya-0.0.1-SNAPSHOT.jar app.jar
 COPY .env .env
 COPY src/main/resources/application.properties application.properties
 COPY src/main/resources/application-oauth-kakao.properties application-oauth-kakao.properties
+COPY src/main/resources/application-oauth-naver.properties application-oauth-naver.properties
 ENTRYPOINT ["java", "-jar", "app.jar"]

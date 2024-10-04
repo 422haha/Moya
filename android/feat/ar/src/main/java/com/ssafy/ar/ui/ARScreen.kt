@@ -368,7 +368,8 @@ fun ARSceneComposable(
                 rememberOnGestureListener(
                     onSingleTapConfirmed = { motionEvent, node ->
                         if (node is ModelNode || node?.parent is ModelNode) {
-                            val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+                            val modelNode =
+                                if (node is ModelNode) node else node.parent as? ModelNode
 
                             val anchorNode = modelNode?.parent as? AnchorNode
 
@@ -405,7 +406,45 @@ fun ARSceneComposable(
                                             viewModel.showQuestDialog(
                                                 quest,
                                             ) { accepted ->
-                                                if (accepted) { }
+                                                if (accepted) {
+                                                    // TODO 온디바이스 AI로 검사
+                                                    coroutineScope.launch {
+                                                        val result =
+                                                            viewModel.completeQuest(
+                                                                explorationId,
+                                                                anchorId,
+                                                            )
+
+                                                        when (result) {
+                                                            true -> {
+                                                                viewModel.updateQuestState(
+                                                                    anchorId,
+                                                                    QuestState.COMPLETE,
+                                                                )
+
+                                                                val imageNode =
+                                                                    modelNode.childNodes
+                                                                        .filterIsInstance<ImageNode>()
+                                                                        .firstOrNull()
+
+                                                                imageNode?.let {
+                                                                    viewModel.updateModelNode(
+                                                                        imageNode,
+                                                                        modelNode,
+                                                                        materialLoader,
+                                                                    )
+                                                                }
+
+                                                                snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                            }
+
+                                                            false ->
+                                                                snackBarHostState.showSnackbar(
+                                                                    "알 수 없는 오류가 발생했습니다.",
+                                                                )
+                                                        }
+                                                    }
+                                                }
                                             }
                                         }
                                         // 퀘스트 완료
@@ -433,9 +472,8 @@ fun ARSceneComposable(
                 CustomCard(
                     imageUrl =
                         SpeciesType
-                            .fromLong(
-                                nearestQuestInfo.npc?.speciesId ?: 1L,
-                            )?.getImageResource() ?: (R.drawable.maple),
+                            .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                            ?.getImageResource() ?: (R.drawable.maple),
                     title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                     state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                     distanceText = "${

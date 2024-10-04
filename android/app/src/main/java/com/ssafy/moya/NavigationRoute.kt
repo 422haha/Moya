@@ -15,13 +15,13 @@ object ExploreList
 data class ExploreDetail(val itemId: Long)
 
 @Serializable
-data class ParkDetail(val itemId: Long)
+data class ParkDetail(val parkId: Long)
 
 @Serializable
-object Encyc
+data class Encyc(val parkId: Long)
 
 @Serializable
-data class EncycDetail(val itemId: Long)
+data class EncycDetail(val encycId: Long)
 
 @Serializable
 data class ExploreStart(val parkId: Long)

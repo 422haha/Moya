@@ -37,7 +37,7 @@ class EncycDetailScreenVIewModel
                                                 plantName = body.speciesName,
                                                 plantImage = body.imageUrl,
                                                 description = body.description,
-                                                userPhoto = body.userPhotos[0].imageUrl,
+                                                userPhoto = body.userPhotos.getOrNull(0)?.imageUrl,
                                             ),
                                     )
                                 } ?: EncycDetailScreenState.Error("Failed to load initial data")

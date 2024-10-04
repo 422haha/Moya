@@ -27,6 +27,8 @@ class DataProcess
     ) {
         lateinit var classes: Array<String>
 
+        private val previousResults = mutableListOf<List<Result>>()
+
         companion object {
             const val BATCH_SIZE = 1
             const val INPUT_SIZE = 640
@@ -254,6 +256,34 @@ class DataProcess
             return right - left
         }
 
+        private fun isSameRect(
+            rect1: RectF,
+            rect2: RectF,
+            threshold: Float = 0.1f,
+        ): Boolean =
+            rect1.left - rect2.left < threshold &&
+                rect1.top - rect2.top < threshold &&
+                rect1.right - rect2.right < threshold &&
+                rect1.bottom - rect2.bottom < threshold
+
+        // classIndex와 위치(RectF)를 기준으로 연속된 2프레임에서 동일한 객체가 인식되었는지 확인
+        private fun isSameObject(
+            result1: Result,
+            result2: Result,
+        ): Boolean = result1.classIndex == result2.classIndex && isSameRect(result1.rectF, result2.rectF)
+
+        // 각 프레임에서 동일한 객체가 연속으로 2번 인식되었는지 확인하는 함수
+        private fun isSameObjectInTwoFrames(): Boolean {
+            if (previousResults.size < 2) return false
+
+            val firstFrameResults = previousResults[0]
+            val secondFrameResults = previousResults[1]
+
+            return secondFrameResults.all { secondResult ->
+                firstFrameResults.any { isSameObject(secondResult, it) }
+            }
+        }
+
         suspend fun processImage(
             bitmap: Bitmap,
             ortEnvironment: OrtEnvironment,
@@ -276,11 +306,21 @@ class DataProcess
                     val resultTensor = session.run(Collections.singletonMap(inputName, inputTensor))
 
                     val outputs = resultTensor[0].value as Array<*>
-                    val results = outputsToNPMSPredictions(outputs)
+                    val currentResults = outputsToNPMSPredictions(outputs)
 
-                    Log.d("DataProcess", "결과 : $results")
+                    if (previousResults.size >= 2) {
+                        previousResults.removeAt(0) // 오래된 결과 제거
+                    }
+                    previousResults.add(currentResults)
 
-                    results
+                    Log.d("DataProcess", "결과 : $currentResults")
+                    Log.d("DataProcess", "2프레임 연속 결과 : $previousResults")
+
+                    return@withContext if (isSameObjectInTwoFrames()) {
+                        currentResults // 동일한 객체가 2프레임 연속 인식되면 결과 반환
+                    } else {
+                        emptyList() // 그렇지 않으면 빈 리스트 반환
+                    }
                 } catch (e: Exception) {
                     Log.e("errorCatch", "$e")
                     emptyList()
