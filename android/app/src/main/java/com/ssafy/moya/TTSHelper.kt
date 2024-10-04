@@ -13,6 +13,10 @@ class TTSHelper @Inject constructor(@ApplicationContext private val context: Con
     private var tts: TextToSpeech = TextToSpeech(context, this)
     private var isInitialized = false
 
+    private fun initTTS() {
+        tts = TextToSpeech(context, this)
+    }
+
     override fun onInit(status: Int) {
         if (status == TextToSpeech.SUCCESS) {
             val result = tts.setLanguage(Locale.KOREAN)
@@ -33,5 +37,10 @@ class TTSHelper @Inject constructor(@ApplicationContext private val context: Con
     fun shutdown() {
         tts.stop()
         tts.shutdown()
+    }
+
+    fun reStart() {
+        shutdown()
+        initTTS()
     }
 }
