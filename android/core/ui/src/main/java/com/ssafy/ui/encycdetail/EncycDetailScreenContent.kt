@@ -41,7 +41,6 @@ import coil.compose.AsyncImage
 import com.ssafy.ui.R
 import com.ssafy.ui.component.BackButton
 import com.ssafy.ui.component.ErrorScreen
-import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
 import com.ssafy.ui.theme.PrimaryColor
 import com.ssafy.ui.theme.SurfaceColor
@@ -121,12 +120,6 @@ fun EncycDetailScreenContent(
                     )
                 }
             }
-        },
-        bottomBar = {
-            FindButton(
-                "찾으러 가기",
-                onClick = { onIntent(EncycDetailUserIntent.OnExploreButtonClicked) },
-            )
         },
     )
 }
@@ -279,11 +272,7 @@ fun TTSButton(
     textToRead: String,
     onTTSClicked: (String) -> Unit,
 ) {
-    Box(
-        modifier =
-            Modifier
-                .padding(horizontal = 16.dp),
-    ) {
+    Box {
         IconButton(
             onClick = {
                 onTTSClicked(textToRead)
