@@ -109,7 +109,9 @@ class DataProcess
             }
         }
 
-        private fun outputsToNPMSPredictions(outputs: Array<*>): ArrayList<Result> {
+        private fun outputsToNPMSPredictions(
+            outputs: Array<*>,
+        ): ArrayList<Result> {
             val confidenceThreshold = 0.35f
             val results = ArrayList<Result>()
             val rows: Int
