@@ -21,7 +21,6 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
@@ -307,7 +306,7 @@ fun ARSceneComposable(
                 if (frameCounter % 120 == 0 && !isProcessingImage) {
                     isProcessingImage = true
 
-                    coroutineScope.launch(Dispatchers.IO) {
+                    imageProcessingScope.launch(Dispatchers.IO) {
                         var image: Image? = null
                         try {
                             // 이미지 획득
@@ -487,18 +486,6 @@ fun ARSceneComposable(
                     },
                 ),
         )
-
-        Column(modifier = Modifier.padding(16.dp)) {
-            if (detectionResults.isNotEmpty()) {
-                Text("Detected Objects:", color = Color.Black)
-                detectionResults.forEach { result ->
-                    Text(
-                        text = "Class: ${dataProcess.classes[result.classIndex]}, Score: ${result.score}",
-                        color = Color.Black,
-                    )
-                }
-            }
-        }
 
         Column {
             Box(

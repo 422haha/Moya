@@ -46,7 +46,7 @@ interface ExplorationApi {
         @Body body: ExplorationEndRequestBody,
     ): Response<ResponseBody<ExplorationEndData>>
 
-    @POST("/explorations/{explorationId}/camera")
+    @POST("/exploration/{explorationId}/camera")
     suspend fun registerSpecies(
         @Path("explorationId") explorationId: Long,
         @Body body: RegisterSpeciesRequestBody,

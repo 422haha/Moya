@@ -148,11 +148,13 @@ class ARViewModel @Inject constructor(
                                 onError: (String) -> Unit) {
         viewModelScope.launch {
             explorationRepository.registerSpecies(explorationId, body).collect { response ->
+                Log.d("TAG", "ARSceneComposable3: $response")
                 when(response) {
                     is ApiResponse.Success -> {
                         response.body?.let { onSuccess(it) }
                     }
                     is ApiResponse.Error -> {
+                        Log.d("TAG", "ARSceneComposable4: ${response.errorMessage}")
                         onError(response.errorMessage ?: "Unknown error")
                     }
                 }
