@@ -127,8 +127,8 @@ class ARLocationManager(
         nearestDistance: Float?,
         location: Location?
     ): Boolean {
-        return ((location?.accuracy ?: 100.0f) <= 15f
-                && (nearestDistance ?: 100f) <= 10f)
+        return ((location?.accuracy ?: 100.0f) <= 50f
+                && (nearestDistance ?: 100f) <= 100f)
     }
 
     private fun Context.checkLocationPermission(): Boolean {

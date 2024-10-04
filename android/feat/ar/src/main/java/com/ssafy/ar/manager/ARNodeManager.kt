@@ -41,19 +41,21 @@ class ARNodeManager {
     ) = mutex.withLock {
         if(childNodes.any { it.name == questInfo.id.toString() }) return@withLock
 
-        val anchorNode = createAnchorNode(
-            questInfo.id,
-            questInfo.isComplete,
-            questInfo.npcId,
-            plane.createAnchor(pose),
-            engine,
-            modelLoader,
-            materialLoader
-        ).apply { name = questInfo.id.toString() }
+        withContext(Dispatchers.Main) {
+            val anchorNode = createAnchorNode(
+                questInfo.id,
+                questInfo.isComplete,
+                questInfo.npcId,
+                plane.createAnchor(pose),
+                engine,
+                modelLoader,
+                materialLoader
+            ).apply { name = questInfo.id.toString() }
 
-        childNodes.add(anchorNode)
+            childNodes.add(anchorNode)
 
-        onSuccess()
+            onSuccess()
+        }
     }
 
     private fun createImageNode(state: QuestState, materialLoader: MaterialLoader): ImageNode {
@@ -66,7 +68,7 @@ class ARNodeManager {
     }
 
     // 앵커노드 생성
-    private suspend fun createAnchorNode(
+    private fun createAnchorNode(
         id: Long,
         questState: QuestState,
         npcId: Long,
@@ -74,10 +76,10 @@ class ARNodeManager {
         engine: Engine,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
-    ): AnchorNode = withContext(Dispatchers.Main) {
+    ): AnchorNode {
         val stateNpcId = if(questState != QuestState.WAIT) npcId else 0
 
-        val url = ModelType.fromId(stateNpcId).modelUrl
+        val url = ModelType.fromLong(stateNpcId).modelUrl
 
         val imageNode = createImageNode(questState, materialLoader)
 
@@ -106,18 +108,18 @@ class ARNodeManager {
 
         anchorNode.addChildNode(modelNode)
 
-        anchorNode
+        return anchorNode
     }
 
     // 앵커노드 업데이트 (시작전 -> 진행중)
-    suspend fun updateAnchorNode(
+    fun updateAnchorNode(
         id: Long,
         modelUrl: String,
         childNode: ModelNode,
         parentNode: AnchorNode,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
-    ) = withContext(Dispatchers.Main) {
+    ) {
         parentNode.removeChildNode(childNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
                 modelUrl,

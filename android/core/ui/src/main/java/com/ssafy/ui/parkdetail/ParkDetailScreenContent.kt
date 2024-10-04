@@ -1,23 +1,19 @@
 package com.ssafy.ui.parkdetail
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
-import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
-import com.ssafy.ui.component.EncycCardState
 import androidx.compose.ui.unit.dp
+import com.ssafy.ui.component.BackButton
+import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.FindButton
 import com.ssafy.ui.component.LoadingScreen
@@ -47,14 +43,9 @@ fun ParkDetailScreenContent(
                         ImageSection(imageUrl = "")
                     }
                 }
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
-                    contentDescription = "back",
-                    modifier =
-                        Modifier
-                            .padding(16.dp)
-                            .size(32.dp)
-                            .clickable { onIntent(ParkDetailUserIntent.OnPop) },
+                BackButton(
+                    modifier = Modifier.padding(16.dp),
+                    onClick = { onIntent(ParkDetailUserIntent.OnPop) },
                 )
             }
         },
@@ -116,9 +107,9 @@ fun ParkDetailScreenLoaded(
                     Text(
                         text = state.parkName,
                         modifier =
-                            Modifier
-                                .padding(horizontal = 16.dp)
-                                .padding(top = 8.dp),
+                        Modifier
+                            .padding(horizontal = 16.dp)
+                            .padding(top = 8.dp),
                         style = customTypography.titleLarge,
                     )
                     TitleAndDividerSection("공원 소개")

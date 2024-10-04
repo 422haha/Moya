@@ -1,5 +1,6 @@
 package com.ssafy.moya
 
+import android.Manifest
 import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
@@ -12,39 +13,53 @@ import com.ssafy.main.encyclopedia.EncycScreen
 import com.ssafy.main.exploredetail.ExploreDetailScreen
 import com.ssafy.main.explorelist.ExploreListScreen
 import com.ssafy.main.explorestart.ExploreStartScreen
-import com.ssafy.main.home.HomeScreen
 import com.ssafy.main.login.LoginScreen
 import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
+import com.ssafy.main.util.MultiplePermissionHandler
+import com.ssafy.moya.navigation.MainBottomNavigation
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper,
-    sttHelper: STTHelper
+    sttHelper: STTHelper,
 ) {
+    MultiplePermissionHandler(
+        permissions =
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+    ) {}
+
     // TODO startDestination 추후에 loin화면으로 수정
     NavHost(navController = navController, startDestination = Home) {
         composable<Home> {
-            HomeScreen(
+            MainBottomNavigation(
                 onNavigateToParkList = {
                     navController.navigate(ParkList)
                 },
                 onNavigateToParkDetail = { id ->
-                    navController.navigate(ParkDetail(itemId = id))
+                    navController.navigate(ParkDetail(parkId = id))
                 },
-                onNavigateToEncyc = { id ->
-                    navController.navigate(EncycDetail(itemId = id))
-                }
+                onNavigateToEncycDetail = { id ->
+                    navController.navigate(EncycDetail(encycId = id))
+                },
             )
         }
         composable<ExploreList> {
-            ExploreListScreen(onExploreItemClick = { itemId ->
-                navController.navigate(ExploreDetail(itemId))
-            }, onPop = {
-                navController.popBackStack()
-            })
+            ExploreListScreen(
+                page = 1,
+                size = 3,
+                onExploreItemClick = { itemId ->
+                    navController.navigate(ExploreDetail(itemId))
+                },
+                onPop = {
+                    navController.popBackStack()
+                },
+            )
         }
         composable<ParkList> {
             ParkListScreen(onParkItemClick = { itemId ->
@@ -60,10 +75,10 @@ fun MainNavigation(
                 navController.popBackStack()
             })
         }
-        composable<ParkDetail> {
-            val parkDetail = it.toRoute<ParkDetail>()
+        composable<ParkDetail> { navBackStackEntry ->
+            val parkDetail = navBackStackEntry.toRoute<ParkDetail>()
             ParkDetailScreen(
-                parkId = parkDetail.itemId,
+                parkId = parkDetail.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
                 },
@@ -71,26 +86,41 @@ fun MainNavigation(
                     navController.popBackStack()
                 },
                 onEnterExplore = {
-                    navController.navigate(ExploreStart(parkId = parkDetail.itemId))
+                    navController.navigate(ExploreStart(parkId = parkDetail.parkId))
                 },
             )
         }
         composable<Encyc> {
-            EncycScreen(onNavigateToEncycDetail = { itemId ->
-                navController.navigate(EncycDetail(itemId))
-            }, onPop = {
-                navController.popBackStack()
-            })
+            val route = it.toRoute<Encyc>()
+            EncycScreen(
+                isDialog = false,
+                parkId = route.parkId,
+                onNavigateToEncycDetail = { itemId ->
+                    navController.navigate(EncycDetail(itemId))
+                },
+                onPop = {
+                    navController.popBackStack()
+                },
+            )
         }
         // TODO 추후에 찾으러가기 버튼을 눌렀을 때 해당하는 동식물을 찾으러 가는 네비게이션 추가
         composable<EncycDetail> {
-            EncycDetailScreen(onPop = {
-                navController.popBackStack()
-            }, onTTSClicked = { fullText ->
-                ttsHelper.speak(fullText)
-            }, onTTSShutDown = {
-                ttsHelper.shutdown()
-            })
+            val item = it.toRoute<EncycDetail>()
+            EncycDetailScreen(
+                itemId = item.encycId,
+                onPop = {
+                    navController.popBackStack()
+                },
+                onTTSClicked = { fullText ->
+                    ttsHelper.speak(fullText)
+                },
+                onTTSShutDown = {
+                    ttsHelper.shutdown()
+                },
+                onTTSReStart = {
+                    ttsHelper.reStart()
+                }
+            )
         }
         composable<ExploreStart> {
             val exploreStart = it.toRoute<ExploreStart>()
@@ -103,16 +133,17 @@ fun MainNavigation(
                         popUpTo(Home) { inclusive = true }
                     }
                 },
-                onEnterEncyc = {
-                    navController.navigate(Encyc)
+                onEnterEncyc = { parkId ->
+                    navController.navigate(Encyc(parkId))
                 },
-                onEnterAR = {
-                    navController.navigate(ARCamera)
-                }
+                onEnterAR = { id ->
+                    navController.navigate(ARCamera(explrationId = id))
+                },
             )
         }
-        composable<ARCamera> {
-            ARSceneComposable( onPermissionDenied = {} )
+        composable<ARCamera> { navBackStackEntry ->
+            val route = navBackStackEntry.toRoute<ARCamera>()
+            ARSceneComposable(explorationId = route.explrationId, onPermissionDenied = {})
         }
         composable<Login> {
             LoginScreen(

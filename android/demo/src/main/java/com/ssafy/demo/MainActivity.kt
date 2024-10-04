@@ -25,6 +25,7 @@ class MainActivity : ComponentActivity() {
             MoyaTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ARSceneComposable(
+                        7,
                         onPermissionDenied = { }
                     )
                 }

@@ -20,7 +20,7 @@ fun HomeScreen(
     viewModel: HomeScreenViewModel = hiltViewModel(),
     onNavigateToParkList: () -> Unit,
     onNavigateToParkDetail: (id: Long) -> Unit,
-    onNavigateToEncyc: (id: Long) -> Unit,
+    onNavigateToEncycDetail: (id: Long) -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
@@ -53,7 +53,7 @@ fun HomeScreen(
                 is HomeUserIntent.OnNavigateToParkList -> onNavigateToParkList()
                 is HomeUserIntent.OnSelectPopularPark -> onNavigateToParkDetail(intent.id)
                 is HomeUserIntent.OnSelectClosePark -> onNavigateToParkDetail(intent.id)
-                is HomeUserIntent.OnSelectEncyc -> onNavigateToEncyc(intent.id)
+                is HomeUserIntent.OnSelectEncyc -> onNavigateToEncycDetail(intent.id)
                 else -> viewModel.onIntent(intent)
             }
         },

@@ -1,13 +1,30 @@
 package com.ssafy.ar.ui
 
+import ai.onnxruntime.OrtEnvironment
+import ai.onnxruntime.OrtSession
 import android.Manifest
+import android.graphics.Bitmap
+import android.graphics.BitmapFactory
+import android.graphics.ImageFormat
+import android.graphics.Rect
+import android.graphics.YuvImage
+import android.media.Image
+import android.util.Log
+import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -16,7 +33,9 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalConfiguration
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -26,11 +45,18 @@ import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.google.ar.core.TrackingFailureReason
+import com.gowtham.ratingbar.RatingBar
+import com.gowtham.ratingbar.RatingBarConfig
+import com.gowtham.ratingbar.RatingBarStyle
+import com.gowtham.ratingbar.StepSize
 import com.ssafy.ar.ARViewModel
+import com.ssafy.ar.R
 import com.ssafy.ar.data.QuestState
-import com.ssafy.ar.data.QuestType
+import com.ssafy.ar.data.SpeciesType
 import com.ssafy.ar.data.getImageResource
+import com.ssafy.ar.data.scripts
 import com.ssafy.ar.util.MultiplePermissionsHandler
+import com.ssafy.moya.ai.DataProcess
 import io.github.sceneview.ar.ARScene
 import io.github.sceneview.ar.arcore.isTrackingPlane
 import io.github.sceneview.ar.arcore.isValid
@@ -45,13 +71,21 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.ByteArrayOutputStream
+import java.io.File
+import java.io.FileOutputStream
+import java.text.SimpleDateFormat
+import java.util.Date
 
 private const val TAG = "ArScreen"
 
 @Composable
 fun ARSceneComposable(
-    onPermissionDenied: () -> Unit
+    explorationId: Long,
+    onPermissionDenied: () -> Unit,
 ) {
     // Screen Size
     val configuration = LocalConfiguration.current
@@ -65,6 +99,7 @@ fun ARSceneComposable(
     // LifeCycle
     val viewModel: ARViewModel = hiltViewModel()
     val coroutineScope = rememberCoroutineScope()
+    val imageProcessingScope = remember { CoroutineScope(Dispatchers.Default + SupervisorJob()) }
 
     // Permission
     var hasPermission by remember { mutableStateOf(false) }
@@ -82,29 +117,147 @@ fun ARSceneComposable(
 
     // AR State
     val questInfos by viewModel.questInfos.collectAsState()
-    val scriptInfos by viewModel.scriptInfos.collectAsState()
     val nearestQuestInfo by viewModel.nearestQuestInfo.collectAsState()
+
+    // RatingBar
+    val rating by viewModel.rating.collectAsState()
+    var showRating by remember { mutableStateOf(true) }
+    val animatedRating by animateFloatAsState(
+        targetValue = if (showRating) rating else 0f,
+        label = "Rating Animation",
+    )
 
     // Dialog & SnackBar
     val showDialog by viewModel.showDialog.collectAsState()
     val dialogData by viewModel.dialogData.collectAsState()
     val snackBarHostState = remember { SnackbarHostState() }
 
+    val context = LocalContext.current
+
+    // AI 모델 초기화 및 세션 설정
+    val dataProcess = remember { DataProcess(context = context) }
+    val ortEnvironment = remember { OrtEnvironment.getEnvironment() }
+    var ortSession by remember { mutableStateOf<OrtSession?>(null) }
+
+    var detectionResults by remember { mutableStateOf(listOf<Result>()) }
+
+    var frameCounter = 0
+    var isProcessingImage = false
+    var filePath by remember { mutableStateOf<String?>(null) }
+
+    LaunchedEffect(detectionResults) {
+        // 도감 등록
+        detectionResults.forEach {
+            viewModel.registerSpecies(explorationId,
+                RegisterSpeciesRequestBody(
+                    (it.classIndex + 1).toLong(),
+                    "",
+                    viewModel.locationManager.currentLocation.value?.latitude ?: 0.0,
+                    viewModel.locationManager.currentLocation.value?.longitude ?: 0.0),
+                onSuccess = {
+                    coroutineScope.launch {
+                        Log.d(TAG, "ARSceneComposable: 성공 ${detectionResults.size}")
+                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                    }
+                },
+                onError = {
+                    coroutineScope.launch {
+                        Log.d(TAG, "ARSceneComposable1: 실패 ${detectionResults.size}")
+                        Log.d(TAG, "ARSceneComposable2: 실패 ${it}")
+                        snackBarHostState.showSnackbar(it)
+                    }
+                })
+        }
+
+        // 미션 등록
+        val detectedClassIndexes = detectionResults.map { it.classIndex }
+
+        val progressQuests = questInfos
+            .filter { (_, questInfo) -> questInfo.isComplete == QuestState.PROGRESS }
+            .map { it.value }
+
+        val completeQuests = progressQuests.filter { quest ->
+            quest.speciesId.toInt() in detectedClassIndexes
+        }
+
+        completeQuests.firstOrNull()?.let {
+            coroutineScope.launch {
+                val anchorId: Long = it.id
+
+                val modelNode: ModelNode? = childNodes
+                    .flatMap { it.childNodes }
+                    .filterIsInstance<ModelNode>().firstOrNull { it.name == anchorId.toString() }
+
+                modelNode?.let {
+                    val result =
+                        viewModel.completeQuest(
+                            explorationId,
+                            anchorId,
+                        )
+                    when (result) {
+                        true -> {
+                            viewModel.updateQuestState(
+                                anchorId,
+                                QuestState.COMPLETE,
+                            )
+
+                            val imageNode =
+                                modelNode.childNodes
+                                    .filterIsInstance<ImageNode>()
+                                    .firstOrNull()
+
+                            imageNode?.let {
+                                viewModel.updateModelNode(
+                                    imageNode,
+                                    modelNode,
+                                    materialLoader,
+                                )
+                            }
+
+                            snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                        }
+
+                        false -> snackBarHostState.showSnackbar("알 수 없는 오류가 발생했습니다.")
+                    }
+                }
+            }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            imageProcessingScope.cancel()
+            coroutineScope.cancel()
+        }
+    }
+
     MultiplePermissionsHandler(
-        permissions = listOf(
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION
-        )
+        permissions =
+            listOf(
+                Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+            ),
     ) { permissionResults ->
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
 
             viewModel.locationManager.startLocationUpdates()
 
-            // TODO
-            viewModel.getAllQuests(0)
+            viewModel.getAllQuests(explorationId)
 
-            viewModel.getAllScripts()
+            imageProcessingScope.launch {
+                withContext(Dispatchers.IO) {
+                    dataProcess.loadModel()
+
+                    ortSession =
+                        ortEnvironment.createSession(
+                            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+                            OrtSession.SessionOptions(),
+                        )
+
+                    dataProcess.loadLabel()
+                }
+            }
         } else {
             hasPermission = false
 
@@ -139,156 +292,248 @@ fun ARSceneComposable(
             planeRenderer = planeRenderer,
             onTrackingFailureChanged = { trackingFailureReason = it },
             onSessionUpdated = { session, frame ->
-                if (trackingFailureReason == null) {
-                    val desiredPlaneFindingMode =
-                        if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false)
-                            Config.PlaneFindingMode.HORIZONTAL
-                        else
-                            Config.PlaneFindingMode.DISABLED
+                frameCounter++
+                if (frameCounter % 120 == 0 && !isProcessingImage) {
+                    isProcessingImage = true
 
-                    if (desiredPlaneFindingMode != session.config.planeFindingMode) {
-                        session.configure(session.config.apply {
-                            setPlaneFindingMode(desiredPlaneFindingMode)
-                        })
+                    imageProcessingScope.launch(Dispatchers.IO) {
+                        var image: Image? = null
+                        try {
+                            // 이미지 획득
+                            image = frame.acquireCameraImage()
+
+                            // 이미지 변환 (백그라운드 스레드)
+                            val bitmap = imageToBitmap(image)
+
+                            // AI 처리
+                            ortSession?.let { session ->
+                                val results =
+                                    dataProcess.processImage(bitmap, ortEnvironment, session)
+
+                                // 로컬에 이미지 저장
+                                if (results.isNotEmpty()) {
+                                    val fileName = generateUniqueFileName()
+                                    val file = File(context.filesDir, fileName)
+                                    saveImageToInternalStorage(image, file)
+                                    filePath = file.absolutePath
+                                }
+
+                                // 결과를 메인 스레드에서 업데이트
+                                withContext(Dispatchers.Main) {
+                                    detectionResults = results
+
+                                    Log.d("DataProcess", "인식 결과 : $detectionResults")
+                                }
+                            }
+                        } catch (e: Exception) {
+                            // 예외 처리
+                            Log.e("errorInAR", e.toString())
+                        } finally {
+                            // 이미지 닫기 및 상태 업데이트
+                            image?.close()
+                            isProcessingImage = false
+                        }
                     }
                 }
 
-                if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
-                    nearestQuestInfo.npc?.let { quest ->
-                        val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                if(frameCounter % 30 == 0) {
+                    if (trackingFailureReason == null) {
+                        val desiredPlaneFindingMode =
+                            if (nearestQuestInfo.shouldPlace || childNodes.lastOrNull()?.isVisible == false) {
+                                Config.PlaneFindingMode.HORIZONTAL
+                            } else {
+                                Config.PlaneFindingMode.DISABLED
+                            }
 
-                        if (planeAndPose != null) {
-                            val (plane, pose) = planeAndPose
+                        if (desiredPlaneFindingMode != session.config.planeFindingMode) {
+                            session.configure(
+                                session.config.apply {
+                                    setPlaneFindingMode(desiredPlaneFindingMode)
+                                },
+                            )
+                        }
+                    }
 
-                            if (childNodes.all { it.name != quest.id.toString() }) {
-                                viewModel.placeNode(
-                                    plane,
-                                    pose,
-                                    quest,
-                                    engine,
-                                    modelLoader,
-                                    materialLoader,
-                                    childNodes
-                                )
+                    if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
+                        nearestQuestInfo.npc?.let { quest ->
+                            val planeAndPose = findPlaneInView(frame, widthPx, heightPx, frame.camera)
+
+                            if (planeAndPose != null) {
+                                val (plane, pose) = planeAndPose
+
+                                if (childNodes.all { it.name != quest.id.toString() }) {
+                                    viewModel.placeNode(
+                                        plane,
+                                        pose,
+                                        quest,
+                                        engine,
+                                        modelLoader,
+                                        materialLoader,
+                                        childNodes,
+                                    )
+                                }
                             }
                         }
                     }
                 }
             },
-            onGestureListener = rememberOnGestureListener(
-                onSingleTapConfirmed = { motionEvent, node ->
-                    if (node is ModelNode || node?.parent is ModelNode) {
-                        val modelNode = if (node is ModelNode) node else node.parent as? ModelNode
+            onGestureListener =
+                rememberOnGestureListener(
+                    onSingleTapConfirmed = { motionEvent, node ->
+                        if (node is ModelNode || node?.parent is ModelNode) {
+                            val modelNode =
+                                if (node is ModelNode) node else node.parent as? ModelNode
 
-                        val anchorNode = modelNode?.parent as? AnchorNode
+                            val anchorNode = modelNode?.parent as? AnchorNode
 
-                        val anchorId = anchorNode?.name?.toLong()
+                            val anchorId = anchorNode?.name?.toLong()
 
-                        if (anchorId != null) {
-                            val quest = questInfos[anchorId]
+                            if (anchorId != null) {
+                                val quest = questInfos[anchorId]
 
-                            quest?.let {
-                                when (val state = quest.isComplete) {
-                                    // 퀘스트 진행전
-                                    QuestState.WAIT -> {
-                                        viewModel.showQuestDialog(
-                                            scriptInfos[quest.questType],
-                                            state
-                                        ) { accepted ->
-                                            if (accepted) {
-                                                viewModel.updateQuestState(
-                                                    anchorId,
-                                                    QuestState.PROGRESS
-                                                ).apply {
+                                quest?.let {
+                                    when (quest.isComplete) {
+                                        // 퀘스트 진행전
+                                        QuestState.WAIT -> {
+                                            viewModel.showQuestDialog(
+                                                quest,
+                                            ) { accepted ->
+                                                if (accepted) {
+                                                    viewModel.updateQuestState(
+                                                        anchorId,
+                                                        QuestState.PROGRESS,
+                                                    )
+
                                                     viewModel.updateAnchorNode(
                                                         quest,
                                                         modelNode,
                                                         anchorNode,
                                                         modelLoader,
-                                                        materialLoader
+                                                        materialLoader,
                                                     )
-
-                                                    viewModel.locationManager.currentLocation.value?.let {
-                                                        viewModel.updateNearestNPC(it)
-                                                    }
                                                 }
                                             }
                                         }
-                                    }
-                                    // 퀘스트 진행중
-                                    QuestState.PROGRESS -> {
-                                        viewModel.showQuestDialog(
-                                            scriptInfos[quest.questType],
-                                            state
-                                        ) { accepted ->
-                                            if (accepted) {
-                                                // TODO 온디바이스 AI로 검사
-                                                viewModel.updateQuestState(
-                                                    anchorId,
-                                                    QuestState.COMPLETE
-                                                ).apply {
-                                                    val imageNode = modelNode.childNodes
-                                                        .filterIsInstance<ImageNode>()
-                                                        .firstOrNull()
-
-                                                    imageNode?.let {
-                                                        viewModel.updateModelNode(
-                                                            imageNode,
-                                                            modelNode,
-                                                            materialLoader
-                                                        )
-                                                    }
-
-                                                    viewModel.locationManager.currentLocation.value?.let {
-                                                        viewModel.updateNearestNPC(it)
-                                                    }
-
+                                        // 퀘스트 진행중
+                                        QuestState.PROGRESS -> {
+                                            viewModel.showQuestDialog(
+                                                quest,
+                                            ) { accepted ->
+                                                if (accepted) {
+                                                    // TODO 온디바이스 AI로 검사
                                                     coroutineScope.launch {
-                                                        snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                        val result =
+                                                            viewModel.completeQuest(
+                                                                explorationId,
+                                                                anchorId,
+                                                            )
+
+                                                        when (result) {
+                                                            true -> {
+                                                                viewModel.updateQuestState(
+                                                                    anchorId,
+                                                                    QuestState.COMPLETE,
+                                                                )
+
+                                                                val imageNode =
+                                                                    modelNode.childNodes
+                                                                        .filterIsInstance<ImageNode>()
+                                                                        .firstOrNull()
+
+                                                                imageNode?.let {
+                                                                    viewModel.updateModelNode(
+                                                                        imageNode,
+                                                                        modelNode,
+                                                                        materialLoader,
+                                                                    )
+                                                                }
+
+                                                                snackBarHostState.showSnackbar("퀘스트가 완료되었습니다!")
+                                                            }
+
+                                                            false ->
+                                                                snackBarHostState.showSnackbar(
+                                                                    "알 수 없는 오류가 발생했습니다.",
+                                                                )
+                                                        }
                                                     }
                                                 }
                                             }
                                         }
-                                    }
-                                    // 퀘스트 완료
-                                    QuestState.COMPLETE -> {
-                                        coroutineScope.launch {
-                                            snackBarHostState.showSnackbar(
-                                                scriptInfos[quest.questType]?.completeMessage ?: ""
-                                            )
+                                        // 퀘스트 완료
+                                        QuestState.COMPLETE -> {
+                                            coroutineScope.launch {
+                                                snackBarHostState.showSnackbar(
+                                                    scripts[quest.questType]?.completeMessage ?: "",
+                                                )
+                                            }
                                         }
                                     }
                                 }
                             }
                         }
-                    }
-                })
+                    },
+                ),
         )
 
         Column {
-            CustomCard(
-                imageUrl = QuestType.fromInt(nearestQuestInfo.npc?.questType ?: 0)
-                    ?.getImageResource() ?: 0,
-                title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
-                state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
-                distanceText = "${
-                    nearestQuestInfo.distance?.let {
-                        if (nearestQuestInfo.shouldPlace)
-                            "목적지 도착!"
-                        else
-                            "%.2f m".format(it)
-                    } ?: "검색중.."
-                } ")
+            Box(
+                modifier =
+                    Modifier
+                        .padding(top = 60.dp, start = 40.dp, end = 40.dp),
+            ) {
+                CustomCard(
+                    imageUrl =
+                        SpeciesType
+                            .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                            ?.getImageResource() ?: (R.drawable.maple),
+                    title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
+                    state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
+                    distanceText = "${
+                        nearestQuestInfo.distance?.let {
+                            if (nearestQuestInfo.shouldPlace) {
+                                "목적지 도착!"
+                            } else {
+                                "%.2f m".format(it)
+                            }
+                        } ?: "검색중.."
+                    } ",
+                )
+                Card(
+                    modifier =
+                    Modifier
+                        .offset(y = (-20).dp)
+                        .align(Alignment.TopCenter),
+                    elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
+                    colors = CardDefaults.cardColors(containerColor = Color.Gray),
+                ) {
+                    RatingBar(
+                        value = animatedRating,
+                        config =
+                            RatingBarConfig()
+                                .isIndicator(true)
+                                .stepSize(StepSize.HALF)
+                                .numStars(3)
+                                .size(28.dp)
+                                .inactiveColor(Color.LightGray)
+                                .style(RatingBarStyle.Normal),
+                        onValueChange = { },
+                        onRatingChanged = { },
+                        modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
+                    )
+                }
+            }
+
             ArStatusText(
                 trackingFailureReason = trackingFailureReason,
                 isAvailable = nearestQuestInfo.shouldPlace,
-                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) }
+                isPlace = nearestQuestInfo.npc?.id?.let { viewModel.getIsPlaceQuest(it) },
             )
         }
 
         SnackbarHost(
             hostState = snackBarHostState,
-            modifier = Modifier.align(Alignment.BottomCenter)
+            modifier = Modifier.align(Alignment.BottomCenter),
         ) { snackbarData ->
             Snackbar(snackbarData = snackbarData)
         }
@@ -296,34 +541,99 @@ fun ARSceneComposable(
 
     if (showDialog) {
         QuestDialog(
-            script = dialogData.first,
-            state = dialogData.second,
+            dialogData,
             onConfirm = { viewModel.onDialogConfirm() },
-            onDismiss = { viewModel.onDialogDismiss() }
+            onDismiss = { viewModel.onDialogDismiss() },
         )
     }
+}
+
+fun imageToNV21(image: Image): ByteArray {
+    val planes = image.planes
+    val yBuffer = planes[0].buffer
+    val uBuffer = planes[1].buffer
+    val vBuffer = planes[2].buffer
+
+    val ySize = yBuffer.remaining()
+    val uSize = uBuffer.remaining()
+    val vSize = vBuffer.remaining()
+
+    // YUV 데이터를 하나의 배열로 합침
+    val nv21 = ByteArray(ySize + uSize + vSize)
+    yBuffer.get(nv21, 0, ySize)
+    vBuffer.get(nv21, ySize, vSize)
+    uBuffer.get(nv21, ySize + vSize, uSize)
+
+    return nv21
+}
+
+// Bitmap으로 변환
+suspend fun imageToBitmap(image: Image): Bitmap =
+    withContext(Dispatchers.Default) {
+        val nv21 = imageToNV21(image)
+
+        // NV21 포맷을 Bitmap으로 변환
+        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
+        val out = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, out)
+        val imageBytes = out.toByteArray()
+
+        // JPEG로 변환된 데이터를 Bitmap으로 디코딩
+        return@withContext BitmapFactory.decodeByteArray(imageBytes, 0, imageBytes.size)
+    }
+
+// 내부 저장소에 이미지 저장
+suspend fun saveImageToInternalStorage(
+    image: Image,
+    file: File,
+): Boolean =
+    withContext(Dispatchers.IO) {
+        val nv21 = imageToNV21(image)
+
+        val yuvImage = YuvImage(nv21, ImageFormat.NV21, image.width, image.height, null)
+        val outStream = ByteArrayOutputStream()
+        yuvImage.compressToJpeg(Rect(0, 0, image.width, image.height), 100, outStream)
+        val imageBytes = outStream.toByteArray()
+
+        try {
+            FileOutputStream(file).use { output ->
+                output.write(imageBytes)
+            }
+            true
+        } catch (e: Exception) {
+            e.printStackTrace()
+            false
+        } finally {
+            image.close()
+        }
+    }
+
+fun generateUniqueFileName(): String {
+    val timeStamp: String = SimpleDateFormat("yyyyMMdd_HHmmss").format(Date())
+    return "captured_image_$timeStamp.jpg"
 }
 
 private fun findPlaneInView(
     frame: Frame,
     width: Int,
     height: Int,
-    camera: Camera
+    camera: Camera,
 ): Pair<Plane, Pose>? {
     val center = android.graphics.PointF(width / 2f, height / 2f)
     val hits = frame.hitTest(center.x, center.y)
 
-    val planeHit = hits.firstOrNull {
-        it.isValid(
-            depthPoint = true,
-            point = true,
-            planePoseInPolygon = true,
-            instantPlacementPoint = false,
-            minCameraDistance = Pair(camera, 0.5f),
-            predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
-            planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING)
-        )
-    }
+    val planeHit =
+        hits.firstOrNull {
+            it.isValid(
+                depthPoint = true,
+                point = true,
+                planePoseInPolygon = true,
+                instantPlacementPoint = false,
+                minCameraDistance = Pair(camera, 0.5f),
+                predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+                planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
+            )
+        }
 
     return planeHit?.let { hit ->
         val plane = hit.trackable as Plane
@@ -331,4 +641,3 @@ private fun findPlaneInView(
         Pair(plane, pose)
     }
 }
-
