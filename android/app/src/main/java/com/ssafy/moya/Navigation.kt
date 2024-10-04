@@ -117,6 +117,9 @@ fun MainNavigation(
                 onTTSShutDown = {
                     ttsHelper.shutdown()
                 },
+                onTTSReStart = {
+                    ttsHelper.reStart()
+                }
             )
         }
         composable<ExploreStart> {
