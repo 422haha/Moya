@@ -1,4 +1,4 @@
-package com.e22e.moya.user.service;
+package com.e22e.moya.user.service.user;
 
 import com.e22e.moya.common.entity.Users;
 import com.e22e.moya.user.dto.UserNameResponseDto;
@@ -18,8 +18,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Users findOrCreateUser(String email, String name, String oauthProvider, String oauthId,
-        String profileImageUrl) {
+    public Users findOrCreateUser(String email, String name,String profileImageUrl) {
         Optional<Users> user = userRepository.findByEmail(email);
 
         if (user.isPresent()) {
@@ -28,8 +27,6 @@ public class UserServiceImpl implements UserService {
             Users newUser = new Users();
             newUser.setEmail(email);
             newUser.setName(name);
-            newUser.setOauthProvider(oauthProvider);
-            newUser.setOauthId(oauthId);
             newUser.setProfileImageUrl(profileImageUrl);
             return userRepository.save(newUser);
         }
@@ -42,5 +39,12 @@ public class UserServiceImpl implements UserService {
             .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
 
         return new UserNameResponseDto(user.getName(), user.getProfileImageUrl());
+    }
+
+    @Override
+    public String getEmailById(Long userId) {
+        Users user = userRepository.findById(userId)
+            .orElseThrow(() -> new IllegalArgumentException("사용자를 찾을 수 없습니다."));
+        return user.getEmail();
     }
 }

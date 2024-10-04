@@ -16,7 +16,6 @@ import lombok.ToString;
 @AllArgsConstructor
 public class ChatRequestDto {
 
-    private Long npcId; // npc 위치에 대한 id
     private String message;
 
 

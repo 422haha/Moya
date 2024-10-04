@@ -1,6 +1,7 @@
 package com.e22e.moya.common.entity.species;
 
 import com.e22e.moya.common.entity.Discovery;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -33,10 +34,12 @@ public class Species {
     @Enumerated(EnumType.STRING)
     private Set<Season> visibleSeasons;
 
+    @JsonIgnore
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "species", cascade = CascadeType.ALL, orphanRemoval = true)
     @Exclude
     private List<ParkSpecies> parkSpecies = new ArrayList<>();

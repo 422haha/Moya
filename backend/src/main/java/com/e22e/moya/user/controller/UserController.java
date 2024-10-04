@@ -1,8 +1,12 @@
 package com.e22e.moya.user.controller;
 
+import com.e22e.moya.common.constants.JWTConstants;
 import com.e22e.moya.common.util.JwtUtil;
+import com.e22e.moya.user.dto.OAuthLoginRequestDto;
 import com.e22e.moya.user.dto.UserNameResponseDto;
-import com.e22e.moya.user.service.UserService;
+import com.e22e.moya.user.service.jwt.LoginSuccessService;
+import com.e22e.moya.user.service.oauth.OAuthLoginService;
+import com.e22e.moya.user.service.user.UserService;
 import java.util.HashMap;
 import java.util.Map;
 import lombok.extern.slf4j.Slf4j;
@@ -10,6 +14,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -21,10 +26,47 @@ public class UserController {
 
     private final JwtUtil jwtUtil;
     private final UserService userService;
+    private final OAuthLoginService oAuthLoginService;
+    private final LoginSuccessService loginSuccessService;
 
-    public UserController(JwtUtil jwtUtil, UserService userService) {
+    public UserController(JwtUtil jwtUtil, UserService userService,
+        OAuthLoginService oAuthLoginService, LoginSuccessService loginSuccessService) {
         this.jwtUtil = jwtUtil;
         this.userService = userService;
+        this.oAuthLoginService = oAuthLoginService;
+        this.loginSuccessService = loginSuccessService;
+    }
+
+    /**
+     * 로그인
+     *
+     * @param loginRequest 로그인 정보
+     * @return 로그인 처리 결과
+     */
+    @PostMapping("/login")
+    public ResponseEntity<Map<String, Object>> login(
+        @RequestBody OAuthLoginRequestDto loginRequest) {
+        log.info("OAuth 로그인 요청: provider={}", loginRequest.getProvider());
+
+        try {
+            Long userId = oAuthLoginService.loginUser(loginRequest.getProvider(),
+                loginRequest.getAccessToken());
+            String email = userService.getEmailById(userId);
+
+            Map<String, String> tokens = loginSuccessService.generateTokens(email);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "로그인 성공");
+            response.put("accessToken", tokens.get(JWTConstants.JWT_HEADER));
+            response.put("refreshToken", tokens.get(JWTConstants.REFRESH_TOKEN_HEADER));
+
+            return ResponseEntity.ok(response);
+        } catch (Exception e) {
+            log.error("로그인 실패: ", e);
+            Map<String, Object> response = new HashMap<>();
+            response.put("message", "로그인 실패: " + e.getMessage());
+            return ResponseEntity.badRequest().body(response);
+        }
     }
 
     /**
