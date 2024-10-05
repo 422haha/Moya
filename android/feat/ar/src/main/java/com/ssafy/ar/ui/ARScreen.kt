@@ -162,7 +162,6 @@ fun ARSceneComposable(
         Manifest.permission.CAMERA,
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.ACCESS_COARSE_LOCATION,
-        Manifest.permission.RECORD_AUDIO
     )
     val permissionLauncher = rememberLauncherForActivityResult(
         ActivityResultContracts.RequestPermission()
@@ -305,12 +304,7 @@ fun ARSceneComposable(
     }
 
     MultiplePermissionsHandler(
-        permissions =
-        listOf(
-            Manifest.permission.CAMERA,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-        ),
+        permissions = requiredPermissions,
     ) { permissionResults ->
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
