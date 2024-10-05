@@ -30,6 +30,7 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -87,6 +88,10 @@ class ARViewModel @Inject constructor(
     val dialogData: StateFlow<QuestInfo> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
 
+    // 등록시 보여 줄 다이얼로그
+    private val _registerDialog = MutableStateFlow(false)
+    val registerDialog = _registerDialog.asStateFlow()
+
     fun getIsPlaceQuest(id: Long): Boolean? {
         return _questInfos.value[id]?.isPlace
     }
@@ -142,16 +147,19 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun registerSpecies(explorationId: Long,
-                                body: RegisterSpeciesRequestBody,
-                                onSuccess: (SpeciesMinimumInfo) -> Unit,
-                                onError: (String) -> Unit) {
+    fun registerSpecies(
+        explorationId: Long,
+        body: RegisterSpeciesRequestBody,
+        onSuccess: (SpeciesMinimumInfo) -> Unit,
+        onError: (String) -> Unit
+    ) {
         viewModelScope.launch {
             explorationRepository.registerSpecies(explorationId, body).collect { response ->
-                when(response) {
+                when (response) {
                     is ApiResponse.Success -> {
                         response.body?.let { onSuccess(it) }
                     }
+
                     is ApiResponse.Error -> {
                         onError(response.errorMessage ?: "Unknown error")
                     }
@@ -308,6 +316,18 @@ class ARViewModel @Inject constructor(
         _dialogData.value = QuestInfo()
         dialogCallback?.invoke(false)
         dialogCallback = null
+    }
+
+    fun showRegisterDialog() {
+        _registerDialog.value = true
+        viewModelScope.launch {
+            delay(3000)
+            _registerDialog.value = false
+        }
+    }
+
+    fun onRegisterDialogDismiss() {
+        _registerDialog.value = false
     }
 
     override fun onCleared() {

@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.wrapContentSize
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Snackbar
@@ -32,6 +33,7 @@ import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.ar.core.Config
 import com.google.ar.core.TrackingFailureReason
@@ -83,6 +85,7 @@ fun ARSceneComposable(
     onTTSClicked: (String) -> Unit,
     onTTSShutDown: () -> Unit,
     onTTSReStart: () -> Unit,
+    onNavigateToEncyc: () -> Unit
 ) {
     // Screen Size
     val configuration = LocalConfiguration.current
@@ -140,6 +143,9 @@ fun ARSceneComposable(
     var frameCounter = 0
     var isProcessingImage = false
     val registeredSpecies = mutableSetOf<Int>()
+    var filePath by remember { mutableStateOf("") }
+
+    val showRegisterDialog by viewModel.registerDialog.collectAsState()
 
     LaunchedEffect(detectionResults) {
         // 도감 등록
@@ -156,6 +162,7 @@ fun ARSceneComposable(
                 ),
                 onSuccess = { result ->
                     registeredSpecies.add((result.speciesId - 1).toInt())
+                    viewModel.showRegisterDialog()
                     coroutineScope.launch {
                         snackBarHostState.showSnackbar("도감에 등록되었습니다!")
                     }
@@ -236,10 +243,10 @@ fun ARSceneComposable(
 
     MultiplePermissionsHandler(
         permissions =
-            listOf(
-                Manifest.permission.ACCESS_FINE_LOCATION,
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-            ),
+        listOf(
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        ),
     ) { permissionResults ->
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
@@ -313,13 +320,14 @@ fun ARSceneComposable(
                                 val results =
                                     dataProcess.processImage(bitmap, ortEnvironment, session)
 
-                                var updatedResults = results
+                                val updatedResults: List<Result>
 
                                 // 로컬에 이미지 저장
                                 if (results.isNotEmpty()) {
                                     val fileName = generateUniqueFileName()
                                     val file = File(context.filesDir, fileName)
                                     saveImageToInternalStorage(image, file)
+                                    filePath = file.absolutePath
 
                                     Log.d(TAG, "ARSceneComposable: ${file.absolutePath}")
                                     updatedResults =
@@ -363,7 +371,12 @@ fun ARSceneComposable(
                 if (frame.isTrackingPlane() && nearestQuestInfo.shouldPlace) {
                     nearestQuestInfo.npc?.let { quest ->
                         val planeAndPose =
-                            viewModel.nodeManager.findPlaneInView(frame, widthPx, heightPx, frame.camera)
+                            viewModel.nodeManager.findPlaneInView(
+                                frame,
+                                widthPx,
+                                heightPx,
+                                frame.camera
+                            )
 
                         if (planeAndPose != null) {
                             val (plane, pose) = planeAndPose
@@ -384,77 +397,78 @@ fun ARSceneComposable(
                 }
             },
             onGestureListener =
-                rememberOnGestureListener(
-                    onSingleTapConfirmed = { motionEvent, node ->
-                        if (node is ModelNode || node?.parent is ModelNode) {
-                            val modelNode =
-                                if (node is ModelNode) node else node.parent as? ModelNode
+            rememberOnGestureListener(
+                onSingleTapConfirmed = { motionEvent, node ->
+                    if (node is ModelNode || node?.parent is ModelNode) {
+                        val modelNode =
+                            if (node is ModelNode) node else node.parent as? ModelNode
 
-                            val anchorNode = modelNode?.parent as? AnchorNode
+                        val anchorNode = modelNode?.parent as? AnchorNode
 
-                            val anchorId = anchorNode?.name?.toLong()
+                        val anchorId = anchorNode?.name?.toLong()
 
-                            if (anchorId != null) {
-                                val quest = questInfos[anchorId]
+                        if (anchorId != null) {
+                            val quest = questInfos[anchorId]
 
-                                quest?.let {
-                                    when (quest.isComplete) {
-                                        // 퀘스트 진행전
-                                        QuestState.WAIT -> {
-                                            viewModel.showQuestDialog(
-                                                quest,
-                                            ) { accepted ->
-                                                if (accepted) {
-                                                    viewModel.updateQuestState(
-                                                        anchorId,
-                                                        QuestState.PROGRESS,
-                                                    )
+                            quest?.let {
+                                when (quest.isComplete) {
+                                    // 퀘스트 진행전
+                                    QuestState.WAIT -> {
+                                        viewModel.showQuestDialog(
+                                            quest,
+                                        ) { accepted ->
+                                            if (accepted) {
+                                                viewModel.updateQuestState(
+                                                    anchorId,
+                                                    QuestState.PROGRESS,
+                                                )
 
-                                                    viewModel.updateAnchorNode(
-                                                        quest,
-                                                        modelNode,
-                                                        anchorNode,
-                                                        modelLoader,
-                                                        materialLoader,
-                                                    )
-                                                }
-                                            }
-                                        }
-                                        // 퀘스트 진행중
-                                        QuestState.PROGRESS -> {
-                                            viewModel.showQuestDialog(
-                                                quest,
-                                            ) { accepted ->
-                                                if (accepted) { }
-                                            }
-                                        }
-                                        // 퀘스트 완료
-                                        QuestState.COMPLETE -> {
-                                            coroutineScope.launch {
-                                                snackBarHostState.showSnackbar(
-                                                    scripts[quest.questType]?.completeMessage ?: "",
+                                                viewModel.updateAnchorNode(
+                                                    quest,
+                                                    modelNode,
+                                                    anchorNode,
+                                                    modelLoader,
+                                                    materialLoader,
                                                 )
                                             }
+                                        }
+                                    }
+                                    // 퀘스트 진행중
+                                    QuestState.PROGRESS -> {
+                                        viewModel.showQuestDialog(
+                                            quest,
+                                        ) { accepted ->
+                                            if (accepted) {
+                                            }
+                                        }
+                                    }
+                                    // 퀘스트 완료
+                                    QuestState.COMPLETE -> {
+                                        coroutineScope.launch {
+                                            snackBarHostState.showSnackbar(
+                                                scripts[quest.questType]?.completeMessage ?: "",
+                                            )
                                         }
                                     }
                                 }
                             }
                         }
-                    },
-                ),
+                    }
+                },
+            ),
         )
 
         Column {
             Box(
                 modifier =
-                    Modifier
-                        .padding(top = 60.dp, start = 40.dp, end = 40.dp),
+                Modifier
+                    .padding(top = 60.dp, start = 40.dp, end = 40.dp),
             ) {
                 CustomCard(
                     imageUrl =
-                        SpeciesType
-                            .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
-                            ?.getImageResource() ?: (R.drawable.maple),
+                    SpeciesType
+                        .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                        ?.getImageResource() ?: (R.drawable.maple),
                     title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                     state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                     distanceText = "${
@@ -478,13 +492,13 @@ fun ARSceneComposable(
                     RatingBar(
                         value = animatedRating,
                         config =
-                            RatingBarConfig()
-                                .isIndicator(true)
-                                .stepSize(StepSize.HALF)
-                                .numStars(3)
-                                .size(28.dp)
-                                .inactiveColor(Color.LightGray)
-                                .style(RatingBarStyle.Normal),
+                        RatingBarConfig()
+                            .isIndicator(true)
+                            .stepSize(StepSize.HALF)
+                            .numStars(3)
+                            .size(28.dp)
+                            .inactiveColor(Color.LightGray)
+                            .style(RatingBarStyle.Normal),
                         onValueChange = { },
                         onRatingChanged = { },
                         modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -513,5 +527,15 @@ fun ARSceneComposable(
             onConfirm = { viewModel.onDialogConfirm() },
             onDismiss = { viewModel.onDialogDismiss() },
         )
+    }
+
+    if (showRegisterDialog) {
+        Dialog(onDismissRequest = { viewModel.onRegisterDialogDismiss() }) {
+            DialogRegist(
+                onDismiss = { viewModel.onRegisterDialogDismiss() },
+                image = filePath,
+                onConfirm = onNavigateToEncyc
+            )
+        }
     }
 }
