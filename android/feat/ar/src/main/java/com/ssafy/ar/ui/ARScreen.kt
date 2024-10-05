@@ -6,15 +6,19 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.Image
 import android.util.Log
+import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -36,13 +40,17 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
+import com.google.accompanist.systemuicontroller.rememberSystemUiController
 import com.google.ar.core.Config
 import com.google.ar.core.TrackingFailureReason
 import com.gowtham.ratingbar.RatingBar
@@ -101,6 +109,29 @@ fun ARSceneComposable(
     val density = LocalDensity.current
     val widthPx = with(density) { screenWidth.toPx() }.toInt()
     val heightPx = with(density) { screenHeight.toPx() }.toInt()
+
+    // 화면 채우기
+    val localView = LocalView.current
+    val window = (localView.context as ComponentActivity).window
+    val insetsController = WindowCompat.getInsetsController(window, localView)
+    val systemBarsPadding = WindowInsets.systemBars.asPaddingValues()
+
+    DisposableEffect(Unit) {
+        WindowCompat.setDecorFitsSystemWindows(window, false)
+
+        window.statusBarColor = Color.Transparent.toArgb()
+        window.navigationBarColor = Color.Transparent.toArgb()
+        insetsController.isAppearanceLightStatusBars = true
+        insetsController.isAppearanceLightNavigationBars = true
+
+        onDispose {
+            WindowCompat.setDecorFitsSystemWindows(window, true)
+            window.statusBarColor = Color.White.toArgb()
+            window.navigationBarColor = Color.White.toArgb()
+            insetsController.isAppearanceLightStatusBars = false
+            insetsController.isAppearanceLightNavigationBars = false
+        }
+    }
 
     // LifeCycle
     val context = LocalContext.current
@@ -480,7 +511,7 @@ fun ARSceneComposable(
                 Box(
                     modifier =
                     Modifier
-                        .padding(top = 40.dp, start = 40.dp, end = 40.dp),
+                        .padding(top = 60.dp, start = 40.dp, end = 40.dp),
                 ) {
                     CustomCard(
                         imageUrl =
