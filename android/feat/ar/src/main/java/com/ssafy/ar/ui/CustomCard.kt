@@ -64,14 +64,14 @@ fun CustomCard(
                     .fillMaxHeight(),
                 verticalArrangement = Arrangement.Center
             ) {
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = title,
-                    style = MaterialTheme.typography.titleMedium,
+                    style = MaterialTheme.typography.bodyLarge,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = distanceText,
                     style = MaterialTheme.typography.bodyMedium,
@@ -79,7 +79,7 @@ fun CustomCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-                Spacer(modifier = Modifier.height(4.dp))
+                Spacer(modifier = Modifier.height(8.dp))
                 Text(
                     text = state.type,
                     style = MaterialTheme.typography.bodyMedium,
