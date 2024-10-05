@@ -10,6 +10,9 @@ import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.WindowInsets
@@ -20,11 +23,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.systemBars
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -39,8 +46,10 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
@@ -486,10 +495,7 @@ fun ARSceneComposable(
                                         QuestState.PROGRESS -> {
                                             viewModel.showQuestDialog(
                                                 quest,
-                                            ) { accepted ->
-                                                if (accepted) {
-                                                }
-                                            }
+                                            ) { accepted -> }
                                         }
                                         // 퀘스트 완료
                                         QuestState.COMPLETE -> {
@@ -562,7 +568,25 @@ fun ARSceneComposable(
                 )
             }
 
-            Button(
+            IconButton(
+                onClick = { onPop() },
+                modifier =
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .padding(bottom = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF32A287))
+                    .size(52.dp),
+            ) {
+                Icon(
+                    painter = painterResource(id = R.drawable.baseline_map_24),
+                    contentDescription = "Search",
+                    tint = Color(0xFFF7F7F7),
+                )
+            }
+
+            FloatingActionButton(
                 onClick = {
                     when (PackageManager.PERMISSION_GRANTED) {
                         ContextCompat.checkSelfPermission(
@@ -576,16 +600,19 @@ fun ARSceneComposable(
                         }
                     } },
                 modifier = Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(bottom = 36.dp)
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 85.dp, end = 26.dp)
                     .size(72.dp),
-                shape = CircleShape,
-                colors = ButtonDefaults.buttonColors(containerColor = Color(0xFF32A287))
+                containerColor = Color.Transparent,
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
             ) {
-                Icon(
-                    painter = painterResource(id = R.drawable.baseline_mic_24),
-                    contentDescription = "chatbot",
-                    tint = Color.White,
+                Image(
+                    painter = painterResource(id = R.drawable.chatbot),
+                    contentDescription = "Chat Bot",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(4.dp),
+                    contentScale = ContentScale.Crop
                 )
             }
 

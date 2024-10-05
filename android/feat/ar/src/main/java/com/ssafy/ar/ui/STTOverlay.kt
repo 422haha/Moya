@@ -13,6 +13,8 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.LinearProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -27,6 +29,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
 import java.util.Locale
 
@@ -80,7 +83,7 @@ fun STTOverlay(
             modifier = Modifier
                 .fillMaxWidth()
                 .wrapContentHeight(),
-            color = Color(0x80000000)
+            color = Color.Transparent
         ) {
             Column(
                 modifier = Modifier.padding(16.dp),
@@ -88,14 +91,12 @@ fun STTOverlay(
             ) {
                 Text(
                     text = if (isListening) "궁금한 것을 물어보세요!" else "준비 중...",
-                    color = Color.White
+                    color = Color.White,
+                    fontSize = 20.sp,
+                    style = MaterialTheme.typography.bodyLarge
                 )
-                Spacer(modifier = Modifier.height(16.dp))
+                Spacer(modifier = Modifier.height(24.dp))
                 CircularProgressIndicator(color = Color.White)
-                Spacer(modifier = Modifier.height(16.dp))
-                Button(onClick = onDismiss) {
-                    Text("취소")
-                }
             }
         }
     }
