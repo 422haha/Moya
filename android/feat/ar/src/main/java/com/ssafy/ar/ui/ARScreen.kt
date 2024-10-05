@@ -6,6 +6,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.Image
 import android.util.Log
+import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
@@ -122,18 +123,19 @@ fun ARSceneComposable(
 
     DisposableEffect(Unit) {
         WindowCompat.setDecorFitsSystemWindows(window, false)
-
         window.statusBarColor = Color.Transparent.toArgb()
         window.navigationBarColor = Color.Transparent.toArgb()
         insetsController.isAppearanceLightStatusBars = true
         insetsController.isAppearanceLightNavigationBars = true
+        window.addFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
 
         onDispose {
             WindowCompat.setDecorFitsSystemWindows(window, true)
-            window.statusBarColor = Color.White.toArgb()
+            window.statusBarColor = Color.Gray.toArgb()
             window.navigationBarColor = Color.White.toArgb()
             insetsController.isAppearanceLightStatusBars = false
             insetsController.isAppearanceLightNavigationBars = false
+            window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION)
         }
     }
 
