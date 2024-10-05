@@ -2,6 +2,7 @@ package com.ssafy.moya
 
 import android.content.Context
 import android.speech.tts.TextToSpeech
+import android.util.Log
 import android.widget.Toast
 import dagger.hilt.android.qualifiers.ApplicationContext
 import java.util.Locale

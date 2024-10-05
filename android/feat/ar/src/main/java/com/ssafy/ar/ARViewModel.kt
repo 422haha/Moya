@@ -36,6 +36,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.Collections
 import javax.inject.Inject
@@ -288,6 +289,17 @@ class ARViewModel @Inject constructor(
         val roundedRatingValue = (ratingValue * 10).roundToInt() / 10f
 
         _rating.value = roundedRatingValue
+    }
+
+    fun chattingNPC(explorationId: Long, npcPosId: Long, message: String, onSuccess: (String) -> Unit, onError: (String) -> Unit)  {
+        viewModelScope.launch {
+            explorationRepository.chattingNPC(explorationId, npcPosId, message).collect { response ->
+                when(response) {
+                    is ApiResponse.Success -> onSuccess(response.body?.response ?: "잘못된 응답입니다.")
+                    is ApiResponse.Error -> onError(response.errorMessage ?: "")
+                }
+            }
+        }
     }
 
     fun showQuestDialog(questInfo: QuestInfo, callback: (Boolean) -> Unit) {

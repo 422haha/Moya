@@ -30,7 +30,6 @@ class MainActivity : ComponentActivity() {
                         onTTSReStart = {},
                         onTTSShutDown = {},
                         onPop = {},
-                        onPermissionDenied = { }
                     )
                 }
             }
