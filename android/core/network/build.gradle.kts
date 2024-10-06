@@ -16,6 +16,8 @@ android {
         buildConfigField("String", "BASE_URL", properties["BASE_URL"] as String)
         buildConfigField("String", "API_VERSION", properties["API_VERSION"] as String)
         buildConfigField("String", "BUCKET_NAME", properties["BUCKET_NAME"] as String)
+        buildConfigField("String", "AWS_ACCESS_KEY", properties["AWS_ACCESS_KEY"] as String)
+        buildConfigField("String", "AWS_SECRET_KEY", properties["AWS_SECRET_KEY"] as String)
     }
 
     buildFeatures {

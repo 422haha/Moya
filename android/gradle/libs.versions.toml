@@ -52,8 +52,6 @@ materialVersion = "1.12.0"
 cameraCore = "1.3.4"
 
 # s3
-awsAndroidSdkMobileClient = "2.73.0"
-awsAndroidSdkCognito = "2.6.17"
 awsAndroidSdkS3 = "2.73.0"
 
 [libraries]
@@ -120,8 +118,6 @@ onnxruntime = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
 
 # s3
-aws-android-sdk-mobile-client = { module = "com.amazonaws:aws-android-sdk-mobile-client", version.ref = "awsAndroidSdkMobileClient" }
-aws-android-sdk-cognito = { module = "com.amazonaws:aws-android-sdk-cognito", version.ref = "awsAndroidSdkCognito" }
 aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkS3" }
 aws-android-sdk-s3 = { module = "com.amazonaws:aws-android-sdk-s3", version.ref = "awsAndroidSdkS3" }
 
