@@ -1,5 +1,6 @@
 package com.ssafy.network.repositoryImpl
 
+import android.util.Log
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferListener
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferState
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
@@ -8,7 +9,7 @@ import com.ssafy.model.Upload
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.UploadRepository
 import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.currentCoroutineContext
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.launch
@@ -27,40 +28,37 @@ class UploadRepositoryImpl @Inject constructor(
         val uploadObserver =
             transferUtility.upload(key, file, CannedAccessControlList.PublicRead)
 
-        val coroutineScope = CoroutineScope(Dispatchers.Main)
+        val context = currentCoroutineContext()
+        val scope = CoroutineScope(context)
 
         uploadObserver.setTransferListener(object : TransferListener {
+
             override fun onStateChanged(id: Int, state: TransferState) {
                 when(state){
                     TransferState.COMPLETED -> {
-                        coroutineScope.launch {
-                            emit(ApiResponse.Success(Upload.Completed(key)))
-                        }
+                        Log.d("TAG", "onStateChanged: ")
+                        scope.launch { emit(ApiResponse.Success(Upload.Completed(key))) }
                     }
                     TransferState.CANCELED -> {
-                        coroutineScope.launch {
-                            emit(ApiResponse.Error(errorMessage = "Upload canceled"))
-                        }
+
                     }
                     TransferState.FAILED -> {
-                        coroutineScope.launch {
-                            emit(ApiResponse.Error(errorMessage = "Upload failed"))
-                        }
+                        scope.launch { emit(ApiResponse.Error(errorCode = id, errorMessage = "업로드 실패")) }
                     }
                     else -> {}
                 }
             }
 
             override fun onProgressChanged(id: Int, bytesCurrent: Long, bytesTotal: Long) {
-                coroutineScope.launch {
-                    emit(ApiResponse.Success(Upload.InProgress(progress = bytesCurrent / bytesTotal.toFloat())))
-                }
+//                coroutineScope.launch {
+//                    emit(ApiResponse.Success(Upload.InProgress(progress = bytesCurrent / bytesTotal.toFloat())))
+//                }
             }
 
             override fun onError(id: Int, ex: Exception) {
-                coroutineScope.launch {
-                    emit(ApiResponse.Error(errorCode = id, errorMessage = ex.message))
-                }
+//                coroutineScope.launch {
+//                    emit(ApiResponse.Error(errorCode = id, errorMessage = ex.message))
+//                }
             }
         })
     }

@@ -2,6 +2,7 @@ package com.ssafy.network.di
 
 import android.content.Context
 import com.amazonaws.auth.BasicAWSCredentials
+import com.amazonaws.mobileconnectors.s3.transferutility.TransferNetworkLossHandler
 import com.amazonaws.mobileconnectors.s3.transferutility.TransferUtility
 import com.amazonaws.regions.Region
 import com.amazonaws.regions.Regions
@@ -60,9 +61,11 @@ object NetworkModule {
     fun provideTransferUtility(
         @ApplicationContext context: Context,
     ): TransferUtility {
-        val credentials = BasicAWSCredentials("", "")
-        val region = Region.getRegion(Regions.AP_SOUTH_1)
+        val credentials = BasicAWSCredentials(BuildConfig.AWS_ACCESS_KEY, BuildConfig.AWS_SECRET_KEY)
+        val region = Region.getRegion(Regions.AP_NORTHEAST_2)
         val awsClient = AmazonS3Client(credentials, region)
+
+        TransferNetworkLossHandler.getInstance(context)
 
         return TransferUtility
                 .builder()
