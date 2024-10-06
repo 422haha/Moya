@@ -51,6 +51,11 @@ appcompatVersion = "1.7.0"
 materialVersion = "1.12.0"
 cameraCore = "1.3.4"
 
+# s3
+awsAndroidSdkMobileClient = "2.73.0"
+awsAndroidSdkCognito = "2.6.17"
+awsAndroidSdkS3 = "2.7.4"
+
 [libraries]
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
@@ -113,6 +118,12 @@ material = { group = "com.google.android.material", name = "material", version.r
 # ai
 onnxruntime = { group = "com.microsoft.onnxruntime", name = "onnxruntime-android", version.ref = "onnx" }
 androidx-camera-core = { group = "androidx.camera", name = "camera-core", version.ref = "cameraCore" }
+
+# s3
+aws-android-sdk-mobile-client = { module = "com.amazonaws:aws-android-sdk-mobile-client", version.ref = "awsAndroidSdkMobileClient" }
+aws-android-sdk-cognito = { module = "com.amazonaws:aws-android-sdk-cognito", version.ref = "awsAndroidSdkCognito" }
+aws-android-sdk-core = { module = "com.amazonaws:aws-android-sdk-core", version.ref = "awsAndroidSdkS3" }
+aws-android-sdk-s3 = { module = "com.amazonaws:aws-android-sdk-s3", version.ref = "awsAndroidSdkS3" }
 
 [bundles]
 network = ["retrofit", "okhttp-logging-interceptor", "gson", "kotlinx-serialization-json", "kotlinx-serialization-converter", "kotlinx-serialization-core"]

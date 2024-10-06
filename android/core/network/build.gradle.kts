@@ -26,4 +26,9 @@ dependencies {
     implementation(libs.bundles.network)
     implementation(project(":core:model"))
     implementation(project(":core:datastore"))
+
+    implementation(libs.aws.android.sdk.mobile.client)
+    implementation(libs.aws.android.sdk.s3)
+    implementation(libs.aws.android.sdk.cognito)
+    implementation(libs.aws.android.sdk.core)
 }
