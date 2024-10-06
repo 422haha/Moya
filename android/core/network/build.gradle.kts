@@ -15,6 +15,7 @@ android {
     defaultConfig {
         buildConfigField("String", "BASE_URL", properties["BASE_URL"] as String)
         buildConfigField("String", "API_VERSION", properties["API_VERSION"] as String)
+        buildConfigField("String", "BUCKET_NAME", properties["BUCKET_NAME"] as String)
     }
 
     buildFeatures {
@@ -27,8 +28,6 @@ dependencies {
     implementation(project(":core:model"))
     implementation(project(":core:datastore"))
 
-    implementation(libs.aws.android.sdk.mobile.client)
     implementation(libs.aws.android.sdk.s3)
-    implementation(libs.aws.android.sdk.cognito)
     implementation(libs.aws.android.sdk.core)
 }
