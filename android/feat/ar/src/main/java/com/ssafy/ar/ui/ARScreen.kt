@@ -142,7 +142,7 @@ fun ARSceneComposable(
 
     var frameCounter = 0
     var isProcessingImage = false
-    val registeredSpecies = mutableSetOf<Int>()
+    var registeredSpecies by remember { mutableStateOf(setOf<Int>()) }
     var filePath by remember { mutableStateOf("") }
 
     val showRegisterDialog by viewModel.registerDialog.collectAsState()
@@ -150,29 +150,33 @@ fun ARSceneComposable(
     LaunchedEffect(detectionResults) {
         // 도감 등록
         detectionResults.forEach {
-            viewModel.registerSpecies(
-                explorationId,
-                RegisterSpeciesRequestBody(
-                    (it.classIndex + 1).toLong(),
-                    it.imageUrl ?: "",
-                    viewModel.locationManager.currentLocation.value
-                        ?.latitude ?: 0.0,
-                    viewModel.locationManager.currentLocation.value
-                        ?.longitude ?: 0.0,
-                ),
-                onSuccess = { result ->
-                    registeredSpecies.add((result.speciesId - 1).toInt())
-                    viewModel.showRegisterDialog()
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar("도감에 등록되었습니다!")
-                    }
-                },
-                onError = {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(it)
-                    }
-                },
-            )
+            if (it.classIndex !in registeredSpecies) {
+                Log.d("detectionResults", "speciesId: ${it.classIndex}")
+                Log.d("registeredSpecies", "speciesId: $registeredSpecies")
+                viewModel.registerSpecies(
+                    explorationId,
+                    RegisterSpeciesRequestBody(
+                        (it.classIndex + 1).toLong(),
+                        it.imageUrl ?: "",
+                        viewModel.locationManager.currentLocation.value
+                            ?.latitude ?: 0.0,
+                        viewModel.locationManager.currentLocation.value
+                            ?.longitude ?: 0.0,
+                    ),
+                    onSuccess = { result ->
+                        registeredSpecies = registeredSpecies + (result.speciesId - 1).toInt()
+                        viewModel.showRegisterDialog()
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar("도감에 등록되었습니다!")
+                        }
+                    },
+                    onError = {
+                        coroutineScope.launch {
+                            snackBarHostState.showSnackbar(it)
+                        }
+                    },
+                )
+            }
         }
 
         // 미션 등록
