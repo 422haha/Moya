@@ -5,11 +5,11 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class ExplorationData(
-    val id: Long,
-    val myDiscoveredSpecies: List<Species>,
+    @SerialName("explorationId") val id: Long,
+    @SerialName("myDiscoveredSpecies") val myDiscoveredSpecies: List<Species>,
     val species: List<Species>,
     val npcs: List<Npc>,
-    val completedQuest: Int,
+    val completedQuests: Int,
 )
 @Serializable
 data class ExplorationInitialData(

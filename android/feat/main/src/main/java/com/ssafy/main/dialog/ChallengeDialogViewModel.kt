@@ -31,7 +31,7 @@ class ChallengeDialogViewModel
                                     body.quest.map { quest ->
                                         Missions(
                                             id = quest.questId,
-                                            missionTitle = "", // TODO 미션 타이틀 받아오기
+                                            missionTitle = "${quest.npcName}에게 ${quest.speciesName} 가져가기",
                                             isSuccess = quest.completed == "WAIT",
                                         )
                                     }
