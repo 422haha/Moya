@@ -177,7 +177,6 @@ public class ExplorationServiceImpl implements ExplorationService {
             // 유효한 포인트 2개 미만일 경우
             log.warn("충분한 지점이 없어 lineString 생성 불가: "
                 + positionList.size());
-            // TODO: 적절한 예외 처리 또는 기본값 설정
             exploration.setRoute(null);
         }
 
