@@ -59,12 +59,8 @@ fun ExploreStartScreen(
                 Dialog(onDismissRequest = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) }) {
                     ChallengeDialog(
                         explorationId = (uiState as ExploreStartScreenState.Loaded).explorationId,
-                        onConfirm = { id ->
-                            viewModel.onIntent(
-                                ExploreStartUserIntent.OnChallengeSelected(
-                                    id,
-                                ),
-                            )
+                        onConfirm = { _ ->
+                            onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
                         },
                         onDismiss = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) },
                     )

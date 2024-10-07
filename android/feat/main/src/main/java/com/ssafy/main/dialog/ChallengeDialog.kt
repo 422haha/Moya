@@ -23,7 +23,10 @@ fun ChallengeDialog(
 
     ChallengeDialogContent(
         missions = uiState,
-        onConfirm = onConfirm,
+        onConfirm = { id ->
+            onConfirm(id)
+            onDismiss()
+        },
         onDismiss = onDismiss
     )
 }
