@@ -33,7 +33,7 @@ public class ChatController {
 
     @PostMapping("/{npcPosId}")
     public ResponseEntity<Map<String, Object>> doChatting(
-        @RequestHeader("Authorization") String token,
+        //       @RequestHeader("Authorization") String token,
         @PathVariable Long explorationId, @PathVariable Long npcPosId,
         @RequestBody ChatRequestDto chatRequestDto) {
 
