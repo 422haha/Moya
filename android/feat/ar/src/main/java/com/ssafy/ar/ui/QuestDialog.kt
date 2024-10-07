@@ -119,30 +119,30 @@ fun QuestDialog(
                         .fillMaxWidth()
                         .height(IntrinsicSize.Min)
                 ) {
-                    Button(
-                        onClick = { onDismiss() },
-                        shape = RectangleShape,
-                        modifier = Modifier
-                            .weight(1f)
-                            .fillMaxHeight(),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = Color.White,
-                            contentColor = Color.Black,
-                            disabledContainerColor = Color.Gray,
-                            disabledContentColor = Color.White,
-                        ),
+                    if(info.isComplete == QuestState.WAIT) {
+                        Button(
+                            onClick = { onDismiss() },
+                            shape = RectangleShape,
+                            modifier = Modifier
+                                .weight(1f)
+                                .fillMaxHeight(),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color.White,
+                                contentColor = Color.Black,
+                                disabledContainerColor = Color.Gray,
+                                disabledContentColor = Color.White,
+                            ),
 
-                        ) {
-                        Text(
-                            text =
-                            if (info.isComplete == QuestState.WAIT) "거절"
-                            else "취소",
-                            textAlign = TextAlign.Center,
-                            style = TextStyle(
-                                fontSize = 14.sp,
-                                fontWeight = FontWeight.Normal
+                            ) {
+                            Text(
+                                text = "거절",
+                                textAlign = TextAlign.Center,
+                                style = TextStyle(
+                                    fontSize = 14.sp,
+                                    fontWeight = FontWeight.Normal
+                                )
                             )
-                        )
+                        }
                     }
 
                     Box(
