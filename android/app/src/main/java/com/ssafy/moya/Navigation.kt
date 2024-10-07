@@ -18,7 +18,6 @@ import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
 import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.moya.navigation.MainBottomNavigation
-import com.ssafy.moya.navigation.MainBottomNavigationRoute
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -159,7 +158,7 @@ fun MainNavigation(
                     ttsHelper.reStart()
                 },
                 onNavigateToEncyc = {
-                    navController.navigate(Encyc(route.parkId))
+                    navController.navigate(Encyc(isDialog = true, parkId = route.parkId))
                 }
             )
         }
