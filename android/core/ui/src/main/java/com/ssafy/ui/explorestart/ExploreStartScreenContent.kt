@@ -140,11 +140,8 @@ fun ExploreStartScreenLoaded(
                     icon = OverlayImage.fromResource(R.drawable.marker_npc),
                 )
             }
-            exploreStartScreenState.discoveredPositions.forEach { position ->
-                Marker(
-                    state = MarkerState(position = position),
-                    icon = OverlayImage.fromResource(R.drawable.baseline_location_on_24),
-                )
+            exploreStartScreenState.discoveredPositions.forEach { state ->
+                ExploreMarker(state = state)
             }
             exploreStartScreenState.speciesPositions.forEach { position ->
                 Marker(
@@ -169,9 +166,9 @@ fun ExploreStartScreenLayout(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Top,
             modifier =
-                Modifier
-                    .fillMaxWidth()
-                    .padding(vertical = 16.dp),
+            Modifier
+                .fillMaxWidth()
+                .padding(vertical = 16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -202,12 +199,12 @@ fun ExploreStartScreenLayout(
         IconButton(
             onClick = { onIntent(ExploreStartUserIntent.OnCameraClicked) },
             modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(PrimaryColor)
-                    .size(52.dp),
+            Modifier
+                .align(Alignment.BottomCenter)
+                .padding(16.dp)
+                .clip(RoundedCornerShape(16.dp))
+                .background(PrimaryColor)
+                .size(52.dp),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_center_focus_weak_24),

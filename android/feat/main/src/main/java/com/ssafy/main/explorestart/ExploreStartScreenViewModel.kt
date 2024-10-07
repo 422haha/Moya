@@ -77,7 +77,7 @@ class ExploreStartScreenViewModel
                                                 .map { LatLng(it.latitude, it.longitude) },
                                         discoveredPositions =
                                             body.myDiscoveredSpecies
-                                                .map { ExploreMarkerState(it.imageUrl, it.positions) },
+                                                .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
                                         speciesPositions =
                                             body.species
                                                 .flatMap { it.positions }
@@ -111,7 +111,7 @@ class ExploreStartScreenViewModel
                                         .map { LatLng(it.latitude, it.longitude) },
                                     discoveredPositions =
                                     body.myDiscoveredSpecies
-                                        .map { ExploreMarkerState(it.imageUrl, it.positions) },
+                                        .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
                                     speciesPositions =
                                     body.species
                                         .flatMap { it.positions }
