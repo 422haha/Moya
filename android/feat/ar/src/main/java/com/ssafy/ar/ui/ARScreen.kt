@@ -540,7 +540,14 @@ fun ARSceneComposable(
                             SpeciesType
                                 .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
                                 ?.getImageResource() ?: (R.drawable.maple),
-                        title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
+                        title =
+                            if(nearestQuestInfo.npc?.id != null) {
+                                if(nearestQuestInfo.npc?.isComplete == QuestState.WAIT)
+                                    "???의 부탁"
+                                else
+                                    "${nearestQuestInfo.npc?.npcName}의 부탁"
+                            } else "검색중.."
+                        ,
                         state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                         distanceText = "${
                             nearestQuestInfo.distance?.let {
