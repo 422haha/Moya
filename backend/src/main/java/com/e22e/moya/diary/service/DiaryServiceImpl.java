@@ -2,6 +2,7 @@ package com.e22e.moya.diary.service;
 
 import com.e22e.moya.common.entity.Discovery;
 import com.e22e.moya.common.entity.Exploration;
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.diary.dto.*;
 import com.e22e.moya.diary.repository.DiaryDiscoveryRepositoryDiary;
 import com.e22e.moya.diary.repository.DiaryExplorationRepositoryDiary;
@@ -25,6 +26,7 @@ public class DiaryServiceImpl implements DiaryService {
 
     private final DiaryExplorationRepositoryDiary explorationRepository;
     private final DiaryDiscoveryRepositoryDiary discoveryRepository;
+    private final PresignedUrlService presignedUrlService;
 
     /**
      * 사용자의 가장 최근 탐험 정보를 조회
@@ -49,7 +51,7 @@ public class DiaryServiceImpl implements DiaryService {
         responseDto.setExplorationId(exploration.getId());
         responseDto.setStartDate(exploration.getStartDate());
         responseDto.setParkName(exploration.getPark().getName());
-        responseDto.setImageUrl(exploration.getPark().getImageUrl());
+        responseDto.setImageUrl(presignedUrlService.getPresignedUrl(exploration.getPark().getImageUrl()));
 
         return responseDto;
     }
@@ -80,7 +82,7 @@ public class DiaryServiceImpl implements DiaryService {
                 dto.setDistance(exploration.getDistance());
 
                 // 공원의 이미지 URL 설정
-                dto.setImageUrl(exploration.getPark().getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(exploration.getPark().getImageUrl()));
 
                 // 수집된 동식물 수
                 List<Discovery> discoveries = discoveryRepository.findByExplorationId(exploration.getId());
@@ -155,7 +157,7 @@ public class DiaryServiceImpl implements DiaryService {
                 DiaryCollectedDto dto = new DiaryCollectedDto();
                 dto.setSpeciesId(discovery.getSpecies().getId());
                 dto.setSpeciesName(discovery.getSpecies().getName());
-                dto.setImageUrl(discovery.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(discovery.getImageUrl()));
 
                 Point<G2D> position = discovery.getSpeciesPos().getPos();
                 if (position != null) {

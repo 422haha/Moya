@@ -6,6 +6,7 @@ import com.e22e.moya.common.entity.npc.NpcPos;
 import com.e22e.moya.common.entity.npc.ParkNpcs;
 import com.e22e.moya.common.entity.park.Park;
 import com.e22e.moya.common.entity.quest.QuestStatus;
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.exploration.dto.info.ExplorationInfoDto;
 import com.e22e.moya.exploration.dto.info.NpcDto;
 import com.e22e.moya.exploration.repository.ParkSpeciesProjection;
@@ -46,16 +47,18 @@ public class InfoServiceImpl implements InfoService {
     private final ExplorationRepositoryExploration explorationRepository;
     private final QuestCompletedRepositoryExploration questCompletedRepository;
     private final PopularParkService popularParkService;
+    private final PresignedUrlService presignedUrlService;
 
     public InfoServiceImpl(ParkRepositoryExploration parkRepository, QuestService questService,
         ExplorationRepositoryExploration explorationRepository,
         QuestCompletedRepositoryExploration questCompletedRepository,
-        PopularParkService popularParkService) {
+        PopularParkService popularParkService, PresignedUrlService presignedUrlService) {
         this.parkRepository = parkRepository;
         this.questService = questService;
         this.explorationRepository = explorationRepository;
         this.questCompletedRepository = questCompletedRepository;
         this.popularParkService = popularParkService;
+        this.presignedUrlService = presignedUrlService;
     }
 
     /**
@@ -214,7 +217,7 @@ public class InfoServiceImpl implements InfoService {
                 speciesDto.setName(info.getSpeciesName());
                 speciesDto.setScientificName(info.getScientificName());
                 speciesDto.setDescription(info.getDescription());
-                speciesDto.setImageUrl(info.getImageUrl());
+                speciesDto.setImageUrl(presignedUrlService.getPresignedUrl(info.getImageUrl()));
                 speciesDto.setPositions(new ArrayList<>());
                 speciesDtoMap.put(speciesId, speciesDto);
             }

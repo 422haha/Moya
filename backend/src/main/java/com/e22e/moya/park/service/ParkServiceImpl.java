@@ -1,6 +1,7 @@
 package com.e22e.moya.park.service;
 
 import com.e22e.moya.common.entity.park.Park;
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.park.dto.ParkDetailResponseDto;
 import com.e22e.moya.park.dto.ParkDistanceDto;
 import com.e22e.moya.park.dto.ParkListResponseDto;
@@ -21,6 +22,7 @@ import java.util.stream.Collectors;
 public class ParkServiceImpl implements ParkService {
 
     private final ParkRepositoryPark parkRepositoryPark;
+    private final PresignedUrlService presignedUrlService;
 
     /**
      * PostGIS를 사용하여 가장 가까운 공원을 반환
@@ -45,7 +47,7 @@ public class ParkServiceImpl implements ParkService {
         responseDto.setParkId(nearestPark.getId());
         responseDto.setParkName(nearestPark.getName());
         responseDto.setDistance(nearestPark.getDistance().intValue());
-        responseDto.setImageUrl(nearestPark.getImageUrl());
+        responseDto.setImageUrl(presignedUrlService.getPresignedUrl(nearestPark.getImageUrl()));
 
         return responseDto;
     }
@@ -75,7 +77,7 @@ public class ParkServiceImpl implements ParkService {
                 dto.setParkId(park.getId());
                 dto.setParkName(park.getName());
                 dto.setDistance(park.getDistance().intValue());
-                dto.setImageUrl(park.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(park.getImageUrl()));
                 return dto;
             })
             .collect(Collectors.toList());
@@ -104,7 +106,7 @@ public class ParkServiceImpl implements ParkService {
                 SpeciesDto dto = new SpeciesDto();
                 dto.setSpeciesId(parkSpecies.getSpecies().getId());
                 dto.setName(parkSpecies.getSpecies().getName());
-                dto.setImageUrl(parkSpecies.getSpecies().getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(parkSpecies.getSpecies().getImageUrl()));
                 dto.setDiscovered(false);
                 return dto;
             })
@@ -114,7 +116,7 @@ public class ParkServiceImpl implements ParkService {
         responseDto.setParkId(park.getId());
         responseDto.setName(park.getName());
         responseDto.setDescription(park.getDescription());
-        responseDto.setImageUrl(park.getImageUrl());
+        responseDto.setImageUrl(presignedUrlService.getPresignedUrl(park.getImageUrl()));
         responseDto.setSpecies(speciesDtos);
 
         return responseDto;
@@ -139,7 +141,7 @@ public class ParkServiceImpl implements ParkService {
                 ParkDistanceDto dto = new ParkDistanceDto();
                 dto.setParkId(park.getId());
                 dto.setParkName(park.getName());
-                dto.setImageUrl(park.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(park.getImageUrl()));
                 dto.setDistance(park.getDistance());
                 return dto;
             })

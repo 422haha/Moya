@@ -2,6 +2,7 @@ package com.e22e.moya.season.service;
 
 import com.e22e.moya.common.entity.species.Season;
 import com.e22e.moya.common.entity.species.Species;
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.season.dto.PopularSpeciesDto;
 import com.e22e.moya.park.dto.ParkDistanceDto;
 import com.e22e.moya.park.repository.ParkDistanceProjection;
@@ -24,13 +25,15 @@ public class PopularSpeciesServiceImpl implements PopularSpeciesService {
     private final StringRedisTemplate stringRedisTemplate;
     private final SpeciesSeasonRepository speciesRepository;
     private final ParkRepositoryPark parkRepository;
+    private final PresignedUrlService presignedUrlService;
 
     public PopularSpeciesServiceImpl(StringRedisTemplate stringRedisTemplate,
         SpeciesSeasonRepository speciesRepository,
-        ParkRepositoryPark parkRepository) {
+        ParkRepositoryPark parkRepository, PresignedUrlService presignedUrlService) {
         this.stringRedisTemplate = stringRedisTemplate;
         this.speciesRepository = speciesRepository;
         this.parkRepository = parkRepository;
+        this.presignedUrlService = presignedUrlService;
     }
 
     /**
@@ -79,7 +82,7 @@ public class PopularSpeciesServiceImpl implements PopularSpeciesService {
                 PopularSpeciesDto dto = new PopularSpeciesDto();
                 dto.setSpeciesId(species.getId());
                 dto.setName(species.getName());
-                dto.setImageUrl(species.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(species.getImageUrl()));
                 dto.setScore(1.0);  // 초기 점수
                 return dto;
             }).collect(Collectors.toList());
@@ -111,7 +114,7 @@ public class PopularSpeciesServiceImpl implements PopularSpeciesService {
             PopularSpeciesDto dto = new PopularSpeciesDto();
             dto.setSpeciesId(species.getId());
             dto.setName(species.getName());
-            dto.setImageUrl(species.getImageUrl());
+            dto.setImageUrl(presignedUrlService.getPresignedUrl(species.getImageUrl()));
             dto.setScore(score);
             return dto;
         }).collect(Collectors.toList());
@@ -140,7 +143,7 @@ public class PopularSpeciesServiceImpl implements PopularSpeciesService {
                 ParkDistanceDto dto = new ParkDistanceDto();
                 dto.setParkId(park.getId());
                 dto.setParkName(park.getName());
-                dto.setImageUrl(park.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(park.getImageUrl()));
                 dto.setDistance(park.getDistance());
                 return dto;
             })

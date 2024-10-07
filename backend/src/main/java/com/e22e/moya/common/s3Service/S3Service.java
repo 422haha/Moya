@@ -1,13 +1,16 @@
-package com.e22e.moya.common.service;
+package com.e22e.moya.common.s3Service;
 
 import java.net.MalformedURLException;
 import java.net.URL;
+import java.time.Duration;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import software.amazon.awssdk.services.s3.S3Client;
 import software.amazon.awssdk.services.s3.model.DeleteObjectRequest;
+import software.amazon.awssdk.services.s3.presigner.S3Presigner;
+import software.amazon.awssdk.services.s3.presigner.model.GetObjectPresignRequest;
 
 @Slf4j
 @Service
@@ -15,6 +18,7 @@ public class S3Service {
 
     // S3 클라이언트
     private final S3Client s3Client;
+    private final S3Presigner s3Presigner;
 
     // S3 버킷 이름
     @Value("${cloud.aws.s3.bucket}")
@@ -22,8 +26,9 @@ public class S3Service {
 
     // S3 클라이언트 주입
     @Autowired
-    public S3Service(S3Client s3Client) {
+    public S3Service(S3Client s3Client, S3Presigner s3Presigner) {
         this.s3Client = s3Client;
+        this.s3Presigner = s3Presigner;
     }
 
     /**
@@ -66,4 +71,23 @@ public class S3Service {
         }
     }
 
+    /**
+     * PresignedURL 생성
+     *
+     * @param objectKey S3 객체 키
+     * @return 생성된 presignedUrl
+     */
+    public String generatePresignedUrl(String objectKey) {
+        try {
+            GetObjectPresignRequest presignRequest = GetObjectPresignRequest.builder()
+                .signatureDuration(Duration.ofMinutes(121)) // 2시간 1분동안 유효
+                .getObjectRequest(req -> req.bucket(bucketName).key(objectKey))
+                .build();
+
+            return s3Presigner.presignGetObject(presignRequest).url().toString();
+        } catch (Exception e) {
+            log.error("key {}에 대한 presignedUrl 생성 불가", objectKey, e);
+            return null;
+        }
+    }
 }

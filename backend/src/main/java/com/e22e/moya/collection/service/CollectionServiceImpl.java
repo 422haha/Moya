@@ -7,6 +7,7 @@ import com.e22e.moya.common.entity.species.Species;
 import com.e22e.moya.collection.repository.DiscoveryRepository;
 import com.e22e.moya.collection.repository.ParkSpeciesRepository;
 import com.e22e.moya.collection.repository.SpeciesRepository;
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -24,6 +25,7 @@ public class CollectionServiceImpl implements CollectionService {
     private final SpeciesRepository speciesRepository;
     private final DiscoveryRepository discoveryRepository;
     private final ParkSpeciesRepository parkSpeciesRepository;
+    private final PresignedUrlService presignedUrlService;
 
     /**
      * 전체 도감 목록 조회
@@ -51,7 +53,7 @@ public class CollectionServiceImpl implements CollectionService {
                 dto.setSpeciesId(species.getId());
                 dto.setSpeciesName(species.getName());
                 dto.setDiscovered(discoveredSpeciesIds.contains(species.getId()));
-                dto.setImageUrl(species.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(species.getImageUrl()));
                 return dto;
             })
             .collect(Collectors.toList());
@@ -101,7 +103,7 @@ public class CollectionServiceImpl implements CollectionService {
                 dto.setSpeciesId(species.getId());
                 dto.setSpeciesName(species.getName());
                 dto.setDiscovered(discoveredSpeciesIds.contains(species.getId()));
-                dto.setImageUrl(species.getImageUrl());
+                dto.setImageUrl(presignedUrlService.getPresignedUrl(species.getImageUrl()));
                 return dto;
             })
             .collect(Collectors.toList());
@@ -139,7 +141,7 @@ public class CollectionServiceImpl implements CollectionService {
         detailDto.setItemId(species.getId());
         detailDto.setSpeciesName(species.getName());
         detailDto.setDescription(species.getDescription());
-        detailDto.setImageUrl(species.getImageUrl());
+        detailDto.setImageUrl(presignedUrlService.getPresignedUrl(species.getImageUrl()));
 
         if (discovery != null) {
             detailDto.setCollectedAt(discovery.getDiscoveryTime());
@@ -154,7 +156,7 @@ public class CollectionServiceImpl implements CollectionService {
         List<UserPhotoDto> userPhotos = userDiscoveries.stream()
             .map(d -> {
                 UserPhotoDto photoDto = new UserPhotoDto();
-                photoDto.setImageUrl(d.getImageUrl());
+                photoDto.setImageUrl(presignedUrlService.getPresignedUrl(d.getImageUrl()));
                 photoDto.setDiscoveryTime(d.getDiscoveryTime());
                 return photoDto;
             })

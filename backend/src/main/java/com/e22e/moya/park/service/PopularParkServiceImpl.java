@@ -1,5 +1,6 @@
 package com.e22e.moya.park.service;
 
+import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.park.dto.ParkResponseDto;
 import com.e22e.moya.park.repository.ParkDistanceProjection;
 import com.e22e.moya.park.repository.ParkRepositoryPark;
@@ -27,11 +28,13 @@ public class PopularParkServiceImpl implements PopularParkService {
 
     private final ParkRepositoryPark parkRepository;
     private final StringRedisTemplate stringRedisTemplate;
+    private final PresignedUrlService presignedUrlService;
 
     public PopularParkServiceImpl(ParkRepositoryPark parkRepository,
-        StringRedisTemplate stringRedisTemplate) {
+        StringRedisTemplate stringRedisTemplate, PresignedUrlService presignedUrlService) {
         this.parkRepository = parkRepository;
         this.stringRedisTemplate = stringRedisTemplate;
+        this.presignedUrlService = presignedUrlService;
     }
 
     /**
@@ -98,7 +101,7 @@ public class PopularParkServiceImpl implements PopularParkService {
                     parkInfo.getName(),
                     parkInfo.getDescription(),
                     (int) Math.round(parkInfo.getDistance()),
-                    parkInfo.getImageUrl()
+                    presignedUrlService.getPresignedUrl(parkInfo.getImageUrl())
                 ));
                 log.info("추가된 공원: id={}, name={}, 거리={}, 점수={}",
                     parkInfo.getId(), parkInfo.getName(), parkInfo.getDistance(),
