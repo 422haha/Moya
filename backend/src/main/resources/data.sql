@@ -10,13 +10,13 @@ VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2'
 -- Parksp
 INSERT INTO park (name, description, image_url)
 VALUES ('싸피 뒷뜰', '싸피 구미 캠퍼스 기숙사에 위치한 공원으로 봄이 되면 예쁜 꽃들이 핀답니다. 가을이 되면 감도 딸 수 있어요',
-        'https://i.ibb.co/4jww8VF/1.jpg'),
+        'ssafy.jpg'),
        ('동락공원', '아름다운 낙동강을 끼고 있는 넓은 산책로와 자전거 도로를 갖춘 도심 속 힐링 공간이에요. 산책로와 잔디밭이 있어서 마음껏 뛰어놀 수 있어요.
 공원에는 농구장, 축구장, 배구장, 그리고 롤러스케이트장등 여러 가지 운동 시설도 많이 있어요. 시원한 바닥분수도 있어 시원한 여름을 보낼 수 있어요.
 그리고 무료로 자전거를 대여할 수 있으니 자전거 타는 것도 잊지 마세요. 신나는 동락공원을 꼭 방문해보아요!',
-        'https://i.ibb.co/m5LSDV6/2.jpg'),
+        'dongrac.jpg'),
        ('환경 연수원', '금오산 도립공원 구역 내에 위치하고 있는 수련 시설로 수생태체험학습장, 야외학습체험장 등등 다양한 학습 공간이 있어요.',
-        'https://i.ibb.co/4TBJ2Bh/3.jpg');
+        'yonsuwon.jpg');
 -- Park Position
 INSERT INTO park_pos (pos, park_id, name)
 VALUES (ST_SetSRID(ST_MakePoint(128.410590, 36.107442), 4326), 1, '정문'),  -- 싸피
@@ -348,17 +348,17 @@ VALUES ('Test Park 1', '테스트 공원 1 설명', 'park1.jpg'),
        ('Test Park 7', '테스트 공원 7 설명', 'park7.jpg'),
        ('Test Park 8', '테스트 공원 8 설명', 'park8.jpg'),
        ('Test Park 9', '테스트 공원 9 설명', 'park9.jpg'),
-       ('Test Park 10', '테스트 공원 10 설명', 'park10'),
-       ('Test Park 11', '테스트 공원 11 설명', 'park11'),
-       ('Test Park 12', '테스트 공원 12 설명', 'park12'),
-       ('Test Park 13', '테스트 공원 13 설명', 'park13'),
-       ('Test Park 14', '테스트 공원 14 설명', 'park13'),
-       ('Test Park 15', '테스트 공원 15 설명', 'park13'),
-       ('Test Park 16', '테스트 공원 16 설명', 'park13'),
-       ('Test Park 17', '테스트 공원 17 설명', 'park13'),
-       ('Test Park 18', '테스트 공원 18 설명', 'park13'),
-       ('Test Park 19', '테스트 공원 19 설명', 'park13'),
-       ('Test Park 20', '테스트 공원 20 설명', 'park13');
+       ('Test Park 10', '테스트 공원 10 설명', 'park10.jpg'),
+       ('Test Park 11', '테스트 공원 11 설명', 'park11.jpg'),
+       ('Test Park 12', '테스트 공원 12 설명', 'park12.jpg'),
+       ('Test Park 13', '테스트 공원 13 설명', 'park13.jpg'),
+       ('Test Park 14', '테스트 공원 14 설명', 'park13.jpg'),
+       ('Test Park 15', '테스트 공원 15 설명', 'park13.jpg'),
+       ('Test Park 16', '테스트 공원 16 설명', 'park13.jpg'),
+       ('Test Park 17', '테스트 공원 17 설명', 'park13.jpg'),
+       ('Test Park 18', '테스트 공원 18 설명', 'park13.jpg'),
+       ('Test Park 19', '테스트 공원 19 설명', 'park13.jpg'),
+       ('Test Park 20', '테스트 공원 20 설명', 'park13.jpg');
 
 -- 테스트용 공원 위치 추가
 INSERT INTO park_pos (pos, park_id, name)
