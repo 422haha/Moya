@@ -1,5 +1,6 @@
 package com.ssafy.network.repositoryImpl
 
+import com.ssafy.model.Chatting
 import com.ssafy.model.CompletedQuest
 import com.ssafy.model.ExplorationData
 import com.ssafy.model.ExplorationEndData
@@ -169,4 +170,30 @@ class ExplorationRepositoryImpl @Inject constructor(
         }
     }
 
+    override suspend fun chattingNPC(
+        explorationId: Long,
+        npcPosId: Long,
+        body: String
+    ): Flow<ApiResponse<Chatting>> {
+        return flow {
+            val response =
+                apiHandler {
+                    explorationApi.chattingNPC(explorationId, npcPosId, body)
+                }
+            when (response) {
+                is ApiResponse.Success -> {
+                    emit(ApiResponse.Success(response.body?.data))
+                }
+
+                is ApiResponse.Error -> {
+                    emit(
+                        ApiResponse.Error(
+                            errorCode = response.errorCode,
+                            errorMessage = response.errorMessage,
+                        ),
+                    )
+                }
+            }
+        }
+    }
 }

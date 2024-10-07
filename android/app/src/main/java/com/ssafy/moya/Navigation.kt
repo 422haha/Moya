@@ -18,6 +18,7 @@ import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
 import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.moya.navigation.MainBottomNavigation
+import com.ssafy.moya.navigation.MainBottomNavigationRoute
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -28,10 +29,10 @@ fun MainNavigation(
 ) {
     MultiplePermissionHandler(
         permissions =
-            listOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            ),
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
     ) {}
 
     // TODO startDestination 추후에 loin화면으로 수정
@@ -137,13 +138,30 @@ fun MainNavigation(
                     navController.navigate(Encyc(true, parkId))
                 },
                 onEnterAR = { id ->
-                    navController.navigate(ARCamera(explrationId = id))
+                    navController.navigate(ARCamera(explrationId = id, parkId = exploreStart.parkId))
                 },
             )
         }
         composable<ARCamera> { navBackStackEntry ->
             val route = navBackStackEntry.toRoute<ARCamera>()
-            ARSceneComposable(explorationId = route.explrationId, onPermissionDenied = {})
+            ARSceneComposable(
+                explorationId = route.explrationId,
+                onPop = {
+                    navController.popBackStack()
+                },
+                onTTSClicked = { fullText ->
+                    ttsHelper.speak(fullText)
+                },
+                onTTSShutDown = {
+                    ttsHelper.shutdown()
+                },
+                onTTSReStart = {
+                    ttsHelper.reStart()
+                },
+                onNavigateToEncyc = {
+                    navController.navigate(Encyc(route.parkId))
+                }
+            )
         }
         composable<Login> {
             LoginScreen(

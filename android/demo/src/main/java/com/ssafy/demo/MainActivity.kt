@@ -17,16 +17,17 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
-        WindowCompat.setDecorFitsSystemWindows(window, false)
-
         enableEdgeToEdge()
 
         setContent {
             MoyaTheme {
                 Box(modifier = Modifier.fillMaxSize()) {
                     ARSceneComposable(
-                        44,
-                        onPermissionDenied = { }
+                        4,
+                        onTTSClicked = {},
+                        onTTSReStart = {},
+                        onTTSShutDown = {},
+                        onPop = {},
                     )
                 }
             }

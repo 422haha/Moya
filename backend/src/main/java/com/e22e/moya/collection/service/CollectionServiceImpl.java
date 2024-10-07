@@ -57,12 +57,15 @@ public class CollectionServiceImpl implements CollectionService {
             .collect(Collectors.toList());
 
         // 필터 적용
-        speciesDtos = applyFilter(speciesDtos, filter);
+        List<SpeciesDto> filteredSpeciesDtos = applyFilter(speciesDtos, filter);
 
-        double progress = ((double) discoveredSpeciesIds.size() / speciesRepository.count()) * 100;
+        long totalSpecies = speciesRepository.count();
+        long discoveredCount = speciesDtos.stream().filter(SpeciesDto::getDiscovered).count();
+
+        double progress = totalSpecies > 0 ? ((double) discoveredCount / totalSpecies) * 100 : 0;
 
         CollectionResponseDto responseDto = new CollectionResponseDto();
-        responseDto.setSpecies(speciesDtos);
+        responseDto.setSpecies(filteredSpeciesDtos);
         responseDto.setProgress(progress);
 
         return responseDto;
@@ -104,14 +107,15 @@ public class CollectionServiceImpl implements CollectionService {
             .collect(Collectors.toList());
 
         // 필터 적용
-        speciesDtos = applyFilter(speciesDtos, filter);
+        List<SpeciesDto> filteredSpeciesDtos = applyFilter(speciesDtos, filter);
 
         long totalSpecies = parkSpeciesRepository.countByParkId(parkId);
         long discoveredCount = speciesDtos.stream().filter(SpeciesDto::getDiscovered).count();
-        double progress = ((double) discoveredCount / totalSpecies) * 100;
+
+        double progress = totalSpecies > 0 ? ((double) discoveredCount / totalSpecies) * 100 : 0;
 
         CollectionResponseDto responseDto = new CollectionResponseDto();
-        responseDto.setSpecies(speciesDtos);
+        responseDto.setSpecies(filteredSpeciesDtos);
         responseDto.setProgress(progress);
 
         return responseDto;

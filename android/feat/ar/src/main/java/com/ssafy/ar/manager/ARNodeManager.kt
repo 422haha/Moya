@@ -3,12 +3,15 @@ package com.ssafy.ar.manager
 import androidx.compose.runtime.snapshots.SnapshotStateList
 import com.google.android.filament.Engine
 import com.google.ar.core.Anchor
+import com.google.ar.core.Camera
+import com.google.ar.core.Frame
 import com.google.ar.core.Plane
 import com.google.ar.core.Pose
 import com.ssafy.ar.data.ModelType
 import com.ssafy.ar.data.QuestInfo
 import com.ssafy.ar.data.QuestState
 import com.ssafy.ar.data.getImageUrl
+import io.github.sceneview.ar.arcore.isValid
 import io.github.sceneview.ar.node.AnchorNode
 import io.github.sceneview.loaders.MaterialLoader
 import io.github.sceneview.loaders.ModelLoader
@@ -41,19 +44,21 @@ class ARNodeManager {
     ) = mutex.withLock {
         if(childNodes.any { it.name == questInfo.id.toString() }) return@withLock
 
-        val anchorNode = createAnchorNode(
-            questInfo.id,
-            questInfo.isComplete,
-            questInfo.npcId,
-            plane.createAnchor(pose),
-            engine,
-            modelLoader,
-            materialLoader
-        ).apply { name = questInfo.id.toString() }
+        withContext(Dispatchers.Main) {
+            val anchorNode = createAnchorNode(
+                questInfo.id,
+                questInfo.isComplete,
+                questInfo.npcId,
+                plane.createAnchor(pose),
+                engine,
+                modelLoader,
+                materialLoader
+            ).apply { name = questInfo.id.toString() }
 
-        childNodes.add(anchorNode)
+            childNodes.add(anchorNode)
 
-        onSuccess()
+            onSuccess()
+        }
     }
 
     private fun createImageNode(state: QuestState, materialLoader: MaterialLoader): ImageNode {
@@ -66,7 +71,7 @@ class ARNodeManager {
     }
 
     // 앵커노드 생성
-    private suspend fun createAnchorNode(
+    private fun createAnchorNode(
         id: Long,
         questState: QuestState,
         npcId: Long,
@@ -74,7 +79,7 @@ class ARNodeManager {
         engine: Engine,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
-    ): AnchorNode = withContext(Dispatchers.Main) {
+    ): AnchorNode {
         val stateNpcId = if(questState != QuestState.WAIT) npcId else 0
 
         val url = ModelType.fromLong(stateNpcId).modelUrl
@@ -106,18 +111,18 @@ class ARNodeManager {
 
         anchorNode.addChildNode(modelNode)
 
-        anchorNode
+        return anchorNode
     }
 
     // 앵커노드 업데이트 (시작전 -> 진행중)
-    suspend fun updateAnchorNode(
+    fun updateAnchorNode(
         id: Long,
         modelUrl: String,
         childNode: ModelNode,
         parentNode: AnchorNode,
         modelLoader: ModelLoader,
         materialLoader: MaterialLoader
-    ) = withContext(Dispatchers.Main) {
+    ) {
         parentNode.removeChildNode(childNode).apply {
             val modelInstance = modelLoader.createInstancedModel(
                 modelUrl,
@@ -155,5 +160,35 @@ class ARNodeManager {
             parentNode.addChildNode(imageNode)
         }
     }
+
+    fun findPlaneInView(
+        frame: Frame,
+        width: Int,
+        height: Int,
+        camera: Camera,
+    ): Pair<Plane, Pose>? {
+        val center = android.graphics.PointF(width / 2f, height / 2f)
+        val hits = frame.hitTest(center.x, center.y)
+
+        val planeHit =
+            hits.firstOrNull {
+                it.isValid(
+                    depthPoint = true,
+                    point = true,
+                    planePoseInPolygon = true,
+                    instantPlacementPoint = false,
+                    minCameraDistance = Pair(camera, 0.5f),
+                    predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+                    planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
+                )
+            }
+
+        return planeHit?.let { hit ->
+            val plane = hit.trackable as Plane
+            val pose = hit.hitPose
+            Pair(plane, pose)
+        }
+    }
+
 }
 
