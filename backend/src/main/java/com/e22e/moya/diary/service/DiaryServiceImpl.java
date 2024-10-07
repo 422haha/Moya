@@ -2,6 +2,7 @@ package com.e22e.moya.diary.service;
 
 import com.e22e.moya.common.entity.Discovery;
 import com.e22e.moya.common.entity.Exploration;
+import com.e22e.moya.common.entity.quest.QuestStatus;
 import com.e22e.moya.common.s3Service.PresignedUrlService;
 import com.e22e.moya.diary.dto.*;
 import com.e22e.moya.diary.repository.DiaryDiscoveryRepositoryDiary;
@@ -96,9 +97,11 @@ public class DiaryServiceImpl implements DiaryService {
                     dto.setDuration(0);
                 }
 
-                // 퀘스트 완료 수
-                int questCompletedCount = exploration.getQuestCompleted().size();
-                dto.setQuestCompletedCount(questCompletedCount);
+                // QuestStatus가 COMPLETE인 퀘스트만 카운트
+                long questCompletedCount = exploration.getQuestCompleted().stream()
+                    .filter(quest -> quest.getStatus() == QuestStatus.COMPLETE)
+                    .count();
+                dto.setQuestCompletedCount((int) questCompletedCount);
 
                 return dto;
             })
