@@ -108,7 +108,7 @@ fun ExploreDetailItem(
                 verticalArrangement = Arrangement.Top,
             ) {
                 Text(
-                    text = "동락공원",
+                    text = state.exploreDetail.parkName,
                     modifier = Modifier.padding(8.dp),
                     style = customTypography.titleMedium,
                 )
