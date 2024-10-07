@@ -6,14 +6,29 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.media.Image
 import android.util.Log
+import android.view.WindowManager
+import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.WindowInsets
+import androidx.compose.foundation.layout.asPaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.systemBars
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.FloatingActionButton
+import androidx.compose.material3.FloatingActionButtonDefaults
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
@@ -28,11 +43,19 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.toArgb
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalDensity
+import androidx.compose.ui.platform.LocalView
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.core.content.ContextCompat
+import androidx.core.view.WindowCompat
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.google.ar.core.Config
 import com.google.ar.core.TrackingFailureReason
@@ -83,7 +106,7 @@ fun ARSceneComposable(
     onTTSClicked: (String) -> Unit,
     onTTSShutDown: () -> Unit,
     onTTSReStart: () -> Unit,
-    onNavigateToEncyc: () -> Unit
+    onNavigateToEncyc: () -> Unit,
 ) {
     // Screen Size
     val configuration = LocalConfiguration.current
@@ -134,22 +157,24 @@ fun ARSceneComposable(
 
     // Permission
     var hasPermission by remember { mutableStateOf(false) }
-    val requiredPermissions = listOf(
-        Manifest.permission.CAMERA,
-        Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.ACCESS_COARSE_LOCATION,
-    )
-    val permissionLauncher = rememberLauncherForActivityResult(
-        ActivityResultContracts.RequestPermission()
-    ) { isGranted: Boolean ->
-        if (isGranted) {
-            showSTT = true
-        } else {
-            coroutineScope.launch {
-                snackBarHostState.showSnackbar("권한을 허용 해야 사용할 수 있습니다.")
+    val requiredPermissions =
+        listOf(
+            Manifest.permission.CAMERA,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+        )
+    val permissionLauncher =
+        rememberLauncherForActivityResult(
+            ActivityResultContracts.RequestPermission(),
+        ) { isGranted: Boolean ->
+            if (isGranted) {
+                showSTT = true
+            } else {
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar("권한을 허용 해야 사용할 수 있습니다.")
+                }
             }
         }
-    }
 
     // AR Basic
     val engine = rememberEngine()
@@ -292,7 +317,9 @@ fun ARSceneComposable(
     ) { permissionResults ->
         if (permissionResults.all { permissions -> permissions.value }) {
             hasPermission = true
-        } else { onPop() }
+        } else {
+            onPop()
+        }
     }
 
     if (hasPermission) {
@@ -305,10 +332,11 @@ fun ARSceneComposable(
             imageProcessingScope.launch {
                 withContext(Dispatchers.IO) {
                     dataProcess.loadModel()
-                    ortSession = ortEnvironment.createSession(
-                        context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
-                        OrtSession.SessionOptions()
-                    )
+                    ortSession =
+                        ortEnvironment.createSession(
+                            context.filesDir.absolutePath.toString() + "/" + DataProcess.FILE_NAME,
+                            OrtSession.SessionOptions(),
+                        )
                     dataProcess.loadLabel()
                 }
             }
@@ -357,15 +385,14 @@ fun ARSceneComposable(
                                     val results =
                                         dataProcess.processImage(bitmap, ortEnvironment, session)
 
-                                val updatedResults: List<Result>
+                                    val updatedResults: List<Result>
 
-
-                                // 로컬에 이미지 저장
-                                if (results.isNotEmpty()) {
-                                    val fileName = generateUniqueFileName()
-                                    val file = File(context.filesDir, fileName)
-                                    saveImageToInternalStorage(image, file)
-                                    filePath = file.absolutePath
+                                    // 로컬에 이미지 저장
+                                    if (results.isNotEmpty()) {
+                                        val fileName = generateUniqueFileName()
+                                        val file = File(context.filesDir, fileName)
+                                        saveImageToInternalStorage(image, file)
+                                        filePath = file.absolutePath
 
                                         Log.d(TAG, "ARSceneComposable: ${file.absolutePath}")
                                         updatedResults =
@@ -413,7 +440,7 @@ fun ARSceneComposable(
                                     frame,
                                     widthPx,
                                     heightPx,
-                                    frame.camera
+                                    frame.camera,
                                 )
 
                             if (planeAndPose != null) {
@@ -435,75 +462,75 @@ fun ARSceneComposable(
                     }
                 },
                 onGestureListener =
-                rememberOnGestureListener(
-                    onSingleTapConfirmed = { motionEvent, node ->
-                        if (node is ModelNode || node?.parent is ModelNode) {
-                            val modelNode =
-                                if (node is ModelNode) node else node.parent as? ModelNode
+                    rememberOnGestureListener(
+                        onSingleTapConfirmed = { motionEvent, node ->
+                            if (node is ModelNode || node?.parent is ModelNode) {
+                                val modelNode =
+                                    if (node is ModelNode) node else node.parent as? ModelNode
 
-                        val anchorNode = modelNode?.parent as? AnchorNode
+                                val anchorNode = modelNode?.parent as? AnchorNode
 
-                        val anchorId = anchorNode?.name?.toLong()
+                                val anchorId = anchorNode?.name?.toLong()
 
-                        if (anchorId != null) {
-                            val quest = questInfos[anchorId]
+                                if (anchorId != null) {
+                                    val quest = questInfos[anchorId]
 
-                            quest?.let {
-                                when (quest.isComplete) {
-                                    // 퀘스트 진행전
-                                    QuestState.WAIT -> {
-                                        viewModel.showQuestDialog(
-                                            quest,
-                                        ) { accepted ->
-                                            if (accepted) {
-                                                viewModel.updateQuestState(
-                                                    anchorId,
-                                                    QuestState.PROGRESS,
-                                                )
+                                    quest?.let {
+                                        when (quest.isComplete) {
+                                            // 퀘스트 진행전
+                                            QuestState.WAIT -> {
+                                                viewModel.showQuestDialog(
+                                                    quest,
+                                                ) { accepted ->
+                                                    if (accepted) {
+                                                        viewModel.updateQuestState(
+                                                            anchorId,
+                                                            QuestState.PROGRESS,
+                                                        )
 
-                                                    viewModel.updateAnchorNode(
-                                                        quest,
-                                                        modelNode,
-                                                        anchorNode,
-                                                        modelLoader,
-                                                        materialLoader,
-                                                    )
+                                                        viewModel.updateAnchorNode(
+                                                            quest,
+                                                            modelNode,
+                                                            anchorNode,
+                                                            modelLoader,
+                                                            materialLoader,
+                                                        )
+                                                    }
                                                 }
                                             }
-                                        }
-                                        // 퀘스트 진행중
-                                        QuestState.PROGRESS -> {
-                                            viewModel.showQuestDialog(
-                                                quest,
-                                            ) { accepted -> }
-                                        }
-                                        // 퀘스트 완료
-                                        QuestState.COMPLETE -> {
-                                            coroutineScope.launch {
-                                                snackBarHostState.showSnackbar(
-                                                    scripts[quest.questType]?.completeMessage ?: "",
-                                                )
+                                            // 퀘스트 진행중
+                                            QuestState.PROGRESS -> {
+                                                viewModel.showQuestDialog(
+                                                    quest,
+                                                ) { accepted -> }
+                                            }
+                                            // 퀘스트 완료
+                                            QuestState.COMPLETE -> {
+                                                coroutineScope.launch {
+                                                    snackBarHostState.showSnackbar(
+                                                        scripts[quest.questType]?.completeMessage ?: "",
+                                                    )
+                                                }
                                             }
                                         }
                                     }
                                 }
                             }
-                        }
-                    },
-                ),
+                        },
+                    ),
             )
 
             Column {
                 Box(
                     modifier =
-                    Modifier
-                        .padding(top = 60.dp, start = 40.dp, end = 40.dp),
+                        Modifier
+                            .padding(top = 60.dp, start = 40.dp, end = 40.dp),
                 ) {
                     CustomCard(
                         imageUrl =
-                        SpeciesType
-                            .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
-                            ?.getImageResource() ?: (R.drawable.maple),
+                            SpeciesType
+                                .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
+                                ?.getImageResource() ?: (R.drawable.maple),
                         title = "가까운 미션 ${nearestQuestInfo.npc?.id ?: "검색중.."} ",
                         state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                         distanceText = "${
@@ -518,22 +545,22 @@ fun ARSceneComposable(
                     )
                     Card(
                         modifier =
-                        Modifier
-                            .offset(y = (-20).dp)
-                            .align(Alignment.TopCenter),
+                            Modifier
+                                .offset(y = (-20).dp)
+                                .align(Alignment.TopCenter),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Gray),
                     ) {
                         RatingBar(
                             value = animatedRating,
                             config =
-                            RatingBarConfig()
-                                .isIndicator(true)
-                                .stepSize(StepSize.HALF)
-                                .numStars(3)
-                                .size(28.dp)
-                                .inactiveColor(Color.LightGray)
-                                .style(RatingBarStyle.Normal),
+                                RatingBarConfig()
+                                    .isIndicator(true)
+                                    .stepSize(StepSize.HALF)
+                                    .numStars(3)
+                                    .size(28.dp)
+                                    .inactiveColor(Color.LightGray)
+                                    .style(RatingBarStyle.Normal),
                             onValueChange = { },
                             onRatingChanged = { },
                             modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
@@ -551,13 +578,13 @@ fun ARSceneComposable(
             IconButton(
                 onClick = { onPop() },
                 modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .padding(bottom = 16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF32A287))
-                    .size(52.dp),
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                        .padding(bottom = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF32A287))
+                        .size(52.dp),
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_map_24),
@@ -571,28 +598,33 @@ fun ARSceneComposable(
                     when (PackageManager.PERMISSION_GRANTED) {
                         ContextCompat.checkSelfPermission(
                             context,
-                            Manifest.permission.RECORD_AUDIO
-                        ) -> {
+                            Manifest.permission.RECORD_AUDIO,
+                        ),
+                        -> {
                             showSTT = true
                         }
+
                         else -> {
                             permissionLauncher.launch(Manifest.permission.RECORD_AUDIO)
                         }
-                    } },
-                modifier = Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 85.dp, end = 26.dp)
-                    .size(72.dp),
+                    }
+                },
+                modifier =
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 85.dp, end = 26.dp)
+                        .size(72.dp),
                 containerColor = Color.Transparent,
-                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp)
+                elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
             ) {
                 Image(
                     painter = painterResource(id = R.drawable.chatbot),
                     contentDescription = "Chat Bot",
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(4.dp),
-                    contentScale = ContentScale.Crop
+                    modifier =
+                        Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
+                    contentScale = ContentScale.Crop,
                 )
             }
 
@@ -602,7 +634,8 @@ fun ARSceneComposable(
                     onResult = { result ->
                         showSTT = false
                         result?.let {
-                            viewModel.chattingNPC(explorationId,
+                            viewModel.chattingNPC(
+                                explorationId,
                                 nearestQuestInfo.npc?.npcPosId ?: 0,
                                 it,
                                 onSuccess = { msg ->
@@ -610,9 +643,10 @@ fun ARSceneComposable(
                                 },
                                 onError = { error ->
                                     coroutineScope.launch { snackBarHostState.showSnackbar(error) }
-                                })
+                                },
+                            )
                         }
-                    }
+                    },
                 )
             }
 
@@ -638,7 +672,7 @@ fun ARSceneComposable(
             DialogRegist(
                 onDismiss = { viewModel.onRegisterDialogDismiss() },
                 image = filePath,
-                onConfirm = onNavigateToEncyc
+                onConfirm = onNavigateToEncyc,
             )
         }
     }
