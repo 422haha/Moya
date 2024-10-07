@@ -18,7 +18,6 @@ import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
 import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.moya.navigation.MainBottomNavigation
-import com.ssafy.moya.navigation.MainBottomNavigationRoute
 import com.ssafy.ui.screen.UserProfileEditScreen
 
 @Composable
@@ -94,7 +93,7 @@ fun MainNavigation(
         composable<Encyc> {
             val route = it.toRoute<Encyc>()
             EncycScreen(
-                isDialog = false,
+                isDialog = route.isDialog,
                 parkId = route.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
@@ -135,7 +134,7 @@ fun MainNavigation(
                     }
                 },
                 onEnterEncyc = { parkId ->
-                    navController.navigate(Encyc(parkId))
+                    navController.navigate(Encyc(true, parkId))
                 },
                 onEnterAR = { id ->
                     navController.navigate(ARCamera(explrationId = id, parkId = exploreStart.parkId))
@@ -159,7 +158,7 @@ fun MainNavigation(
                     ttsHelper.reStart()
                 },
                 onNavigateToEncyc = {
-                    navController.navigate(Encyc(route.parkId))
+                    navController.navigate(Encyc(isDialog = true, parkId = route.parkId))
                 }
             )
         }

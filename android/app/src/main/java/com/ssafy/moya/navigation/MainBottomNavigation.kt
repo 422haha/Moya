@@ -89,7 +89,7 @@ fun MainBottomNavigation(
             }
             composable<MainBottomNavigationRoute.Encyc> {
                 EncycScreen(
-                    isDialog = true,
+                    isDialog = false,
                     parkId = 0,
                     onNavigateToEncycDetail = onNavigateToEncycDetail,
                     onPop = {},

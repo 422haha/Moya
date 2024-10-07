@@ -18,7 +18,7 @@ data class ExploreDetail(val itemId: Long)
 data class ParkDetail(val parkId: Long)
 
 @Serializable
-data class Encyc(val parkId: Long)
+data class Encyc(val isDialog: Boolean, val parkId: Long)
 
 @Serializable
 data class EncycDetail(val encycId: Long)
