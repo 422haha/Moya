@@ -1,9 +1,12 @@
 package com.ssafy.main.explorestart
 
+import android.content.Context
+import android.hardware.SensorManager
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -25,8 +28,11 @@ fun ExploreStartScreen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+
     LaunchedEffect(parkId) {
         viewModel.loadData(parkId)
+        viewModel.initializeStepSensor(sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager)
     }
 
     BackHandler {

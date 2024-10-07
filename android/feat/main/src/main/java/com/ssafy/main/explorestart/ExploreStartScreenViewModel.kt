@@ -1,5 +1,9 @@
 package com.ssafy.main.explorestart
 
+import android.hardware.Sensor
+import android.hardware.SensorEvent
+import android.hardware.SensorEventListener
+import android.hardware.SensorManager
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
@@ -37,6 +41,7 @@ class ExploreStartScreenViewModel
                         explorationId = currentState.explorationId,
                         parkId = parkId,
                     )
+
                 else -> loadInitialData(parkId)
             }
         }
@@ -62,6 +67,45 @@ class ExploreStartScreenViewModel
             }
         }
 
+        private lateinit var sensorManager: SensorManager
+        private var stepCounterSensor: Sensor? = null
+        private lateinit var sensorEventListener: SensorEventListener
+        private var initialStepCount: Int? = null
+        private var stepCount = 0
+
+        fun initializeStepSensor(sensorManager: SensorManager) {
+            this.sensorManager = sensorManager
+            stepCounterSensor = sensorManager.getDefaultSensor(Sensor.TYPE_STEP_COUNTER)
+
+            sensorEventListener =
+                object : SensorEventListener {
+                    override fun onAccuracyChanged(
+                        sensor: Sensor?,
+                        accuracy: Int,
+                    ) {}
+
+                    override fun onSensorChanged(event: SensorEvent) {
+                        if (initialStepCount == null) {
+                            initialStepCount = event.values[0].toInt()
+                        } else {
+                            stepCount = event.values[0].toInt()
+                        }
+                    }
+                }
+
+            stepCounterSensor?.let {
+                sensorManager.registerListener(
+                    sensorEventListener,
+                    it,
+                    SensorManager.SENSOR_DELAY_NORMAL,
+                )
+            }
+        }
+
+        fun disposeStepSensor() {
+            sensorManager.unregisterListener(sensorEventListener)
+        }
+
         private fun loadInitialData(parkId: Long) {
             viewModelScope.launch {
                 explorationRepository.startExploration(parkId).collectLatest { response ->
@@ -77,7 +121,13 @@ class ExploreStartScreenViewModel
                                                 .map { LatLng(it.latitude, it.longitude) },
                                         discoveredPositions =
                                             body.myDiscoveredSpecies
-                                                .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
+                                                .map {
+                                                    ExploreMarkerState(
+                                                        it.name,
+                                                        it.imageUrl,
+                                                        it.positions,
+                                                    )
+                                                },
                                         speciesPositions =
                                             body.species
                                                 .flatMap { it.positions }
@@ -99,31 +149,41 @@ class ExploreStartScreenViewModel
             parkId: Long,
         ) {
             viewModelScope.launch {
-                explorationRepository.getExplorationData(parkId = parkId, explorationId = explorationId).collectLatest { response ->
-                    _state.value = when(response) {
-                        is ApiResponse.Success -> {
-                            response.body?.let { body ->
-                                ExploreStartScreenState.Loaded(
-                                    explorationId = body.id,
-                                    npcPositions =
-                                    body.npcs
-                                        .flatMap { it.positions }
-                                        .map { LatLng(it.latitude, it.longitude) },
-                                    discoveredPositions =
-                                    body.myDiscoveredSpecies
-                                        .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
-                                    speciesPositions =
-                                    body.species
-                                        .flatMap { it.positions }
-                                        .map { LatLng(it.latitude, it.longitude) },
-                                )
-                            } ?: ExploreStartScreenState.Error("Failed to load initial data")
-                        }
-                        is ApiResponse.Error -> {
-                            ExploreStartScreenState.Error(response.errorMessage ?: "Unknown error")
-                        }
+                explorationRepository
+                    .getExplorationData(parkId = parkId, explorationId = explorationId)
+                    .collectLatest { response ->
+                        _state.value =
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    response.body?.let { body ->
+                                        ExploreStartScreenState.Loaded(
+                                            explorationId = body.id,
+                                            npcPositions =
+                                                body.npcs
+                                                    .flatMap { it.positions }
+                                                    .map { LatLng(it.latitude, it.longitude) },
+                                            discoveredPositions =
+                                                body.myDiscoveredSpecies
+                                                    .map {
+                                                        ExploreMarkerState(
+                                                            it.name,
+                                                            it.imageUrl,
+                                                            it.positions,
+                                                        )
+                                                    },
+                                            speciesPositions =
+                                                body.species
+                                                    .flatMap { it.positions }
+                                                    .map { LatLng(it.latitude, it.longitude) },
+                                        )
+                                    } ?: ExploreStartScreenState.Error("Failed to load initial data")
+                                }
+
+                                is ApiResponse.Error -> {
+                                    ExploreStartScreenState.Error(response.errorMessage ?: "Unknown error")
+                                }
+                            }
                     }
-                }
             }
         }
 
@@ -141,16 +201,16 @@ class ExploreStartScreenViewModel
                                     steps = 0,
                                 ),
                         ).collectLatest { response ->
-                            when(response){
+                            when (response) {
                                 is ApiResponse.Success -> {
                                     _state.value = ExploreStartScreenState.Exit
                                 }
+
                                 is ApiResponse.Error -> {
-                                    //_state.value = ExploreStartScreenState.Exit
+                                    // _state.value = ExploreStartScreenState.Exit
                                 }
                             }
                         }
-
                 }
             }
         }
