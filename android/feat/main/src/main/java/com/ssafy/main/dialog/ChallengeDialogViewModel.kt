@@ -32,7 +32,7 @@ class ChallengeDialogViewModel
                                         Missions(
                                             id = quest.questId,
                                             missionTitle = "${quest.npcName}에게 ${quest.speciesName} 가져가기",
-                                            isSuccess = quest.completed == "WAIT",
+                                            isSuccess = quest.completed != "WAIT",
                                         )
                                     }
                                 } ?: emptyList()

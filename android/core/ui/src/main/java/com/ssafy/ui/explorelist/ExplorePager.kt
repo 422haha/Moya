@@ -1,5 +1,6 @@
 package com.ssafy.ui.explorelist
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxHeight
@@ -7,9 +8,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.pager.HorizontalPager
 import androidx.compose.foundation.pager.rememberPagerState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material.icons.automirrored.filled.ArrowForward
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowLeft
+import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.runtime.Composable
@@ -21,7 +23,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.ssafy.ui.exploredetail.ExploreDetail
 import com.ssafy.ui.exploredetail.ExploreDetailScreenState
-import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SurfaceColor
 import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
@@ -57,41 +59,63 @@ fun ExplorePager(
                 )
             }
             if (pagerState.currentPage > 0) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Previous",
-                    tint = PrimaryColor,
-                    modifier = Modifier
-                        .align(Alignment.CenterStart)
-                        .padding(24.dp)
-                        .size(48.dp)
-                        .clickable {
-                            if (pagerState.currentPage > 0) {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pagerState.currentPage - 1)
-                                }
-                            }
-                        }
-                )
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterStart)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(topEnd = 100.dp, bottomEnd = 100.dp),
+                            ),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowLeft,
+                        contentDescription = "Previous",
+                        tint = SurfaceColor,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterStart)
+                                .padding(8.dp)
+                                .size(48.dp)
+                                .clickable {
+                                    if (pagerState.currentPage > 0) {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(pagerState.currentPage - 1)
+                                        }
+                                    }
+                                },
+                    )
+                }
             }
 
             if (pagerState.currentPage < exploreDetails.size - 1) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Filled.ArrowForward,
-                    contentDescription = "Next",
-                    tint = PrimaryColor,
-                    modifier = Modifier
-                        .align(Alignment.CenterEnd)
-                        .padding(24.dp)
-                        .size(48.dp)
-                        .clickable {
-                            if (pagerState.currentPage < exploreDetails.size - 1) {
-                                coroutineScope.launch {
-                                    pagerState.animateScrollToPage(pagerState.currentPage + 1)
-                                }
-                            }
-                        }
-                )
+                Box(
+                    modifier =
+                        Modifier
+                            .align(Alignment.CenterEnd)
+                            .background(
+                                color = Color.Black.copy(alpha = 0.5f),
+                                shape = RoundedCornerShape(topStart = 100.dp, bottomStart = 100.dp),
+                            ),
+                ) {
+                    Icon(
+                        imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                        contentDescription = "Next",
+                        tint = SurfaceColor,
+                        modifier =
+                            Modifier
+                                .align(Alignment.CenterEnd)
+                                .padding(8.dp)
+                                .size(48.dp)
+                                .clickable {
+                                    if (pagerState.currentPage < exploreDetails.size - 1) {
+                                        coroutineScope.launch {
+                                            pagerState.animateScrollToPage(pagerState.currentPage + 1)
+                                        }
+                                    }
+                                },
+                    )
+                }
             }
         }
     } else {

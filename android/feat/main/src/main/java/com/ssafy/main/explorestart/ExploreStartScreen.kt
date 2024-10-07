@@ -30,11 +30,15 @@ fun ExploreStartScreen(
     }
 
     BackHandler {
-        viewModel.onIntent(ExploreStartUserIntent.OnExitClicked)
+        if (uiState is ExploreStartScreenState.Loaded) {
+            viewModel.onIntent(ExploreStartUserIntent.OnExitClicked)
+        } else {
+            onExitExplore()
+        }
     }
-    
+
     LaunchedEffect(uiState) {
-        if(uiState is ExploreStartScreenState.Exit){
+        if (uiState is ExploreStartScreenState.Exit) {
             onExitExplore()
         }
     }
@@ -59,17 +63,14 @@ fun ExploreStartScreen(
                 Dialog(onDismissRequest = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) }) {
                     ChallengeDialog(
                         explorationId = (uiState as ExploreStartScreenState.Loaded).explorationId,
-                        onConfirm = { id ->
-                            viewModel.onIntent(
-                                ExploreStartUserIntent.OnChallengeSelected(
-                                    id,
-                                ),
-                            )
+                        onConfirm = { _ ->
+                            onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
                         },
                         onDismiss = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) },
                     )
                 }
             }
+
             else -> Unit
         }
     }
@@ -78,10 +79,11 @@ fun ExploreStartScreen(
         when (intent) {
             is ExploreStartUserIntent.OnEnterEncyc -> onEnterEncyc(parkId)
             is ExploreStartUserIntent.OnCameraClicked -> {
-                if(uiState is ExploreStartScreenState.Loaded){
+                if (uiState is ExploreStartScreenState.Loaded) {
                     onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
                 }
             }
+
             else -> viewModel.onIntent(intent)
         }
     })
