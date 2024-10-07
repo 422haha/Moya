@@ -348,17 +348,17 @@ VALUES ('Test Park 1', '테스트 공원 1 설명', 'park1.jpg'),
        ('Test Park 7', '테스트 공원 7 설명', 'park7.jpg'),
        ('Test Park 8', '테스트 공원 8 설명', 'park8.jpg'),
        ('Test Park 9', '테스트 공원 9 설명', 'park9.jpg'),
-       ('Test Park 10', '테스트 공원 10 설명', 'park10'),
-       ('Test Park 11', '테스트 공원 11 설명', 'park11'),
-       ('Test Park 12', '테스트 공원 12 설명', 'park12'),
-       ('Test Park 13', '테스트 공원 13 설명', 'park13'),
-       ('Test Park 14', '테스트 공원 14 설명', 'park13'),
-       ('Test Park 15', '테스트 공원 15 설명', 'park13'),
-       ('Test Park 16', '테스트 공원 16 설명', 'park13'),
-       ('Test Park 17', '테스트 공원 17 설명', 'park13'),
-       ('Test Park 18', '테스트 공원 18 설명', 'park13'),
-       ('Test Park 19', '테스트 공원 19 설명', 'park13'),
-       ('Test Park 20', '테스트 공원 20 설명', 'park13');
+       ('Test Park 10', '테스트 공원 10 설명', 'park10.jpg'),
+       ('Test Park 11', '테스트 공원 11 설명', 'park11.jpg'),
+       ('Test Park 12', '테스트 공원 12 설명', 'park12.jpg'),
+       ('Test Park 13', '테스트 공원 13 설명', 'park13.jpg'),
+       ('Test Park 14', '테스트 공원 14 설명', 'park13.jpg'),
+       ('Test Park 15', '테스트 공원 15 설명', 'park13.jpg'),
+       ('Test Park 16', '테스트 공원 16 설명', 'park13.jpg'),
+       ('Test Park 17', '테스트 공원 17 설명', 'park13.jpg'),
+       ('Test Park 18', '테스트 공원 18 설명', 'park13.jpg'),
+       ('Test Park 19', '테스트 공원 19 설명', 'park13.jpg'),
+       ('Test Park 20', '테스트 공원 20 설명', 'park13.jpg');
 
 -- 테스트용 공원 위치 추가
 INSERT INTO park_pos (pos, park_id, name)
