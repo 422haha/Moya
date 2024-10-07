@@ -1,6 +1,5 @@
-package com.ssafy.ui.component
+package com.ssafy.ar.ui
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -8,6 +7,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -22,28 +22,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
-import com.ssafy.ui.R
-import com.ssafy.ui.theme.PrimaryColor
-import com.ssafy.ui.theme.SurfaceColor
-import com.ssafy.ui.theme.customTypography
+import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
+import com.ssafy.ar.R
 
-//인식되면 나올 다이얼로그
 @Composable
 fun DialogRegist(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    image: Int?
+    image: String
 ) {
     Surface(
         modifier = modifier
             .wrapContentHeight()
             .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
-        color = SurfaceColor,
+        color = Color(0xFFF0FFEB),
     ) {
         Box(
             modifier = Modifier
@@ -51,15 +48,14 @@ fun DialogRegist(
                 .wrapContentHeight()
                 .padding(12.dp)
         ) {
-            image?.let {
-                Image(
-                    painterResource(id = R.drawable.ic_launcher_background),
-                    contentDescription = "",
-                    modifier = Modifier
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
-                )
-            }
+            AsyncImage(
+                model = image,
+                contentDescription = "",
+                modifier = Modifier
+                    .clip(RoundedCornerShape(16.dp))
+                    .size(72.dp),
+                contentScale = ContentScale.Crop
+            )
 
             Column(
                 verticalArrangement = Arrangement.SpaceBetween,
@@ -80,16 +76,20 @@ fun DialogRegist(
                 ) {
                     Text(
                         text = "도감에서 확인하기",
-                        color = PrimaryColor,
-                        style = customTypography.displaySmall,
-                        modifier = Modifier.clickable { onConfirm() }
+                        color = Color(0xFF32A287),
+                        fontSize = 24.sp,
+                        modifier = Modifier
+                            .clickable { onConfirm() }
+                            .padding(end = 4.dp)
                     )
 
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "도감으로 이동",
-                        tint = PrimaryColor,
-                        modifier = Modifier.clickable { onConfirm() }
+                        tint = Color(0xFF32A287),
+                        modifier = Modifier
+                            .clickable { onConfirm() }
+                            .align(Alignment.CenterVertically)
                     )
                 }
             }
@@ -100,5 +100,5 @@ fun DialogRegist(
 @Preview(showBackground = true)
 @Composable
 fun DialogRegistPreview() {
-    DialogRegist(onDismiss = {}, onConfirm = {}, image = R.drawable.ic_launcher_background)
+    DialogRegist(onDismiss = {}, onConfirm = {}, image = R.drawable.maple.toString())
 }

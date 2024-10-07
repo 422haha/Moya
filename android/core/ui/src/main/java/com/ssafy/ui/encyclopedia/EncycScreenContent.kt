@@ -244,7 +244,7 @@ fun EncycGrid(
         itemsIndexed(items) { index, item ->
             EncycCard(
                 item,
-                onClick = { onItemClicked(index.toLong()) },
+                onClick = { onItemClicked(item.id) },
             )
         }
     }
