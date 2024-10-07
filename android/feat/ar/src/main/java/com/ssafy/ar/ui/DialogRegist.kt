@@ -33,63 +33,67 @@ fun DialogRegist(
     modifier: Modifier = Modifier,
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
-    image: String
+    image: String,
 ) {
     Surface(
-        modifier = modifier
-            .wrapContentHeight()
-            .fillMaxWidth(),
+        modifier =
+            modifier
+                .wrapContentHeight()
+                .fillMaxWidth(),
         shape = RoundedCornerShape(12.dp),
         color = Color(0xFFF0FFEB),
     ) {
         Box(
-            modifier = Modifier
-                .fillMaxWidth()
-                .wrapContentHeight()
-                .padding(12.dp)
+            modifier =
+                Modifier
+                    .fillMaxWidth()
+                    .wrapContentHeight()
+                    .padding(12.dp),
         ) {
             AsyncImage(
                 model = image,
                 contentDescription = "",
-                modifier = Modifier
-                    .clip(RoundedCornerShape(16.dp))
-                    .size(72.dp),
-                contentScale = ContentScale.Crop
+                modifier =
+                    Modifier
+                        .clip(RoundedCornerShape(16.dp))
+                        .size(72.dp),
+                contentScale = ContentScale.Crop,
             )
 
             Column(
                 verticalArrangement = Arrangement.SpaceBetween,
                 horizontalAlignment = Alignment.End,
-                modifier = Modifier.matchParentSize()
+                modifier = Modifier.matchParentSize(),
             ) {
                 Icon(
                     imageVector = Icons.Default.Clear,
                     contentDescription = "닫기",
-                    tint = Color.Red,
-                    modifier = Modifier.clickable { onDismiss() }
+                    tint = Color.Gray,
+                    modifier = Modifier.clickable { onDismiss() },
                 )
-
 
                 Row(
                     horizontalArrangement = Arrangement.End,
-                    verticalAlignment = Alignment.Bottom
+                    verticalAlignment = Alignment.Bottom,
                 ) {
                     Text(
                         text = "도감에서 확인하기",
                         color = Color(0xFF32A287),
                         fontSize = 24.sp,
-                        modifier = Modifier
-                            .clickable { onConfirm() }
-                            .padding(end = 4.dp)
+                        modifier =
+                            Modifier
+                                .clickable { onConfirm() }
+                                .padding(end = 4.dp),
                     )
 
                     Icon(
                         imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
                         contentDescription = "도감으로 이동",
                         tint = Color(0xFF32A287),
-                        modifier = Modifier
-                            .clickable { onConfirm() }
-                            .align(Alignment.CenterVertically)
+                        modifier =
+                            Modifier
+                                .clickable { onConfirm() }
+                                .align(Alignment.CenterVertically),
                     )
                 }
             }
