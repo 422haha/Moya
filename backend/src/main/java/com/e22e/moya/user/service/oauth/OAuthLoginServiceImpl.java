@@ -41,7 +41,7 @@ public class OAuthLoginServiceImpl implements OAuthLoginService {
         log.info("{} 로그인 시도, access token: {}", provider, accessToken);
         try {
             Map<String, Object> userInfo = getUserInfoFromProvider(provider, accessToken);
-            log.info("받아온 사용자 정보: {}", userInfo);
+
             String email, name, profileImageUrl;
 
             if ("kakao".equals(provider)) {
@@ -114,8 +114,6 @@ public class OAuthLoginServiceImpl implements OAuthLoginService {
             .build();
 
         log.debug("사용자 정보를 가져오기 위해 HTTP 요청 전송");
-
-
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
         log.debug("API 응답: {}", response.body());
 
