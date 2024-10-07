@@ -11,7 +11,7 @@ sealed interface ExploreStartScreenState {
     data class Loaded(
         val explorationId: Long,
         val npcPositions: List<LatLng> = listOf(),
-        val discoveredPositions: List<LatLng> = listOf(),
+        val discoveredPositions: List<ExploreMarkerState> = listOf(),
         val speciesPositions: List<LatLng> = listOf(),
     ) : ExploreStartScreenState
 

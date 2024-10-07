@@ -6,6 +6,7 @@ import com.naver.maps.geometry.LatLng
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
 import com.ssafy.network.request.ExplorationEndRequestBody
+import com.ssafy.ui.explorestart.ExploreMarkerState
 import com.ssafy.ui.explorestart.ExploreStartDialogState
 import com.ssafy.ui.explorestart.ExploreStartScreenState
 import com.ssafy.ui.explorestart.ExploreStartUserIntent
@@ -76,8 +77,7 @@ class ExploreStartScreenViewModel
                                                 .map { LatLng(it.latitude, it.longitude) },
                                         discoveredPositions =
                                             body.myDiscoveredSpecies
-                                                .flatMap { it.positions }
-                                                .map { LatLng(it.latitude, it.longitude) },
+                                                .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
                                         speciesPositions =
                                             body.species
                                                 .flatMap { it.positions }
@@ -111,8 +111,7 @@ class ExploreStartScreenViewModel
                                         .map { LatLng(it.latitude, it.longitude) },
                                     discoveredPositions =
                                     body.myDiscoveredSpecies
-                                        .flatMap { it.positions }
-                                        .map { LatLng(it.latitude, it.longitude) },
+                                        .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
                                     speciesPositions =
                                     body.species
                                         .flatMap { it.positions }
@@ -141,8 +140,17 @@ class ExploreStartScreenViewModel
                                     route = emptyList(), // TODO : 이동경로 저장
                                     steps = 0,
                                 ),
-                        )
-                    _state.value = ExploreStartScreenState.Exit
+                        ).collectLatest { response ->
+                            when(response){
+                                is ApiResponse.Success -> {
+                                    _state.value = ExploreStartScreenState.Exit
+                                }
+                                is ApiResponse.Error -> {
+                                    //_state.value = ExploreStartScreenState.Exit
+                                }
+                            }
+                        }
+
                 }
             }
         }

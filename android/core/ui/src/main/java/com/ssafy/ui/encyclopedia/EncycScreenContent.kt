@@ -195,9 +195,9 @@ fun FilterChipComponent(
             ),
         border =
             if (isSelected) {
-                BorderStroke(1.dp, DarkGrayColor)
-            } else {
                 null
+            } else {
+                BorderStroke(1.dp, GrayColor)
             },
     )
 }
@@ -255,7 +255,7 @@ fun CollectionProgress(
     progress: Float,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
-    Surface(modifier = Modifier.bottomShadow(4.dp)) {
+    Surface(modifier = Modifier.bottomShadow(4.dp), color = SurfaceColor) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =
