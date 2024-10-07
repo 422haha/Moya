@@ -160,20 +160,30 @@ public class ExplorationServiceImpl implements ExplorationService {
         // route를 lineString으로
         List<G2D> positionList = new ArrayList<>();
         for (EndRequestDto.Points point : endRequestDto.getRoute()) {
-            if (point.isValid()) {
+            // null 체크 추가 및 유효성 검사
+            if (point != null && point.isValid()) {
                 G2D position = DSL.g(point.getLongitude(), point.getLatitude());
                 positionList.add(position);
             }
         }
-        G2D[] positions = positionList.toArray(new G2D[0]);
 
-        LineString<G2D> lineString = DSL.linestring(CoordinateReferenceSystems.WGS84, positions);
+        // 최소 2개 이상의 유효한 포인트가 있는지 확인
+        if (positionList.size() >= 2) {
+            G2D[] positions = positionList.toArray(new G2D[0]);
+            LineString<G2D> lineString = DSL.linestring(CoordinateReferenceSystems.WGS84,
+                positions);
+            exploration.setRoute(lineString);
+        } else {
+            // 유효한 포인트 2개 미만일 경우
+            log.warn("충분한 지점이 없어 lineString 생성 불가: "
+                + positionList.size());
+            exploration.setRoute(null);
+        }
 
-        exploration.setRoute(lineString);
         exploration.setSteps(endRequestDto.getSteps());
         exploration.setEndTime(LocalDateTime.now());
         exploration.setCompleted(true);
-        explorationRepository.save(exploration); // 기존 정보 저장e
+        explorationRepository.save(exploration);
 
         // 저장된 linestring을 바탕으로 PostGIS 사용하여 거리 계산 및 저장
         Double distance = explorationRepository.calculateDistance(exploration.getId());

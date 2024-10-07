@@ -71,6 +71,9 @@ public class ExplorationController {
 
             response.put("message", "탐험 시작");
             response.put("data", explorationStartDto);
+
+            log.info("응답 전송: {}", response);
+
             return ResponseEntity.status(HttpStatus.OK).body(response);
 
 //            response.put("message", "탐험 시작");
@@ -123,7 +126,7 @@ public class ExplorationController {
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (Exception e) {
-            log.error("탐험에 필요한 정보 불러오기 실패 : {}", e.getMessage());
+            log.error("탐험에 필요한 정보 생성 실패 : {}", e.getMessage());
             response.put("message", "탐험에 필요한 정보 불러올 수 없습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
@@ -181,17 +184,17 @@ public class ExplorationController {
             return ResponseEntity.ok().body(response);
 
         } catch (EntityNotFoundException e) {
-            log.error("탐험을 찾을 수 없음 : {}", e.getMessage());
+            log.error("탐험을 찾을 수 없음", e);
             response.put("message", "탐험을 찾을 수 없습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
         } catch (IllegalArgumentException e) {
-            log.error("권한 없음 : {}", e.getMessage());
+            log.error("권한 없음}", e);
             response.put("message", "탐험 종료 권한이 없습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(response);
         } catch (Exception e) {
-            log.error("탐험 기록 저장 실패 : {}", e.getMessage());
+            log.error("탐험 기록 저장 실패", e);
             response.put("message", "탐험 기록 저장에 실패했습니다.");
             response.put("data", new Object[]{});
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);

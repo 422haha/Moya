@@ -39,43 +39,51 @@ public class OAuthLoginServiceImpl implements OAuthLoginService {
     @Override
     public Long loginUser(String provider, String accessToken) throws Exception {
         log.info("{} 로그인 시도, access token: {}", provider, accessToken);
-        Map<String, Object> userInfo = getUserInfoFromProvider(provider, accessToken);
+        try {
+            Map<String, Object> userInfo = getUserInfoFromProvider(provider, accessToken);
 
-        String email, name, profileImageUrl;
+            String email, name, profileImageUrl;
 
-        if ("kakao".equals(provider)) {
-            log.info("kakao 로그인중");
-            Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get("kakao_account");
-            Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
+            if ("kakao".equals(provider)) {
+                log.info("kakao 로그인중");
+                Map<String, Object> kakaoAccount = (Map<String, Object>) userInfo.get(
+                    "kakao_account");
+                Map<String, Object> profile = (Map<String, Object>) kakaoAccount.get("profile");
 
-            email = (String) kakaoAccount.get("email");
-            name = (String) profile.get("nickname");
-            profileImageUrl = (String) profile.get("profile_image_url");
-        } else if ("naver".equals(provider)) {
-            log.info("naver 로그인중");
-            Map<String, Object> response = (Map<String, Object>) userInfo.get("response");
+                email = (String) kakaoAccount.get("email");
+                name = (String) profile.get("nickname");
+                profileImageUrl = (String) profile.get("profile_image_url");
+            } else if ("naver".equals(provider)) {
+                log.info("naver 로그인중");
+                Map<String, Object> response = (Map<String, Object>) userInfo.get("response");
 
-            email = (String) response.get("email");
-            name = (String) response.get("nickname");
-            profileImageUrl = (String) response.get("profile_image");
-        } else {
-            log.error("지원하지 않는 OAuth 제공자 : {}", provider);
-            throw new IllegalArgumentException("지원하지 않는 OAuth 제공자: " + provider);
+                email = (String) response.get("email");
+                name = (String) response.get("nickname");
+                profileImageUrl = (String) response.get("profile_image");
+
+                log.debug("추출된 이메일: {}, 이름: {}, 프로필 이미지: {}", email, name, profileImageUrl);
+            } else {
+                log.error("지원하지 않는 OAuth 제공자 : {}", provider);
+                throw new IllegalArgumentException("지원하지 않는 OAuth 제공자: " + provider);
+            }
+
+            // User 찾거나 없으면 등록
+            Users user = userService.findOrCreateUser(email, name, profileImageUrl);
+
+            Authentication authentication = new UsernamePasswordAuthenticationToken(
+                user.getEmail(), null, Collections.emptyList());
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            log.info("사용자 인증 성공: {}", user.getEmail());
+
+            return user.getId();
+        } catch (Exception e) {
+            log.error("로그인 중 오류 발생: ", e);
+            throw e;
         }
-
-        // User 찾거나 없으면 등록
-        Users user = userService.findOrCreateUser(email, name, profileImageUrl);
-
-        Authentication authentication = new UsernamePasswordAuthenticationToken(
-            user.getEmail(), null, Collections.emptyList());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        log.info("사용자 인증 성공: {}", user.getEmail());
-
-        return user.getId();
     }
 
     /**
-     * oAuth 제공자로부터 사용자 정보 가져옴
+     * OAuth 제공자로부터 사용자 정보 가져옴
      *
      * @param provider    oauth 제공자
      * @param accessToken oauth 액세스 토큰
@@ -107,10 +115,10 @@ public class OAuthLoginServiceImpl implements OAuthLoginService {
 
         log.debug("사용자 정보를 가져오기 위해 HTTP 요청 전송");
         HttpResponse<String> response = client.send(request, HttpResponse.BodyHandlers.ofString());
+        log.debug("API 응답: {}", response.body());
 
         // json응답을 map으로
         ObjectMapper mapper = new ObjectMapper();
-        log.info("사용자 정보 가져오기 성공");
         return mapper.readValue(response.body(), Map.class);
     }
 }

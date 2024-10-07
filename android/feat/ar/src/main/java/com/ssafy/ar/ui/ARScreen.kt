@@ -81,11 +81,14 @@ import io.github.sceneview.rememberModelLoader
 import io.github.sceneview.rememberNodes
 import io.github.sceneview.rememberOnGestureListener
 import io.github.sceneview.rememberView
+import io.github.sceneview.safeDestroyView
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
 import kotlinx.coroutines.withContext
 import java.io.File
 
@@ -202,38 +205,39 @@ fun ARSceneComposable(
     var isProcessingImage = false
     var registeredSpecies by remember { mutableStateOf(setOf<Int>()) }
     var filePath by remember { mutableStateOf("") }
+    var dialogFilePath by remember { mutableStateOf<String?>(null) }
 
     val showRegisterDialog by viewModel.registerDialog.collectAsState()
+    val mutex = Mutex()
 
     LaunchedEffect(detectionResults) {
         // 도감 등록
         detectionResults.forEach {
             if (it.classIndex !in registeredSpecies) {
-                Log.d("detectionResults", "speciesId: ${it.classIndex}")
-                Log.d("registeredSpecies", "speciesId: $registeredSpecies")
-                viewModel.registerSpecies(
-                    explorationId,
-                    RegisterSpeciesRequestBody(
-                        (it.classIndex + 1).toLong(),
-                        it.imageUrl ?: "",
-                        viewModel.locationManager.currentLocation.value
-                            ?.latitude ?: 0.0,
-                        viewModel.locationManager.currentLocation.value
-                            ?.longitude ?: 0.0,
-                    ),
-                    onSuccess = { result ->
-                        registeredSpecies = registeredSpecies + (result.speciesId - 1).toInt()
-                        viewModel.showRegisterDialog()
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar("도감에 등록되었습니다!")
-                        }
-                    },
-                    onError = {
-                        coroutineScope.launch {
-                            snackBarHostState.showSnackbar(it)
-                        }
-                    },
-                )
+                Log.d("dataProcess", "registeredSpecies1: $registeredSpecies")
+                mutex.withLock {
+                    viewModel.registerSpecies(
+                        explorationId,
+                        RegisterSpeciesRequestBody(
+                            (it.classIndex + 1).toLong(),
+                            it.imageUrl ?: "",
+                            viewModel.locationManager.currentLocation.value
+                                ?.latitude ?: 0.0,
+                            viewModel.locationManager.currentLocation.value
+                                ?.longitude ?: 0.0,
+                        ),
+                        onSuccess = { result ->
+                            registeredSpecies = registeredSpecies + (result.speciesId - 1).toInt()
+                            dialogFilePath = it.imageUrl
+                            viewModel.showRegisterDialog()
+                        },
+                        onError = {
+                            coroutineScope.launch {
+                                snackBarHostState.showSnackbar(it)
+                            }
+                        },
+                    )
+                }
             }
         }
 
@@ -298,9 +302,22 @@ fun ARSceneComposable(
 
     DisposableEffect(Unit) {
         onDispose {
-            imageProcessingScope.cancel()
-            coroutineScope.cancel()
-            onTTSShutDown()
+            runCatching {
+                childNodes.clear()
+                collisionSystem.destroy()
+                engine.safeDestroyView(view)
+
+                viewModel.locationManager.stopLocationUpdates()
+
+                ortSession?.close()
+                ortEnvironment.close()
+
+                imageProcessingScope.cancel()
+                coroutineScope.cancel()
+                onTTSShutDown()
+            }.onFailure {
+                it.printStackTrace()
+            }
         }
     }
 
@@ -537,9 +554,9 @@ fun ARSceneComposable(
                     )
                     Card(
                         modifier =
-                            Modifier
-                                .offset(y = (-20).dp)
-                                .align(Alignment.TopCenter),
+                        Modifier
+                            .offset(y = (-20).dp)
+                            .align(Alignment.TopCenter),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Gray),
                     ) {
@@ -570,13 +587,13 @@ fun ARSceneComposable(
             IconButton(
                 onClick = { onPop() },
                 modifier =
-                    Modifier
-                        .align(Alignment.BottomCenter)
-                        .padding(16.dp)
-                        .padding(bottom = 16.dp)
-                        .clip(RoundedCornerShape(16.dp))
-                        .background(Color(0xFF32A287))
-                        .size(52.dp),
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .padding(bottom = 16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xFF32A287))
+                    .size(52.dp),
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_map_24),
@@ -602,10 +619,10 @@ fun ARSceneComposable(
                     }
                 },
                 modifier =
-                    Modifier
-                        .align(Alignment.BottomEnd)
-                        .padding(bottom = 85.dp, end = 26.dp)
-                        .size(72.dp),
+                Modifier
+                    .align(Alignment.BottomEnd)
+                    .padding(bottom = 85.dp, end = 26.dp)
+                    .size(72.dp),
                 containerColor = Color.Transparent,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
             ) {
@@ -613,9 +630,9 @@ fun ARSceneComposable(
                     painter = painterResource(id = R.drawable.chatbot),
                     contentDescription = "Chat Bot",
                     modifier =
-                        Modifier
-                            .fillMaxSize()
-                            .padding(4.dp),
+                    Modifier
+                        .fillMaxSize()
+                        .padding(4.dp),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -659,11 +676,18 @@ fun ARSceneComposable(
         }
     }
 
-    if (showRegisterDialog) {
-        Dialog(onDismissRequest = { viewModel.onRegisterDialogDismiss() }) {
+    if (showRegisterDialog && dialogFilePath != null) {
+        // 고차함수로 구독하는거 다시 실행
+        Dialog(onDismissRequest = {
+            viewModel.onRegisterDialogDismiss()
+            dialogFilePath = null
+        }) {
             DialogRegist(
-                onDismiss = { viewModel.onRegisterDialogDismiss() },
-                image = filePath,
+                onDismiss = {
+                    viewModel.onRegisterDialogDismiss()
+                    dialogFilePath = null
+                },
+                image = dialogFilePath!!,
                 onConfirm = onNavigateToEncyc,
             )
         }
