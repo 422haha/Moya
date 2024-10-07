@@ -172,12 +172,13 @@ class ExplorationRepositoryImpl @Inject constructor(
 
     override suspend fun chattingNPC(
         explorationId: Long,
-        npcPosId: Long
+        npcPosId: Long,
+        body: String
     ): Flow<ApiResponse<Chatting>> {
         return flow {
             val response =
                 apiHandler {
-                    explorationApi.chattingNPC(explorationId, npcPosId)
+                    explorationApi.chattingNPC(explorationId, npcPosId, body)
                 }
             when (response) {
                 is ApiResponse.Success -> {

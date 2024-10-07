@@ -146,7 +146,6 @@ fun MainNavigation(
             val route = navBackStackEntry.toRoute<ARCamera>()
             ARSceneComposable(
                 explorationId = route.explrationId,
-                onPermissionDenied = {},
                 onPop = {
                     navController.popBackStack()
                 },

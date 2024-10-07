@@ -56,5 +56,6 @@ interface ExplorationApi {
     suspend fun chattingNPC(
         @Path("explorationId") explorationId: Long,
         @Path("npcPosId") npcPosId: Long,
+        @Body body: String,
     ): Response<ResponseBody<Chatting>>
 }
