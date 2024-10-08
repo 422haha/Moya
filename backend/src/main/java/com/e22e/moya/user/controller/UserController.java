@@ -56,15 +56,18 @@ public class UserController {
             Map<String, String> tokens = loginSuccessService.generateTokens(email);
 
             Map<String, Object> response = new HashMap<>();
-            response.put("message", "로그인 성공");
-            response.put("accessToken", tokens.get(JWTConstants.JWT_HEADER));
-            response.put("refreshToken", tokens.get(JWTConstants.REFRESH_TOKEN_HEADER));
+            Map<String, String> tokenData = new HashMap<>();
 
+            response.put("message", "로그인 성공");
+            tokenData.put("accessToken", tokens.get(JWTConstants.JWT_HEADER));
+            tokenData.put("refreshToken", tokens.get(JWTConstants.REFRESH_TOKEN_HEADER));
+            response.put("data", tokenData);
             return ResponseEntity.ok(response);
         } catch (Exception e) {
             log.error("로그인 실패: ", e);
             Map<String, Object> response = new HashMap<>();
             response.put("message", "로그인 실패: " + e.getMessage());
+            response.put("data", new Object[]{});
             return ResponseEntity.badRequest().body(response);
         }
     }
