@@ -1,8 +1,10 @@
 package com.ssafy.main.explorestart
 
+import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
+import com.skele.moya.background.di.LocationManager
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
 import com.ssafy.network.request.ExplorationEndRequestBody
@@ -22,6 +24,7 @@ class ExploreStartScreenViewModel
     @Inject
     constructor(
         private val explorationRepository: ExplorationRepository,
+        private val locationManager: LocationManager,
     ) : ViewModel() {
         private val _state = MutableStateFlow<ExploreStartScreenState>(ExploreStartScreenState.Loading)
         val state: StateFlow<ExploreStartScreenState> = _state
@@ -60,6 +63,12 @@ class ExploreStartScreenViewModel
                     _dialogState.value = ExploreStartDialogState.Challenge
                 }
             }
+        }
+
+        fun startTracking(context: Context) {
+            if(state.value is ExploreStartScreenState.Loaded) return
+            locationManager.initialize(context)
+            locationManager.startTracking(context)
         }
 
         private fun loadInitialData(parkId: Long) {
@@ -137,12 +146,13 @@ class ExploreStartScreenViewModel
                             uiState.explorationId,
                             body =
                                 ExplorationEndRequestBody(
-                                    route = emptyList(), // TODO : 이동경로 저장
+                                    route = locationManager.getLocationList(), // TODO : 이동경로 저장
                                     steps = 0,
                                 ),
                         ).collectLatest { response ->
                             when(response){
                                 is ApiResponse.Success -> {
+                                    locationManager.stopTracking()
                                     _state.value = ExploreStartScreenState.Exit
                                 }
                                 is ApiResponse.Error -> {
