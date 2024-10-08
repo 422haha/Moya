@@ -97,7 +97,7 @@ fun ExploreDetailItem(
                     Modifier
                         .fillMaxWidth()
                         .weight(0.6f),
-                placeholder = painterResource(id = R.drawable.ic_launcher_background),
+                placeholder = painterResource(id = R.drawable.park_placeholder),
             )
             Column(
                 modifier =
