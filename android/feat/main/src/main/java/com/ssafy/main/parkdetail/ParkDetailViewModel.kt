@@ -15,42 +15,46 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 @HiltViewModel
-class ParkDetailViewModel @Inject constructor(
-    private val parkRepository: ParkRepository,
-): ViewModel() {
-    private val _state = MutableStateFlow<ParkDetailScreenState>(ParkDetailScreenState.Loading)
-    val state: StateFlow<ParkDetailScreenState> = _state
+class ParkDetailViewModel
+    @Inject
+    constructor(
+        private val parkRepository: ParkRepository,
+    ) : ViewModel() {
+        private val _state = MutableStateFlow<ParkDetailScreenState>(ParkDetailScreenState.Loading)
+        val state: StateFlow<ParkDetailScreenState> = _state
 
-    fun loadInitialData(parkId: Long) {
-        viewModelScope.launch {
-            parkRepository.getPark(parkId).collectLatest { response ->
-                _state.value = when (response) {
-                    is ApiResponse.Success -> {
-                        response.body?.let { body ->
-                            ParkDetailScreenState.Loaded(
-                                parkName = body.parkName,
-                                description = body.description,
-                                parkImage = body.imageUrl,
-                                items = body.species.map {
-                                    EncycCardState(
-                                        id = it.speciesId,
-                                        name = it.speciesName,
-                                        imageUrl = it.imageUrl,
-                                        isDiscovered = true
+        fun loadInitialData(parkId: Long) {
+            viewModelScope.launch {
+                parkRepository.getPark(parkId).collectLatest { response ->
+                    _state.value =
+                        when (response) {
+                            is ApiResponse.Success -> {
+                                response.body?.let { body ->
+                                    ParkDetailScreenState.Loaded(
+                                        parkName = body.parkName,
+                                        description = body.description,
+                                        parkImage = body.imageUrl,
+                                        items =
+                                            body.species.map {
+                                                EncycCardState(
+                                                    id = it.speciesId,
+                                                    name = it.speciesName,
+                                                    imageUrl = it.imageUrl,
+                                                    isDiscovered = true,
+                                                )
+                                            },
                                     )
-                                }
-                            )
-                        } ?: ParkDetailScreenState.Error("Failed to load initial data")
-                    }
-                    is ApiResponse.Error -> {
-                        ParkDetailScreenState.Error(response.errorMessage ?: "")
-                    }
+                                } ?: ParkDetailScreenState.Error("Failed to load initial data")
+                            }
+
+                            is ApiResponse.Error -> {
+                                ParkDetailScreenState.Error(response.errorMessage ?: "")
+                            }
+                        }
                 }
             }
         }
-    }
 
-    fun onIntent(intent: ParkDetailUserIntent) {
-
+        fun onIntent(intent: ParkDetailUserIntent) {
+        }
     }
-}

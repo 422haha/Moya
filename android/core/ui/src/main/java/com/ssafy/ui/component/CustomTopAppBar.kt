@@ -30,11 +30,11 @@ fun TopBar(
 ) {
     Box(
         modifier =
-        modifier
-            .shadow(4.dp)
-            .fillMaxWidth()
-            .background(LightBackgroundColor)
-            .padding(vertical = 4.dp),
+            modifier
+                .shadow(4.dp)
+                .fillMaxWidth()
+                .background(LightBackgroundColor)
+                .padding(vertical = 4.dp),
     ) {
         IconButton(
             onClick = onPop,
@@ -65,5 +65,5 @@ fun CustomTopAppBarPreview() {
             {
                 TopBar(text = "커스텀 앱바", onPop = {})
             },
-    ) { paddingValues -> Box(modifier = Modifier.padding(paddingValues))}
+    ) { paddingValues -> Box(modifier = Modifier.padding(paddingValues)) }
 }

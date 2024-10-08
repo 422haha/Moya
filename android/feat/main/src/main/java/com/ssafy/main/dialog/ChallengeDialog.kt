@@ -13,7 +13,7 @@ fun ChallengeDialog(
     explorationId: Long,
     viewModel: ChallengeDialogViewModel = hiltViewModel(),
     onConfirm: (id: Long) -> Unit = {},
-    onDismiss: () -> Unit = {}
+    onDismiss: () -> Unit = {},
 ) {
     val uiState by viewModel.state
 
@@ -27,6 +27,6 @@ fun ChallengeDialog(
             onConfirm(id)
             onDismiss()
         },
-        onDismiss = onDismiss
+        onDismiss = onDismiss,
     )
 }

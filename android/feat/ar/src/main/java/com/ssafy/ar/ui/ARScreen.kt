@@ -5,7 +5,6 @@ import ai.onnxruntime.OrtSession
 import android.Manifest
 import android.content.pm.PackageManager
 import android.media.Image
-import android.util.Log
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.core.animateFloatAsState
@@ -194,7 +193,6 @@ fun ARSceneComposable(
         label = "Rating Animation",
     )
 
-    // AI 모델 초기화 및 세션 설정
     val dataProcess = remember { DataProcess(context = context) }
     val ortEnvironment = remember { OrtEnvironment.getEnvironment() }
     var ortSession by remember { mutableStateOf<OrtSession?>(null) }
@@ -211,10 +209,8 @@ fun ARSceneComposable(
     val mutex = Mutex()
 
     LaunchedEffect(detectionResults) {
-        // 도감 등록
         detectionResults.forEach {
             if (it.classIndex !in registeredSpecies) {
-                Log.d("dataProcess", "registeredSpecies1: $registeredSpecies")
                 mutex.withLock {
                     viewModel.registerSpecies(
                         explorationId,
@@ -383,42 +379,32 @@ fun ARSceneComposable(
                         imageProcessingScope.launch(Dispatchers.IO) {
                             var image: Image? = null
                             try {
-                                // 이미지 획득
                                 image = frame.acquireCameraImage()
 
-                                // 이미지 변환 (백그라운드 스레드)
                                 val bitmap = imageToBitmap(image)
 
-                                // AI 처리
                                 ortSession?.let { session ->
                                     val results =
                                         dataProcess.processImage(bitmap, ortEnvironment, session)
 
                                     val updatedResults: List<Result>
 
-                                    // 로컬에 이미지 저장
                                     if (results.isNotEmpty()) {
                                         val fileName = generateUniqueFileName()
                                         val file = File(context.filesDir, fileName)
                                         saveImageToInternalStorage(image, file)
                                         filePath = file.absolutePath
 
-                                        Log.d(TAG, "ARSceneComposable: ${file.absolutePath}")
                                         updatedResults =
                                             results.map { result ->
                                                 result.copy(imageUrl = file.absolutePath ?: "")
                                             }
 
                                         detectionResults = updatedResults
-
-                                        Log.d("DataProcess", "인식 결과 : $detectionResults")
                                     }
                                 }
-                            } catch (e: Exception) {
-                                // 예외 처리
-                                Log.e("errorInAR", e.toString())
+                            } catch (_: Exception) {
                             } finally {
-                                // 이미지 닫기 및 상태 업데이트
                                 image?.close()
                                 isProcessingImage = false
                             }
@@ -541,13 +527,15 @@ fun ARSceneComposable(
                                 .fromLong(nearestQuestInfo.npc?.speciesId ?: 1L)
                                 ?.getImageResource() ?: (R.drawable.maple),
                         title =
-                            if(nearestQuestInfo.npc?.id != null) {
-                                if(nearestQuestInfo.npc?.isComplete == QuestState.WAIT)
+                            if (nearestQuestInfo.npc?.id != null) {
+                                if (nearestQuestInfo.npc?.isComplete == QuestState.WAIT) {
                                     "???의 부탁"
-                                else
+                                } else {
                                     "${nearestQuestInfo.npc?.npcName}의 부탁"
-                            } else "검색중.."
-                        ,
+                                }
+                            } else {
+                                "검색중.."
+                            },
                         state = nearestQuestInfo.npc?.isComplete ?: QuestState.WAIT,
                         distanceText = "${
                             nearestQuestInfo.distance?.let {
@@ -561,9 +549,9 @@ fun ARSceneComposable(
                     )
                     Card(
                         modifier =
-                        Modifier
-                            .offset(y = (-20).dp)
-                            .align(Alignment.TopCenter),
+                            Modifier
+                                .offset(y = (-20).dp)
+                                .align(Alignment.TopCenter),
                         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
                         colors = CardDefaults.cardColors(containerColor = Color.Gray),
                     ) {
@@ -594,13 +582,13 @@ fun ARSceneComposable(
             IconButton(
                 onClick = { onPop() },
                 modifier =
-                Modifier
-                    .align(Alignment.BottomCenter)
-                    .padding(16.dp)
-                    .padding(bottom = 16.dp)
-                    .clip(RoundedCornerShape(16.dp))
-                    .background(Color(0xFF32A287))
-                    .size(52.dp),
+                    Modifier
+                        .align(Alignment.BottomCenter)
+                        .padding(16.dp)
+                        .padding(bottom = 16.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .background(Color(0xFF32A287))
+                        .size(52.dp),
             ) {
                 Icon(
                     painter = painterResource(id = R.drawable.baseline_map_24),
@@ -626,10 +614,10 @@ fun ARSceneComposable(
                     }
                 },
                 modifier =
-                Modifier
-                    .align(Alignment.BottomEnd)
-                    .padding(bottom = 85.dp, end = 26.dp)
-                    .size(72.dp),
+                    Modifier
+                        .align(Alignment.BottomEnd)
+                        .padding(bottom = 85.dp, end = 26.dp)
+                        .size(72.dp),
                 containerColor = Color.Transparent,
                 elevation = FloatingActionButtonDefaults.elevation(0.dp, 0.dp, 0.dp, 0.dp),
             ) {
@@ -637,9 +625,9 @@ fun ARSceneComposable(
                     painter = painterResource(id = R.drawable.chatbot),
                     contentDescription = "Chat Bot",
                     modifier =
-                    Modifier
-                        .fillMaxSize()
-                        .padding(4.dp),
+                        Modifier
+                            .fillMaxSize()
+                            .padding(4.dp),
                     contentScale = ContentScale.Crop,
                 )
             }
@@ -684,7 +672,6 @@ fun ARSceneComposable(
     }
 
     if (showRegisterDialog && dialogFilePath != null) {
-        // 고차함수로 구독하는거 다시 실행
         Dialog(onDismissRequest = {
             viewModel.onRegisterDialogDismiss()
             dialogFilePath = null

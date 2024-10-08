@@ -18,18 +18,19 @@ fun EncycScreen(
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 
-    //TODO 추후에 filter를 intent를 통해서 수정
     LaunchedEffect(Unit) {
         viewModel.loadInitialParkEncyclopedia(parkId)
     }
 
     EncycScreenContent(
         isClosable = isDialog,
-        encycScreenState = uiState, onIntent = { intent ->
-        when (intent) {
-            is EncycUserIntent.OnItemSelect -> onNavigateToEncycDetail(intent.id)
-            is EncycUserIntent.OnPop -> onPop()
-            else -> viewModel.onIntent(parkId = parkId, intent = intent)
-        }
-    })
+        encycScreenState = uiState,
+        onIntent = { intent ->
+            when (intent) {
+                is EncycUserIntent.OnItemSelect -> onNavigateToEncycDetail(intent.id)
+                is EncycUserIntent.OnPop -> onPop()
+                else -> viewModel.onIntent(parkId = parkId, intent = intent)
+            }
+        },
+    )
 }

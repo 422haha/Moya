@@ -12,11 +12,13 @@ data class Species(
     val imageUrl: String,
     val positions: List<LatLng>,
 )
+
 @Serializable
 data class SpeciesMinimumInfo(
     val speciesId: Long,
     val speciesName: String,
 )
+
 @Serializable
 data class SpeciesWithCollectionInfo(
     val speciesId: Long,

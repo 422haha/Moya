@@ -40,6 +40,7 @@ class ExploreStartScreenViewModel
                         explorationId = currentState.explorationId,
                         parkId = parkId,
                     )
+
                 else -> loadInitialData(parkId)
             }
         }
@@ -50,7 +51,7 @@ class ExploreStartScreenViewModel
                     _dialogState.value = ExploreStartDialogState.Closed
                 }
 
-                is ExploreStartUserIntent.OnExitClicked -> { // 탐험 종료 버튼
+                is ExploreStartUserIntent.OnExitClicked -> {
                     _dialogState.value = ExploreStartDialogState.Exit
                 }
 
@@ -66,7 +67,7 @@ class ExploreStartScreenViewModel
         }
 
         fun startTracking(context: Context) {
-            if(state.value is ExploreStartScreenState.Loaded) return
+            if (state.value is ExploreStartScreenState.Loaded) return
             locationManager.initialize(context)
             locationManager.startTracking(context)
         }
@@ -86,7 +87,13 @@ class ExploreStartScreenViewModel
                                                 .map { LatLng(it.latitude, it.longitude) },
                                         discoveredPositions =
                                             body.myDiscoveredSpecies
-                                                .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
+                                                .map {
+                                                    ExploreMarkerState(
+                                                        it.name,
+                                                        it.imageUrl,
+                                                        it.positions,
+                                                    )
+                                                },
                                         speciesPositions =
                                             body.species
                                                 .flatMap { it.positions }
@@ -108,31 +115,41 @@ class ExploreStartScreenViewModel
             parkId: Long,
         ) {
             viewModelScope.launch {
-                explorationRepository.getExplorationData(parkId = parkId, explorationId = explorationId).collectLatest { response ->
-                    _state.value = when(response) {
-                        is ApiResponse.Success -> {
-                            response.body?.let { body ->
-                                ExploreStartScreenState.Loaded(
-                                    explorationId = body.id,
-                                    npcPositions =
-                                    body.npcs
-                                        .flatMap { it.positions }
-                                        .map { LatLng(it.latitude, it.longitude) },
-                                    discoveredPositions =
-                                    body.myDiscoveredSpecies
-                                        .map { ExploreMarkerState(it.name, it.imageUrl, it.positions) },
-                                    speciesPositions =
-                                    body.species
-                                        .flatMap { it.positions }
-                                        .map { LatLng(it.latitude, it.longitude) },
-                                )
-                            } ?: ExploreStartScreenState.Error("Failed to load initial data")
-                        }
-                        is ApiResponse.Error -> {
-                            ExploreStartScreenState.Error(response.errorMessage ?: "Unknown error")
-                        }
+                explorationRepository
+                    .getExplorationData(parkId = parkId, explorationId = explorationId)
+                    .collectLatest { response ->
+                        _state.value =
+                            when (response) {
+                                is ApiResponse.Success -> {
+                                    response.body?.let { body ->
+                                        ExploreStartScreenState.Loaded(
+                                            explorationId = body.id,
+                                            npcPositions =
+                                                body.npcs
+                                                    .flatMap { it.positions }
+                                                    .map { LatLng(it.latitude, it.longitude) },
+                                            discoveredPositions =
+                                                body.myDiscoveredSpecies
+                                                    .map {
+                                                        ExploreMarkerState(
+                                                            it.name,
+                                                            it.imageUrl,
+                                                            it.positions,
+                                                        )
+                                                    },
+                                            speciesPositions =
+                                                body.species
+                                                    .flatMap { it.positions }
+                                                    .map { LatLng(it.latitude, it.longitude) },
+                                        )
+                                    } ?: ExploreStartScreenState.Error("Failed to load initial data")
+                                }
+
+                                is ApiResponse.Error -> {
+                                    ExploreStartScreenState.Error(response.errorMessage ?: "Unknown error")
+                                }
+                            }
                     }
-                }
             }
         }
 
@@ -150,17 +167,17 @@ class ExploreStartScreenViewModel
                                     steps = 0,
                                 ),
                         ).collectLatest { response ->
-                            when(response){
+                            when (response) {
                                 is ApiResponse.Success -> {
                                     locationManager.stopTracking()
                                     _state.value = ExploreStartScreenState.Exit
                                 }
+
                                 is ApiResponse.Error -> {
-                                    //_state.value = ExploreStartScreenState.Exit
+                                    // _state.value = ExploreStartScreenState.Exit
                                 }
                             }
                         }
-
                 }
             }
         }

@@ -94,7 +94,6 @@ fun ExploreDetailScreenLoaded(
                 .background(SecondarySurfaceColor),
     ) {
         Image(
-            // TODO 여긴 지도 이미지
             painter = painterResource(id = R.drawable.ic_launcher_background),
             contentDescription = "지도(내가 걸어온 길이랑 마커 표시)",
             modifier =
@@ -103,10 +102,6 @@ fun ExploreDetailScreenLoaded(
             contentScale = ContentScale.Crop,
         )
         ExploreInfo(state)
-//        HorizontalEncyc(onItemClicked = { id ->
-//            onIntent(ExploreDetailUserIntent.OnEncycItemClicked(id))
-//        }, state)
-//        TODO 도감 카드를 lazyrow로 보여주도록
     }
 }
 
@@ -219,16 +214,8 @@ fun ExploreScreenPreview() {
                         registerCount = 8,
                         date = Date(),
                         parkName = "동락공원",
-                        imageUrl = ""
+                        imageUrl = "",
                     ),
-//                items =
-//                    List(8) { index ->
-//                        EncycGridState(
-//                            plantName = "식물 $index",
-//                            plantImage = null,
-//                            isDiscovered = true,
-//                        )
-//                    },
             ),
     )
 }
