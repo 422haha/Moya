@@ -58,8 +58,8 @@ VALUES ('수달'),      -- 1
 INSERT INTO park_npc (park_id, npc_id)
 VALUES (1, 1),  -- 1 싸피 뒷뜰, 수달
        (1, 2),  -- 2 싸피 뒷뜰, 검사 수달
-       (1, 7),  -- 3 싸피 뒷뜰, 거북이
-       (1, 10), -- 4 싸피 뒷뜰, 이정표
+       (1, 3),  -- 3 싸피 뒷뜰, 거북이
+       (1, 7), -- 4 싸피 뒷뜰, 이정표
        (2, 3),  -- 5 동락공원, 기도하는 수달
        (2, 4),  -- 6 동락공원, 너구리
        (2, 8),  -- 7 동락공원, 갈색 거북이
@@ -72,11 +72,10 @@ VALUES (1, 1),  -- 1 싸피 뒷뜰, 수달
 -- 환경 연수원
 -- NPC Position
 INSERT INTO npc_pos (pos, park_npc_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.4162641, 36.1067967), 4326), 1), -- 싸피 뒷뜰 - 수달
-       (ST_SetSRID(ST_MakePoint(128.4161918, 36.1066985), 4326), 2), -- 싸피 뒷뜰 - 수달
-       (ST_SetSRID(ST_MakePoint(128.4163712, 36.1066493), 4326), 3), -- 싸피 뒷뜰 - 검사 수달
-       (ST_SetSRID(ST_MakePoint(128.4165288, 36.1071543), 4326), 3), -- 싸피 뒷뜰 - 검사 수달
-       (ST_SetSRID(ST_MakePoint(128.4199104, 36.101726), 4326), 4),  -- 싸피 뒷뜰 - 검사 수달
+VALUES (ST_SetSRID(ST_MakePoint(128.41666183811466, 36.10694581886462), 4326), 1), -- 싸피 뒷뜰 - 수달
+       (ST_SetSRID(ST_MakePoint(128.41629035007824, 36.10680367153273), 4326), 2), -- 싸피 뒷뜰 - 수달
+       (ST_SetSRID(ST_MakePoint(128.41606821959087, 36.10658568817424), 4326), 3), -- 싸피 뒷뜰 - 검사 수달
+       (ST_SetSRID(ST_MakePoint(128.41574448383923, 36.10698207345547), 4326), 4), -- 싸피 뒷뜰 - 검사 수달
        (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),   -- 동락공원 - 기도하는 수달
        (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 6),   -- 동락공원 - 너구리
        (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 9);
@@ -168,69 +167,69 @@ DO NOTHING;
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
     -- 싸피 뒷뜰 - 강아지풀
-    (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 1),
-    (ST_SetSRID(ST_MakePoint(128.416300, 36.107300), 4326), 1),
-    (ST_SetSRID(ST_MakePoint(128.416400, 36.107400), 4326), 1),
+    (ST_SetSRID(ST_MakePoint(128.41661650107773, 36.10723183051107), 4326), 1),
+    (ST_SetSRID(ST_MakePoint(128.41669466701717, 36.10724854271623), 4326), 1),
     -- 싸피 뒷뜰 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326), 2),
-    (ST_SetSRID(ST_MakePoint(128.416100, 36.107100), 4326), 2),
-    (ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326), 2),
+    (ST_SetSRID(ST_MakePoint(128.41616260682056, 36.107314657987054), 4326), 2),
+    (ST_SetSRID(ST_MakePoint(128.4162997739545, 36.10731883716082), 4326), 2),
+    (ST_SetSRID(ST_MakePoint(128.41657472637084, 36.10725594643574), 4326), 2),
     -- 싸피 뒷뜰 - 솔방울
-    (ST_SetSRID(ST_MakePoint(128.416500, 36.107500), 4326), 3),
-    (ST_SetSRID(ST_MakePoint(128.416600, 36.107600), 4326), 3),
-    -- 동락공원 - 강아지풀
-    (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 4),
-    (ST_SetSRID(ST_MakePoint(128.402600, 36.095100), 4326), 4),
-    -- 동락공원 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),
-    (ST_SetSRID(ST_MakePoint(128.402100, 36.100100), 4326), 5),
-    -- 동락공원 - 솔방울
-    (ST_SetSRID(ST_MakePoint(128.402700, 36.095200), 4326), 6),
-    -- 동락공원 - 장미
-    (ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326), 7),
-    -- 동락공원 - 해바라기
-    (ST_SetSRID(ST_MakePoint(128.403100, 36.090100), 4326), 8),
-    -- 환경 연수원 - 강아지풀
-    (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 9),
-    -- 환경 연수원 - 단풍잎
-    (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 10),
-    (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 10),
-    -- 환경 연수원 - 솔방울
-    (ST_SetSRID(ST_MakePoint(128.311800, 36.119600), 4326), 11),
-    (ST_SetSRID(ST_MakePoint(128.311900, 36.119700), 4326), 11),
-    -- 환경 연수원 - 장미
-    (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 12),
-    -- 환경 연수원 - 해바라기
-    (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
+    (ST_SetSRID(ST_MakePoint(128.41572843945207, 36.10693981063123), 4326), 3),
+    (ST_SetSRID(ST_MakePoint(128.41572810023425, 36.10698590544886), 4326), 3),
+    (ST_SetSRID(ST_MakePoint(128.41576341821207, 36.10721037389451), 4326), 3),
+#     -- 동락공원 - 강아지풀
+#     (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 4),
+#     (ST_SetSRID(ST_MakePoint(128.402600, 36.095100), 4326), 4),
+#     -- 동락공원 - 단풍잎
+#     (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),
+#     (ST_SetSRID(ST_MakePoint(128.402100, 36.100100), 4326), 5),
+#     -- 동락공원 - 솔방울
+#     (ST_SetSRID(ST_MakePoint(128.402700, 36.095200), 4326), 6),
+#     -- 동락공원 - 장미
+#     (ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326), 7),
+#     -- 동락공원 - 해바라기
+#     (ST_SetSRID(ST_MakePoint(128.403100, 36.090100), 4326), 8),
+#     -- 환경 연수원 - 강아지풀
+#     (ST_SetSRID(ST_MakePoint(128.311700, 36.119500), 4326), 9),
+#     -- 환경 연수원 - 단풍잎
+#     (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 10),
+#     (ST_SetSRID(ST_MakePoint(128.311600, 36.119100), 4326), 10),
+#     -- 환경 연수원 - 솔방울
+#     (ST_SetSRID(ST_MakePoint(128.311800, 36.119600), 4326), 11),
+#     (ST_SetSRID(ST_MakePoint(128.311900, 36.119700), 4326), 11),
+#     -- 환경 연수원 - 장미
+#     (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 12),
+#     -- 환경 연수원 - 해바라기
+#     (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
 -- ==============================================test
--- 1. 멀찍히 떨어진 개별 점 (강아지풀)
-INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.412100, 36.109100), 4326), 1);
--- 1. 멀찍히 떨어진 개별 점 (단풍잎)
-INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 2),
-       (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 2);
--- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
-INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 1),
-       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 1);
--- 2. 반경 20m 안에 3점이 존재하는 경우 (솔방울)
-INSERT INTO species_pos (pos, park_species_id)
-VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
-       (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
-       (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
--- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (솔방울)
-INSERT INTO species_pos (pos, park_species_id)
-SELECT ST_SetSRID(ST_MakePoint(
-                          128.414000 + (random() * 0.001),
-                          36.106000 + (random() * 0.001)
-                  ), 4326),
-       3
-FROM generate_series(1, 50);
+# -- 1. 멀찍히 떨어진 개별 점 (강아지풀)
+# INSERT INTO species_pos (pos, park_species_id)
+# VALUES (ST_SetSRID(ST_MakePoint(128.410100, 36.107100), 4326), 1),
+#        (ST_SetSRID(ST_MakePoint(128.415100, 36.107100), 4326), 1),
+#        (ST_SetSRID(ST_MakePoint(128.412100, 36.109100), 4326), 1);
+# -- 1. 멀찍히 떨어진 개별 점 (단풍잎)
+# INSERT INTO species_pos (pos, park_species_id)
+# VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 2),
+#        (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 2),
+#        (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 2);
+# -- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
+# INSERT INTO species_pos (pos, park_species_id)
+# VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 1),
+#        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 1),
+#        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 1);
+# -- 2. 반경 20m 안에 3점이 존재하는 경우 (솔방울)
+# INSERT INTO species_pos (pos, park_species_id)
+# VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
+#        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
+#        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
+# -- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (솔방울)
+# INSERT INTO species_pos (pos, park_species_id)
+# SELECT ST_SetSRID(ST_MakePoint(
+#                           128.414000 + (random() * 0.001),
+#                           36.106000 + (random() * 0.001)
+#                   ), 4326),
+#        3
+# FROM generate_series(1, 50);
 -- ==============================================test
 -- Quest
 INSERT INTO quest (type)
