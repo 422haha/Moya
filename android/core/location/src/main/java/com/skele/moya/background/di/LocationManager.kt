@@ -10,6 +10,7 @@ import com.google.android.gms.location.LocationRequest
 import com.google.android.gms.location.LocationResult
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.skele.moya.background.util.distanceTo
 import com.ssafy.model.LatLng
 import javax.inject.Inject
 import javax.inject.Singleton
@@ -33,7 +34,10 @@ class LocationManager
                     override fun onLocationResult(result: LocationResult) {
                         result.lastLocation?.let { location ->
                             val latLng = LatLng(location.latitude, location.longitude)
-                            locationList.add(latLng)
+                            // 마지막 지점으로부터 10m
+                            locationList.lastOrNull()?.let { last ->
+                                if(last.distanceTo(latLng) >= 10.0) locationList.add(latLng)
+                            }
                         }
                     }
                 }
