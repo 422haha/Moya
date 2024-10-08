@@ -1,6 +1,7 @@
 package com.ssafy.network.repositoryImpl
 
 import com.ssafy.model.TokenHolder
+import com.ssafy.model.User
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.api.UserApi
 import com.ssafy.network.apiHandler
@@ -17,6 +18,14 @@ class UserRepositoryImpl @Inject constructor(
         val response =
             apiHandler {
                 userApi.login(LoginRequest(provider, accessToken))
+            }
+        return response.simplify()
+    }
+
+    override suspend fun getName(): ApiResponse<User> {
+        val response =
+            apiHandler {
+                userApi.getName()
             }
         return response.simplify()
     }
