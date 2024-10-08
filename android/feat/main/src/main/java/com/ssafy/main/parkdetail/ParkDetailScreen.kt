@@ -14,7 +14,7 @@ fun ParkDetailScreen(
     viewModel: ParkDetailViewModel = hiltViewModel(),
     onNavigateToEncycDetail: (Long) -> Unit,
     onPop: () -> Unit,
-    onEnterExplore: (Long) -> Unit
+    onEnterExplore: (Long) -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 

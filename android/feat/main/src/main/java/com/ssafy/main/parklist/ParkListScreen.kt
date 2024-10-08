@@ -28,7 +28,10 @@ fun ParkListScreen(
 
     MultiplePermissionHandler(
         permissions =
-            listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION),
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
     ) { result ->
         if (result.all { it.value }) {
             fusedLocationClient.lastLocation.addOnSuccessListener { location ->

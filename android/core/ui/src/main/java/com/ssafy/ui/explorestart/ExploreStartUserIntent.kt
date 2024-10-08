@@ -5,10 +5,6 @@ interface ExploreStartUserIntent {
         val onExit: () -> Unit = {},
     ) : ExploreStartUserIntent
 
-    data class OnChallengeSelected(
-        val id: Long,
-    ) : ExploreStartUserIntent
-
     data object OnDialogDismissed : ExploreStartUserIntent
 
     data object OnExitClicked : ExploreStartUserIntent

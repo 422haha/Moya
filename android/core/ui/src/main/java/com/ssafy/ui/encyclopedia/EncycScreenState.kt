@@ -4,7 +4,6 @@ import androidx.compose.runtime.Immutable
 import com.ssafy.ui.component.EncycCardState
 
 sealed interface EncycScreenState {
-
     @Immutable
     data object Loading : EncycScreenState
 

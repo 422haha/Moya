@@ -57,7 +57,7 @@ fun ImageCardWithTitleDescription(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

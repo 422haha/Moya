@@ -34,19 +34,20 @@ import com.ssafy.ui.theme.jua
 fun CustomOutlinedButton(
     text: String,
     onClick: () -> Unit,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     OutlinedButton(
         onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         border = BorderStroke(2.dp, PrimaryColor),
         modifier = modifier,
-        colors = ButtonColors(
-            containerColor = Color.Transparent,
-            contentColor = PrimaryColor,
-            disabledContentColor = Color.White,
-            disabledContainerColor = Color.Gray
-        )
+        colors =
+            ButtonColors(
+                containerColor = Color.Transparent,
+                contentColor = PrimaryColor,
+                disabledContentColor = Color.White,
+                disabledContainerColor = Color.Gray,
+            ),
     ) {
         Text(text = text, fontFamily = jua)
     }
@@ -57,13 +58,13 @@ fun CustomFilledButton(
     text: String,
     onClick: () -> Unit,
     modifier: Modifier = Modifier,
-    buttonColor: Color = PrimaryColor
+    buttonColor: Color = PrimaryColor,
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(8.dp),
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-        modifier = modifier
+        modifier = modifier,
     ) {
         Text(text = text, color = Color.White, fontFamily = jua)
     }
@@ -76,30 +77,33 @@ fun CustomButtonWithImage(
     modifier: Modifier = Modifier,
     buttonColor: Color = SecondaryColor,
     textColor: Color = LightBackgroundColor,
-    imagePainter: Int? = null
+    imagePainter: Int? = null,
 ) {
     Button(
         onClick = onClick,
         shape = RoundedCornerShape(4.dp),
         colors = ButtonDefaults.buttonColors(containerColor = buttonColor),
-        modifier = modifier
-            .height(40.dp)
-            .width(140.dp),
-        contentPadding = PaddingValues(0.dp)
+        modifier =
+            modifier
+                .height(40.dp)
+                .width(140.dp),
+        contentPadding = PaddingValues(0.dp),
     ) {
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.Start,
-            modifier = Modifier
-                .fillMaxWidth()
+            modifier =
+                Modifier
+                    .fillMaxWidth(),
         ) {
             if (imagePainter != null) {
                 Image(
                     painter = painterResource(id = imagePainter),
                     contentDescription = "Button Image",
-                    modifier = Modifier
-                        .size(32.dp)
-                        .padding(4.dp)
+                    modifier =
+                        Modifier
+                            .size(32.dp)
+                            .padding(4.dp),
                 )
             }
 
@@ -109,10 +113,11 @@ fun CustomButtonWithImage(
                     fontSize = 20.sp,
                     color = textColor,
                     fontFamily = jua,
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(8.dp)
-                        .align(Alignment.CenterVertically)
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .padding(8.dp)
+                            .align(Alignment.CenterVertically),
                 )
             }
         }
@@ -120,13 +125,17 @@ fun CustomButtonWithImage(
 }
 
 @Composable
-fun FindButton(text: String, onClick: () -> Unit) {
+fun FindButton(
+    text: String,
+    onClick: () -> Unit,
+) {
     Button(
         onClick = onClick,
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(horizontal = 16.dp, vertical = 8.dp),
-        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor)
+        modifier =
+            Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 8.dp),
+        colors = ButtonDefaults.buttonColors(containerColor = PrimaryColor),
     ) {
         Text(text = text, color = LightBackgroundColor, fontFamily = jua)
     }
@@ -150,6 +159,6 @@ fun CustomButtonWithImagePreview() {
     CustomButtonWithImage(
         text = "도감",
         onClick = {},
-        imagePainter = R.drawable.ic_launcher_foreground
+        imagePainter = R.drawable.ic_launcher_foreground,
     )
 }

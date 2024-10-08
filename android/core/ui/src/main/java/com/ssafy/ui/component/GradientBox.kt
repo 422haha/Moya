@@ -11,18 +11,18 @@ import androidx.compose.ui.tooling.preview.Preview
 fun GradientBox(
     modifier: Modifier = Modifier,
     color: Color,
-){
+) {
     val brush = Brush.verticalGradient(listOf(Color.Transparent, color))
     Canvas(
         modifier = modifier,
         onDraw = {
             drawRect(brush)
-        }
+        },
     )
 }
 
 @Preview
 @Composable
-fun GradientBoxPreview(){
+fun GradientBoxPreview() {
     GradientBox(color = Color.White)
 }
