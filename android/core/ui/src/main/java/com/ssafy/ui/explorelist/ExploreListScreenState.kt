@@ -10,6 +10,7 @@ sealed interface ExploreListScreenState : UserIntent {
 
     @Immutable
     data class Loaded(
+        val userName: String,
         val list: List<ExploreDetail>,
     ) : ExploreListScreenState
 
