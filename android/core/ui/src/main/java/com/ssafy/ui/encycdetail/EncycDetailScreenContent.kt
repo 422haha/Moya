@@ -168,7 +168,7 @@ fun ImageSection(imageUrl: String) {
                 Modifier
                     .fillMaxWidth()
                     .height(250.dp),
-            placeholder = painterResource(id = R.drawable.encyc),
+            placeholder = painterResource(id = R.drawable.park),
         )
     }
 }
