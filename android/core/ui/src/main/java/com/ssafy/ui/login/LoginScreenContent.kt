@@ -1,6 +1,7 @@
 package com.ssafy.ui.login
 
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -71,7 +72,8 @@ fun LoginScreenLoaded(
         Spacer(modifier = Modifier.height(48.dp))
 
         Image(
-            painterResource(id = R.drawable.naver_login),
+            modifier = Modifier.clickable { onIntent(LoginUserIntent.OnLogin) },
+            painter = painterResource(id = R.drawable.naver_login),
             contentDescription = "네이버 로그인",
         )
     }

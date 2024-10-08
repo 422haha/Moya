@@ -4,6 +4,7 @@ import com.ssafy.network.api.EncyclopediaApi
 import com.ssafy.network.api.ExplorationApi
 import com.ssafy.network.api.ExploreDiaryApi
 import com.ssafy.network.api.ParkApi
+import com.ssafy.network.api.UserApi
 import com.ssafy.network.api.SeasonApi
 import dagger.Module
 import dagger.Provides
@@ -27,5 +28,12 @@ object ApiModule {
     fun provideExploreDiaryApi(retrofit: Retrofit): ExploreDiaryApi = retrofit.create(ExploreDiaryApi::class.java)
 
     @Provides
-    fun provideSeasonApi(retrofit: Retrofit): SeasonApi = retrofit.create(SeasonApi::class.java)
+    fun provideSeasonApi(retrofit: Retrofit): SeasonApi {
+        return retrofit.create(SeasonApi::class.java)
+    }
+
+    @Provides
+    fun provideUserApi(retrofit: Retrofit): UserApi {
+        return retrofit.create(UserApi::class.java)
+    }
 }

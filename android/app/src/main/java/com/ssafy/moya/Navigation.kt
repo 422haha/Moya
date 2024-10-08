@@ -13,9 +13,10 @@ import com.ssafy.main.encyclopedia.EncycScreen
 import com.ssafy.main.exploredetail.ExploreDetailScreen
 import com.ssafy.main.explorelist.ExploreListScreen
 import com.ssafy.main.explorestart.ExploreStartScreen
-import com.ssafy.main.login.LoginScreen
+import com.ssafy.main.home.HomeScreen
 import com.ssafy.main.parkdetail.ParkDetailScreen
 import com.ssafy.main.parklist.ParkListScreen
+import com.ssafy.moya.login.LoginScreen
 import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.moya.navigation.MainBottomNavigation
 import com.ssafy.ui.screen.UserProfileEditScreen
@@ -34,7 +35,7 @@ fun MainNavigation(
     ) {}
 
     // TODO startDestination 추후에 loin화면으로 수정
-    NavHost(navController = navController, startDestination = Home) {
+    NavHost(navController = navController, startDestination = Login) {
         composable<Home> {
             MainBottomNavigation(
                 onNavigateToParkList = {
@@ -166,7 +167,7 @@ fun MainNavigation(
         }
         composable<Login> {
             LoginScreen(
-                onNavigateToHome = {
+                onLoginSuccess = {
                     navController.navigate(Home)
                 },
             )
