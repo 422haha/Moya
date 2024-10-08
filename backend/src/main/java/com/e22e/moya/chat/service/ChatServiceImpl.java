@@ -2,9 +2,11 @@ package com.e22e.moya.chat.service;
 
 import com.e22e.moya.chat.dto.ChatRequestDto;
 import com.e22e.moya.chat.dto.ChatResponseDto;
+import com.e22e.moya.chat.repository.ExplorationRepositoryChat;
 import com.e22e.moya.chat.repository.NpcPosRepositoryChat;
 import com.e22e.moya.chat.repository.ParkRepositoryChat;
 import com.e22e.moya.chat.repository.SpeciesRepositoryChat;
+import com.e22e.moya.common.entity.Exploration;
 import com.e22e.moya.common.entity.chatting.Chat;
 import com.e22e.moya.common.entity.chatting.Message;
 import com.e22e.moya.common.entity.npc.Npc;
@@ -54,17 +56,20 @@ public class ChatServiceImpl implements ChatService {
     private final ChatAssistant assistant; // AI 챗봇과의 상호작용을 관리하는 객체
     private final RedisTemplate<String, String> redisTemplate; // 타입 변경
     private final ObjectMapper objectMapper; // 새로 추가
+    private final ExplorationRepositoryChat explorationRepository;
 
     public ChatServiceImpl(ParkRepositoryChat parkRepository, NpcPosRepositoryChat npcPosRepository,
         SpeciesRepositoryChat speciesRepository,
         ChatRepositoryChat chatRepository,
-        RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper) {
+        RedisTemplate<String, String> redisTemplate, ObjectMapper objectMapper,
+        ExplorationRepositoryChat explorationRepository) {
         this.parkRepository = parkRepository;
         this.npcPosRepository = npcPosRepository;
         this.speciesRepository = speciesRepository;
         this.chatRepository = chatRepository;
         this.redisTemplate = redisTemplate;
         this.objectMapper = objectMapper;
+        this.explorationRepository = explorationRepository;
 
         // data.sql 로드 및 ContentRetriever 생성
         List<Document> documents = loadDocuments(toPath("./"), glob("*.sql"));
@@ -92,12 +97,18 @@ public class ChatServiceImpl implements ChatService {
     @Override
     @Transactional(isolation = Isolation.READ_COMMITTED)
     public ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long npcPosId,
-        Long userId, Long parkId) {
+        Long userId, Long parkId, Long explorationId) {
+
+        Exploration exploration = explorationRepository.findById(explorationId)
+            .orElseThrow(() -> new EntityNotFoundException("탐험을 찾을 수 없습니다."));
+
         Chat chat = this.chatRepository.findByNpcPosIdAndUserId(npcPosId, userId)
             .orElse(new Chat());
 
+        boolean isNewChat = (chat.getId() == null);
+
         // 새로운 chat 객체인 경우 npcPos와 userId 설정
-        if (chat.getId() == null) {
+        if (isNewChat) {
             NpcPos npcPos = npcPosRepository.findById(npcPosId).orElseThrow(() ->
                 new EntityNotFoundException("npc위치 찾을 수 없음"));
             chat.setNpcPos(npcPos);
@@ -110,18 +121,22 @@ public class ChatServiceImpl implements ChatService {
         Message userMessage = createUserMessage(requestDto.getMessage());
         chat.getMessages().add(userMessage);
 
-        Park park = parkRepository.findById(parkId)
-            .orElseThrow(() -> new EntityNotFoundException("공원 엔티티를 찾을 수 없습니다."));
-
+        Park park = exploration.getPark();
         List<Species> parkSpecies = getParkSpecies(parkId);
 
         NpcPos npcPos = npcPosRepository.findById(npcPosId)
             .orElseThrow(() -> new EntityNotFoundException("NPC를 찾을 수 없습니다."));
-
         Npc npc = npcPos.getParkNpc().getNpc();
 
-        String prompt = buildPrompt(context, userMessage, park, npc, parkSpecies);
+        String sayHi = "";
+        if (isNewChat && exploration.getStartTime().isAfter(LocalDateTime.now().minusHours(24))) {
+            sayHi = "또 오셨네요! 반갑습니다. ";
+        }
+
+        String prompt = buildPrompt(context, userMessage, park, npc, parkSpecies, sayHi);
         String response = this.assistant.answer(prompt);
+
+        response = postProcessAIResponse(response);
 
         Message aiMessage = createAiMessage(response);
         chat.getMessages().add(aiMessage);
@@ -239,20 +254,79 @@ public class ChatServiceImpl implements ChatService {
     }
 
     private String buildPrompt(String context, Message userMessage, Park park, Npc npc,
-        List<Species> parkSpecies) {
+        List<Species> parkSpecies, String sayHi) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("너의 이름은 : ").append(npc.getName()).append(".\n");
-        prompt.append("너의 성격은 : ").append("친절하고 순수한 어린아이같은 성격이야").append("\n");
+        prompt.append("당신은 공원 안내 AI 도우미에요. 당신의 이름은 ").append(npc.getName()).append("입니다.\n");
+        prompt.append("당신의 성격은 친절하고 순수한 어린아이 같습니다.\n\n");
 
+        prompt.append("다음 지침을 따라 응답해 주세요:\n");
+        prompt.append("1. 자연스러운 대화: 사용자의 질문에 직접적이고 자연스럽게 대답하세요. 불필요한 정보는 제공하지 마세요.\n");
+        prompt.append("Answer users' questions directly and naturally. Don't provide unnecessary information.\n");
+        prompt.append("2. 맥락 유지: 이전 대화 내용을 고려하여 응답하세요. 사용자가 언급하지 않은 정보를 갑자기 제시하지 마세요.\n");
+        prompt.append("Respond with consideration to previous conversations. Don't suddenly offer information that the user hasn't mentioned.\n");
+        prompt.append("3. 정보의 정확성: 제공된 공원과 동식물 정보를 기반으로 정확한 답변을 제공하세요.\n");
+        prompt.append("Please provide an accurate answer based on the park and flora information provided.\n");
+        prompt.append("4. 개인화: 사용자의 현재 위치(공원)에 맞는 정보만 제공하세요. 다른 공원의 정보는 언급하지 마세요.\n");
+        prompt.append("Provide only information relevant to the user's current location (park). Do not mention information about other parks.\n");
+        prompt.append("5. 친근한 톤: 어린이를 대하듯 친절하고 순수한 어조를 유지하되, 과도하게 유치하지 않게 주의하세요.\n");
+        prompt.append("Maintain a friendly and innocent tone, as if you were talking to a child, but be careful not to be overly childish.\n");
+        prompt.append("6. 질문 유도: 사용자의 관심을 유도하기 위해 때때로 관련 질문을 해보세요.\n");
+        prompt.append("Ask relevant questions from time to time to keep your users interested.\n");
+        prompt.append("7. 계절 정보: 동식물의 가시 계절 정보를 제공할 때는 현재 계절과 연관지어 설명하세요.\n");
+        prompt.append("When providing seasonal information on plants and animals, explain it in relation to the current season.\n");
+        prompt.append("8. 간결성: 응답은 항상 100자 이내로 유지하세요.\n");
+        prompt.append("Always keep your responses under 100 characters.\n");
+        prompt.append("9. 오류 처리: 모르는 정보에 대해서는 솔직히 모른다고 말하고, 알고 있는 관련 정보를 제공하세요.\n");
+        prompt.append("For information you do not know, be honest and say you do not know, and provide relevant information that you do know.\n");
+        prompt.append("10. 오류 처리: 절대 다른 공원은 추천해주지 마시고 없는 정보를 지어내서 말하지 마세요.\n");
+        prompt.append("Never recommend other parks or make up information that doesn't exist.\n");
+        prompt.append("11. 한국어 사용: 모든 대화는 반드시 한국어로 진행하세요.\n");
+        prompt.append("Always speak in Korean\n");
+        prompt.append("12. 메타 언어 사용 금지: '(사용자가 ...하는 행위)' 같은 설명을 포함하지 마세요.\n");
+        prompt.append("Don't include descriptions like '(what the user does)'.\n");
+        prompt.append("13. 이모지 사용 금지: 이모지를 사용하지 마세요.\n");
+        prompt.append("Don't use emojis");
+        prompt.append("14. 응답 형식: 항상 '").append(npc.getName())
+            .append(": [당신의 응답]' 형식으로 답변하세요.\n\n");
+
+        prompt.append("현재 공원 정보:\n");
+        prompt.append("공원 이름: ").append(park.getName()).append("\n");
+        prompt.append("공원 설명: ").append(park.getDescription()).append("\n\n");
+
+        prompt.append("이 공원에서 볼 수 있는 동식물:\n");
         for (Species species : parkSpecies) {
-            prompt.append("너가 알고 있는 지식은 : ").append(species.toString()).append("\n");
+            prompt.append("- ").append(species.getName()).append(": ")
+                .append(species.getDescription()).append("\n");
+            prompt.append("  과학적 이름: ").append(species.getScientificName()).append("\n");
+            prompt.append("  볼 수 있는 계절: ").append(species.getVisibleSeasons()).append("\n");
+            prompt.append("  설명: ").append(species.getDescription()).append("\n");
+        }
+        prompt.append("\n");
+
+        prompt.append("이전 대화 내용:\n").append(context).append("\n");
+        prompt.append("사용자: ").append(userMessage.getContent()).append("\n");
+        prompt.append(npc.getName()).append(": ");
+
+        prompt.append(npc.getName()).append(": ").append(sayHi);
+
+        return prompt.toString();
+    }
+
+    private String postProcessAIResponse(String response) {
+        // 메타 언어 제거
+        response = response.replaceAll("\\(.*?\\)", "");
+
+        response = response.replaceAll("다른 공원.*?추천해 드릴까요?", "");
+
+        // 줄바꿈 및 추가 공백 정리
+        response = response.replaceAll("\\s+", " ").trim();
+
+        // 글자수 300자로 제한
+        if (response.length() > 100) {
+            response = response.substring(0, 97) + "...";
         }
 
-        prompt.append("이전 대화 내용은: \n").append(context);
-        prompt.append("당신: ").append(userMessage.getContent()).append("\n");
-        prompt.append(npc.getName()).append(": ");
-        prompt.append("주의사항: 너의 응답은 반드시 1000자 이내로 제한해줘. 간결하고 핵심적인 내용만 전달해줘. 또한 무조건 한국어로 대답해줘.\n");
-        return prompt.toString();
+        return response;
     }
 
 }

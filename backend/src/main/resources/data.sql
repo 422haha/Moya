@@ -3,10 +3,8 @@ EXTENSION IF NOT EXISTS postgis;
 -- 기본 사용자 추가
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
 VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url');
-
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
 VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2', 'profile_image_url');
-
 -- Parksp
 INSERT INTO park (name, description, image_url)
 VALUES ('싸피 뒷뜰', '싸피 구미 캠퍼스 기숙사에 위치한 공원으로 봄이 되면 예쁜 꽃들이 핀답니다. 가을이 되면 감도 딸 수 있어요',
@@ -92,7 +90,7 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
        ('란타나', 'Lantana camara', '다양한 색깔의 꽃을 피우는 관목', 'lantana.jpg'),
        ('히비스커스', 'Hibiscus rosa-sinensis', '큰 꽃을 피우는 열대성 식물', 'hibiscus.jpg'),
        ('야트로파 쿠르카스', 'Jatropha curcas', '고소한 향을 가진 꽃을 피우는 나무', 'jatropha-curcas.jpg'),
-       ('메리골드', 'Tagetes erecta', '주황색 꽃을 피우는 한해살이 식물', 'marigold.jpg'),
+       ('마리골드', 'Tagetes erecta', '주황색 꽃을 피우는 한해살이 식물', 'marigold.jpg'),
        ('장미', 'Rosa', '전 세계적으로 사랑받는 꽃으로 다양한 품종이 존재', 'rose.jpg'),
        ('참파카초령목', 'Magnolia champaca', '향기로운 꽃을 피우는 나무', 'champaca.jpg'),
        ('백화단', 'Plumbago zeylanica', '작은 흰색 꽃을 피우는 관목', 'plumbago-zeylanica.jpg'),
@@ -102,7 +100,6 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
        ('버터플라이피', 'Clitoria ternatea', '파란색 꽃을 피우는 덩굴식물', 'clitoria-ternatea.jpg'),
        ('히메노칼리스', 'Hymenocallis littoralis', '거미 모양의 꽃을 피우는 식물', 'hymenocallis-littoralis.jpg'),
        ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'sunflowers.jpg');
-
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
 VALUES (1, 'SPRING'),  -- 강아지풀: 봄, 여름
@@ -142,11 +139,9 @@ VALUES (1, 'SPRING'),  -- 강아지풀: 봄, 여름
        (15, 'AUTUMN'),
        (16, 'SUMMER'), -- 해바라기: 여름, 가을
        (16, 'AUTUMN');
-
 -- park_species 테이블에 유일 제약 조건 추가
 -- ALTER TABLE park_species
 --     ADD CONSTRAINT unique_park_species UNIQUE (park_id, species_id);
-
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
 VALUES (1, 1),  -- 1 싸피 뒷뜰 - 강아지풀
@@ -163,9 +158,8 @@ VALUES (1, 1),  -- 1 싸피 뒷뜰 - 강아지풀
        (3, 8),  -- 12 환경 연수원 - 장미
        (3, 16)  -- 13 환경 연수원 - 해바라기
 ON CONFLICT
-    (park_id, species_id)
+(park_id, species_id)
 DO NOTHING;
-
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
@@ -204,7 +198,6 @@ VALUES
     (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 12),
     -- 환경 연수원 - 해바라기
     (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
-
 -- ==============================================test
 -- 1. 멀찍히 떨어진 개별 점 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
@@ -216,7 +209,6 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 2);
-
 -- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 1),
@@ -227,7 +219,6 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
-
 -- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (솔방울)
 INSERT INTO species_pos (pos, park_species_id)
 SELECT ST_SetSRID(ST_MakePoint(
@@ -237,13 +228,11 @@ SELECT ST_SetSRID(ST_MakePoint(
        3
 FROM generate_series(1, 50);
 -- ==============================================test
-
 -- Quest
 INSERT INTO quest (type)
 VALUES (1),
        (2),
        (3);
-
 -- -- Discovery 데이터 삽입
 -- INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 -- SELECT 1, s.species_id, sp.id, NOW(), 'https://example.com/discovered_squirrel.jpg'
@@ -252,7 +241,6 @@ VALUES (1),
 --          JOIN species_pos sp ON ps.id = sp.park_species_id
 -- WHERE s.name = '단풍잎'
 --   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
-
 -- Exploration Data Insertion (탐험 데이터 삽입)
 INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate,
                          image_url, route, completed)
@@ -271,7 +259,6 @@ VALUES (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09
         ST_GeomFromText(
                 'LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)',
                 4326), true);
-
 -- Discovery Data Insertion (발견 데이터 삽입)
 -- 강아지풀 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
@@ -285,7 +272,6 @@ FROM species_pos sp
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
   AND ps.species_id = 1 -- 강아지풀
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326));
-
 -- 단풍잎 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자1)
@@ -298,7 +284,6 @@ FROM species_pos sp
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
   AND ps.species_id = 2 -- 단풍잎
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
-
 -- 솔방울 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자2)
@@ -311,7 +296,6 @@ FROM species_pos sp
 WHERE ps.park_id = 2    -- 동락공원
   AND ps.species_id = 3 -- 솔방울
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326));
-
 -- 장미 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자2)
@@ -324,7 +308,6 @@ FROM species_pos sp
 WHERE ps.park_id = 2    -- 동락공원
   AND ps.species_id = 8 -- 장미
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326));
-
 -- 해바라기 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자1)
@@ -337,33 +320,29 @@ FROM species_pos sp
 WHERE ps.park_id = 3     -- 환경 연수원
   AND ps.species_id = 16 -- 해바라기
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));
-
-
-
 -- ========================================================공원 더미 데이터
 -- 테스트용 공원 20개 추가
 INSERT INTO park (name, description, image_url)
-VALUES ('Test Park 1', '테스트 공원 1 설명', 'park1.jpg'),
-       ('Test Park 2', '테스트 공원 2 설명', 'park2.jpg'),
-       ('Test Park 3', '테스트 공원 3 설명', 'park3.jpg'),
-       ('Test Park 4', '테스트 공원 4 설명', 'park4.jpg'),
-       ('Test Park 5', '테스트 공원 5 설명', 'park5.jpg'),
-       ('Test Park 6', '테스트 공원 6 설명', 'park6.jpg'),
-       ('Test Park 7', '테스트 공원 7 설명', 'park7.jpg'),
-       ('Test Park 8', '테스트 공원 8 설명', 'park8.jpg'),
-       ('Test Park 9', '테스트 공원 9 설명', 'park9.jpg'),
-       ('Test Park 10', '테스트 공원 10 설명', 'park10.jpg'),
-       ('Test Park 11', '테스트 공원 11 설명', 'park11.jpg'),
-       ('Test Park 12', '테스트 공원 12 설명', 'park12.jpg'),
-       ('Test Park 13', '테스트 공원 13 설명', 'park13.jpg'),
-       ('Test Park 14', '테스트 공원 14 설명', 'park13.jpg'),
-       ('Test Park 15', '테스트 공원 15 설명', 'park13.jpg'),
-       ('Test Park 16', '테스트 공원 16 설명', 'park13.jpg'),
-       ('Test Park 17', '테스트 공원 17 설명', 'park13.jpg'),
-       ('Test Park 18', '테스트 공원 18 설명', 'park13.jpg'),
-       ('Test Park 19', '테스트 공원 19 설명', 'park13.jpg'),
-       ('Test Park 20', '테스트 공원 20 설명', 'park13.jpg');
-
+VALUES ('푸른 숲 공원', '푸른 나무들이 가득한 공원입니다.', 'park1.jpg'),
+       ('햇살 가득한 정원', '따뜻한 햇살이 비치는 공원입니다.', 'park2.jpg'),
+       ('꽃내음 정원', '다양한 꽃들이 만발한 향기로운 공원입니다.', 'park3.jpg'),
+       ('맑은 호수 공원', '맑은 호수를 끼고 있는 아름다운 공원입니다.', 'park4.jpg'),
+       ('바람길 산책로', '시원한 바람이 불어오는 산책로입니다.', 'park5.jpg'),
+       ('별빛 공원', '밤에는 별이 잘 보이는 공원입니다.', 'park6.jpg'),
+       ('조용한 숲길', '산책하며 여유를 즐길 수 있는 조용한 숲길입니다.', 'park7.jpg'),
+       ('강변 공원', '강을 따라 걸을 수 있는 산책로가 있는 공원입니다.', 'park8.jpg'),
+       ('햇빛마루 공원', '햇빛이 잘 드는 공간에서 여유를 즐길 수 있는 공원입니다.', 'park9.jpg'),
+       ('솔향기 공원', '솔향기가 가득한 소나무 숲 공원입니다.', 'park10.jpg'),
+       ('자연 생태원', '다양한 동식물을 만날 수 있는 자연 생태 공원입니다.', 'park11.jpg'),
+       ('바람숲 정원', '산들바람이 불어오는 정원입니다.', 'park12.jpg'),
+       ('햇살숲 공원', '따뜻한 햇살을 느낄 수 있는 나무숲 공원입니다.', 'park13.jpg'),
+       ('물빛 정원', '작은 연못과 물길이 흐르는 정원입니다.', 'park13.jpg'),
+       ('푸른 언덕 공원', '푸른 언덕을 오르며 자연을 느낄 수 있는 공원입니다.', 'park13.jpg'),
+       ('평화의 숲길', '평온한 분위기 속에서 산책할 수 있는 숲길입니다.', 'park13.jpg'),
+       ('새벽공원', '새벽에 가장 아름다운 풍경을 볼 수 있는 공원입니다.', 'park13.jpg'),
+       ('달빛 공원', '밤에는 달빛이 비치는 낭만적인 공원입니다.', 'park13.jpg'),
+       ('잔디밭 공원', '넓은 잔디밭에서 여유를 즐길 수 있는 공원입니다.', 'park13.jpg'),
+       ('호숫가 산책로', '호숫가를 따라 걸을 수 있는 산책로가 있는 공원입니다.', 'park13.jpg');
 -- 테스트용 공원 위치 추가
 INSERT INTO park_pos (pos, park_id, name)
 SELECT ST_SetSRID(
@@ -376,6 +355,12 @@ SELECT ST_SetSRID(
        p.id,
        '입구'
 FROM park p
-WHERE p.name LIKE 'Test Park %'
+WHERE p.name IN ('푸른 숲 공원', '햇살 가득한 정원', '꽃내음 정원',
+                 '맑은 호수 공원', '바람길 산책로', '별빛 공원',
+                 '조용한 숲길', '강변 공원', '햇빛마루 공원',
+                 '솔향기 공원', '자연 생태원', '바람숲 정원',
+                 '햇살숲 공원', '물빛 정원', '푸른 언덕 공원',
+                 '평화의 숲길', '새벽공원', '달빛 공원',
+                 '잔디밭 공원', '호숫가 산책로')
 ORDER BY p.id;
 -- ========================================================공원 더미 데이터
