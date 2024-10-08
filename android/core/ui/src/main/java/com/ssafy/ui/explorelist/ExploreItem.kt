@@ -97,7 +97,7 @@ fun ExploreDetailItem(
                     Modifier
                         .fillMaxWidth()
                         .weight(0.6f),
-                placeholder = painterResource(id = R.drawable.park_placeholder),
+                placeholder = painterResource(id = R.drawable.park),
             )
             Column(
                 modifier =
