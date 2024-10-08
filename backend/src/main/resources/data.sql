@@ -101,7 +101,10 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
        ('야모란과', 'Melastoma malabathricum', '보라색 꽃을 피우는 관목', 'melastoma-malabathricum.jpg'),
        ('버터플라이피', 'Clitoria ternatea', '파란색 꽃을 피우는 덩굴식물', 'clitoria-ternatea.jpg'),
        ('히메노칼리스', 'Hymenocallis littoralis', '거미 모양의 꽃을 피우는 식물', 'hymenocallis-littoralis.jpg'),
-       ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'sunflowers.jpg');
+       ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'sunflowers.jpg'),
+       ('나비', 'butterfly', '다양한 색과 모양을 가진 아름다운 날개를 펼치며 꽃가루를 모으는 곤충', 'butterfly.jpg'),
+       ('잠자리', 'dragonfly', '빠른 비행과 날렵한 체형을 가진 곤충으로 주로 습지나 물가에서 볼 수 있음', 'dragonfly.jpg'),
+       ('사슴벌레', 'stag beetle', '커다란 뿔과 강력한 턱을 가진 곤충으로, 주로 숲 속에서 서식', 'stag-beetle.jpg');
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
