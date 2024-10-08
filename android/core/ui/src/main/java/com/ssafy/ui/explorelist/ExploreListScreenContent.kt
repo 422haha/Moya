@@ -40,7 +40,7 @@ fun ExploreListScreenContent(
                 horizontalArrangement = Arrangement.Start,
             ) {
                 Text(
-                    text = "사용자이름",
+                    text = if(exploreListScreenState is ExploreListScreenState.Loaded) exploreListScreenState.userName else "게스트",
                     modifier =
                         Modifier
                             .padding(vertical = 8.dp)
@@ -104,6 +104,7 @@ fun ExploreListScreenPreview() {
     ExploreListScreenContent(
         exploreListScreenState =
             ExploreListScreenState.Loaded(
+                userName = "사용자 이름",
                 listOf(
                     ExploreDetail(
                         distance = 3.0,
