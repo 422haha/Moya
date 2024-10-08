@@ -3,7 +3,6 @@ package com.skele.moya.background.di
 import android.Manifest
 import android.content.Context
 import android.content.pm.PackageManager
-import android.util.Log
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationCallback
@@ -34,7 +33,6 @@ class LocationManager
                     override fun onLocationResult(result: LocationResult) {
                         result.lastLocation?.let { location ->
                             val latLng = LatLng(location.latitude, location.longitude)
-                            Log.d("TAG", "onLocationResult: $latLng")
                             locationList.add(latLng)
                         }
                     }
@@ -53,6 +51,8 @@ class LocationManager
                 ) == PackageManager.PERMISSION_GRANTED
             ) {
                 if (!isTracking) {
+                    isTracking = true
+
                     locationList.clear()
 
                     fusedsLocationClient.requestLocationUpdates(
@@ -66,6 +66,7 @@ class LocationManager
 
         fun stopTracking() {
             if (isTracking) {
+                isTracking = false
                 fusedsLocationClient.removeLocationUpdates(locationCallback)
             }
         }

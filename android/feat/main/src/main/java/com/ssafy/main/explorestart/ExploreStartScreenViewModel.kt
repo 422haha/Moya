@@ -66,6 +66,7 @@ class ExploreStartScreenViewModel
         }
 
         fun startTracking(context: Context) {
+            if(state.value is ExploreStartScreenState.Loaded) return
             locationManager.initialize(context)
             locationManager.startTracking(context)
         }
