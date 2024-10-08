@@ -130,7 +130,7 @@ fun TopTitle(
                 Modifier
                     .padding(start = 8.dp),
         )
-        if(isClosable){
+        if (isClosable) {
             Icon(
                 imageVector = Icons.Default.Clear,
                 contentDescription = "onPop",

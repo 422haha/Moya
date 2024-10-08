@@ -11,7 +11,6 @@ import retrofit2.http.Path
 import retrofit2.http.Query
 
 interface ParkApi {
-    // park/parks?page=1&size=10&latitude=128.0&longitude=32.0
     @GET("/park/parks")
     suspend fun getParkList(
         @Query("page") page: Int,
@@ -20,20 +19,17 @@ interface ParkApi {
         @Query("longitude") longitude: Double,
     ): Response<ResponseBody<ParkList>>
 
-    // /park/parks/1
     @GET("/park/parks/{parkId}")
     suspend fun getParkDetail(
         @Path("parkId") parkId: Long,
     ): Response<ResponseBody<ParkDetail>>
 
-    // /park/home?latitude=127&longitude=34
     @GET("/park/home")
     suspend fun getClosePark(
         @Query("latitude")latitude: Double,
         @Query("longitude")longitude: Double,
     ): Response<ResponseBody<Park>>
 
-    // /park/home/famous?latitude=127&longitude=34
     @GET("/park/home/famous")
     suspend fun getFamousParks(
         @Query("latitude")latitude: Double,

@@ -24,7 +24,7 @@ import com.ssafy.ui.component.LoadingScreen
 fun LoginScreenContent(
     modifier: Modifier = Modifier,
     loginScreenState: LoginScreenState,
-    onIntent: (LoginUserIntent) -> Unit = {}
+    onIntent: (LoginUserIntent) -> Unit = {},
 ) {
     Scaffold(modifier = Modifier) { paddingValues ->
         when (loginScreenState) {
@@ -36,14 +36,14 @@ fun LoginScreenContent(
                 LoginScreenLoaded(
                     modifier = modifier.padding(paddingValues),
                     state = loginScreenState,
-                    onIntent = onIntent
+                    onIntent = onIntent,
                 )
             }
 
             is LoginScreenState.Error -> {
                 ErrorScreen(
                     modifier = modifier.padding(paddingValues),
-                    message = loginScreenState.message
+                    message = loginScreenState.message,
                 )
             }
         }
@@ -54,25 +54,25 @@ fun LoginScreenContent(
 fun LoginScreenLoaded(
     modifier: Modifier,
     state: LoginScreenState.Loaded,
-    onIntent: (LoginUserIntent) -> Unit
+    onIntent: (LoginUserIntent) -> Unit,
 ) {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Top,
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Image(
             painterResource(id = R.drawable.logo),
             contentDescription = "app logo",
             modifier = Modifier.fillMaxWidth(),
-            contentScale = ContentScale.Crop
+            contentScale = ContentScale.Crop,
         )
 
         Spacer(modifier = Modifier.height(48.dp))
 
         Image(
             painterResource(id = R.drawable.naver_login),
-            contentDescription = "네이버 로그인"
+            contentDescription = "네이버 로그인",
         )
     }
 }

@@ -11,6 +11,7 @@ data class ExplorationData(
     val npcs: List<Npc>,
     val completedQuests: Int,
 )
+
 @Serializable
 data class ExplorationInitialData(
     @SerialName("explorationId")
@@ -19,6 +20,7 @@ data class ExplorationInitialData(
     val species: List<Species>,
     val npcs: List<Npc>,
 )
+
 @Serializable
 data class ExplorationEndData(
     val explorationId: Long,

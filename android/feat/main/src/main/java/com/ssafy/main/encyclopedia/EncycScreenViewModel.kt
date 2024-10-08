@@ -31,7 +31,6 @@ class EncycScreenViewModel
             }
         }
 
-        // TODO 여기도 parkId에 따라 데이터를 불러오도록 수정
         fun onIntent(
             parkId: Long,
             intent: EncycUserIntent,
@@ -76,7 +75,7 @@ class EncycScreenViewModel
                                                     )
                                                 },
                                             progress = body.progress.toFloat(),
-                                            selectedChipIndex = chipIndex
+                                            selectedChipIndex = chipIndex,
                                         )
                                     } ?: EncycScreenState.Error(
                                         "Failed to load initial data",
@@ -116,7 +115,7 @@ class EncycScreenViewModel
                                                     )
                                                 },
                                             progress = body.progress.toFloat(),
-                                            selectedChipIndex = chipIndex
+                                            selectedChipIndex = chipIndex,
                                         )
                                     } ?: EncycScreenState.Error("Failed to load initial data")
                                 }

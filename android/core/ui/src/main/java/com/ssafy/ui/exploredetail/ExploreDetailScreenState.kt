@@ -6,11 +6,15 @@ import com.ssafy.ui.component.EncycCardState
 sealed interface ExploreDetailScreenState {
     @Immutable
     data object Loading : ExploreDetailScreenState
+
     @Immutable
     data class Loaded(
         val exploreDetail: ExploreDetail,
-        val items: List<EncycCardState> = listOf()
+        val items: List<EncycCardState> = listOf(),
     ) : ExploreDetailScreenState
+
     @Immutable
-    data class Error(val message: String) : ExploreDetailScreenState
+    data class Error(
+        val message: String,
+    ) : ExploreDetailScreenState
 }

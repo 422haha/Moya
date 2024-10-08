@@ -9,12 +9,13 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class ExploreDetailScreenViewModel @Inject constructor() : ViewModel() {
-    private val _state =
-        MutableStateFlow<ExploreDetailScreenState>(ExploreDetailScreenState.Loading)
-    val state: StateFlow<ExploreDetailScreenState> = _state
+class ExploreDetailScreenViewModel
+    @Inject
+    constructor() : ViewModel() {
+        private val _state =
+            MutableStateFlow<ExploreDetailScreenState>(ExploreDetailScreenState.Loading)
+        val state: StateFlow<ExploreDetailScreenState> = _state
 
-    fun onIntent(intent: ExploreDetailUserIntent) {
-
+        fun onIntent(intent: ExploreDetailUserIntent) {
+        }
     }
-}

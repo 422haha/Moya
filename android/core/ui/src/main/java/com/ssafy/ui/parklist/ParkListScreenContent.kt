@@ -24,16 +24,13 @@ fun ParkListScreenContent(
     state: ParkListScreenState,
     onIntent: (ParkListUserIntent) -> Unit = {},
 ) {
-//    var clickable by remember { mutableStateOf(true) }
-//
-//    BackHandler {
-//        clickable = false
-//        onPop()
-//    }
-
     Scaffold(
         topBar = {
-            TopBar(modifier = Modifier.fillMaxWidth(), text = "공원", onPop = { onIntent(ParkListUserIntent.OnPop) })
+            TopBar(
+                modifier = Modifier.fillMaxWidth(),
+                text = "공원",
+                onPop = { onIntent(ParkListUserIntent.OnPop) },
+            )
         },
         content = { paddingValues ->
             when (state) {

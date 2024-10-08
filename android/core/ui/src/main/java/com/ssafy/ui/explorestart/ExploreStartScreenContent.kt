@@ -166,9 +166,9 @@ fun ExploreStartScreenLayout(
             horizontalAlignment = Alignment.End,
             verticalArrangement = Arrangement.Top,
             modifier =
-            Modifier
-                .fillMaxWidth()
-                .padding(vertical = 16.dp),
+                Modifier
+                    .fillMaxWidth()
+                    .padding(vertical = 16.dp),
         ) {
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -199,12 +199,12 @@ fun ExploreStartScreenLayout(
         IconButton(
             onClick = { onIntent(ExploreStartUserIntent.OnCameraClicked) },
             modifier =
-            Modifier
-                .align(Alignment.BottomCenter)
-                .padding(16.dp)
-                .clip(RoundedCornerShape(16.dp))
-                .background(PrimaryColor)
-                .size(52.dp),
+                Modifier
+                    .align(Alignment.BottomCenter)
+                    .padding(16.dp)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(PrimaryColor)
+                    .size(52.dp),
         ) {
             Icon(
                 painter = painterResource(id = R.drawable.baseline_center_focus_weak_24),

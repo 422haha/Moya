@@ -35,23 +35,33 @@ fun ExploreMarker(
     val density = LocalDensity.current
 
     LaunchedEffect(Unit) {
-        val request = ImageRequest.Builder(context)
-            .data(state.imageUrl)
-            .build()
-        with(density){
-            bitmap = context.imageLoader.execute(request).drawable?.toBitmap(
-                width = 70.dp.toPx().toInt(),
-                height = 70.dp.toPx().toInt()
-            )
+        val request =
+            ImageRequest
+                .Builder(context)
+                .data(state.imageUrl)
+                .build()
+        with(density) {
+            bitmap =
+                context.imageLoader.execute(request).drawable?.toBitmap(
+                    width = 70.dp.toPx().toInt(),
+                    height = 70.dp.toPx().toInt(),
+                )
         }
     }
 
     for (position in state.positions) {
         bitmap?.let {
             Marker(
-                state = MarkerState(position = com.naver.maps.geometry.LatLng(position.latitude, position.longitude)),
+                state =
+                    MarkerState(
+                        position =
+                            com.naver.maps.geometry.LatLng(
+                                position.latitude,
+                                position.longitude,
+                            ),
+                    ),
                 icon = OverlayImage.fromBitmap(it),
-                captionText = state.name
+                captionText = state.name,
             )
         }
     }

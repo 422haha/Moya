@@ -25,14 +25,6 @@ fun ExploreListScreenContent(
     exploreListScreenState: ExploreListScreenState,
     onIntent: (ExploreListUserIntent) -> Unit = {},
 ) {
-//
-//    var clickable by remember { mutableStateOf(true) }
-//
-//    BackHandler {
-//        clickable = false
-//        onIntent(ExploreListUserIntent.OnPop)
-//    }
-
     Scaffold(
         topBar = {
             Row(

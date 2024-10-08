@@ -26,45 +26,49 @@ import com.ssafy.ui.theme.SecondaryColor
 @Composable
 fun CustomMarkerWithTriangle(
     markerIcon: Painter,
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
 ) {
     Column(
         modifier = modifier.wrapContentWidth(),
-        horizontalAlignment = Alignment.CenterHorizontally
+        horizontalAlignment = Alignment.CenterHorizontally,
     ) {
         Box(
-            modifier = Modifier
-                .size(50.dp)
-                .clip(RoundedCornerShape(8.dp))
-                .background(SecondaryColor),
-            contentAlignment = Alignment.Center
+            modifier =
+                Modifier
+                    .size(50.dp)
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(SecondaryColor),
+            contentAlignment = Alignment.Center,
         ) {
             Image(
                 painter = markerIcon,
                 contentDescription = "Custom Marker",
                 contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .size(46.dp)
-                    .clip(RoundedCornerShape(8.dp))
+                modifier =
+                    Modifier
+                        .size(46.dp)
+                        .clip(RoundedCornerShape(8.dp)),
             )
         }
         Box(
-            modifier = Modifier
-                .wrapContentWidth()
-                .height(10.dp),
-            contentAlignment = Alignment.BottomCenter
+            modifier =
+                Modifier
+                    .wrapContentWidth()
+                    .height(10.dp),
+            contentAlignment = Alignment.BottomCenter,
         ) {
             Canvas(modifier = Modifier.size(20.dp)) {
-                val trianglePath = Path().apply {
-                    moveTo(size.width / 2, size.height)
-                    lineTo(0f, 0f)
-                    lineTo(size.width, 0f)
-                    close()
-                    fillType = PathFillType.EvenOdd
-                }
+                val trianglePath =
+                    Path().apply {
+                        moveTo(size.width / 2, size.height)
+                        lineTo(0f, 0f)
+                        lineTo(size.width, 0f)
+                        close()
+                        fillType = PathFillType.EvenOdd
+                    }
                 drawPath(
                     path = trianglePath,
-                    color = SecondaryColor
+                    color = SecondaryColor,
                 )
             }
         }

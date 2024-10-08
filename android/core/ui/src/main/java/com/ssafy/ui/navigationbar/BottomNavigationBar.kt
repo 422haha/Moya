@@ -25,7 +25,6 @@ import com.ssafy.ui.R
 import com.ssafy.ui.theme.DarkGrayColor
 import com.ssafy.ui.theme.PrimaryColor
 
-
 data class BottomNavigationItemState<T>(
     val route: T,
     val label: String,
@@ -75,9 +74,9 @@ fun BottomNavigationItem(
 ) {
     Column(
         modifier =
-        Modifier
-            .width(80.dp)
-            .clickable { onClick() },
+            Modifier
+                .width(80.dp)
+                .clickable { onClick() },
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.spacedBy(4.dp),
     ) {
@@ -95,33 +94,32 @@ fun BottomNavigationItem(
     }
 }
 
-
 @Preview(showBackground = true)
 @Composable
 fun BottomNavigationBarPreview() {
     BottomNavigationBar(
         startDestination = "",
         items =
-        listOf(
-            BottomNavigationItemState(
-                route = "Home",
-                label = "홈",
-                icon = R.drawable.baseline_calendar_month_24,
-                selectedIcon = R.drawable.baseline_calendar_month_24,
+            listOf(
+                BottomNavigationItemState(
+                    route = "Home",
+                    label = "홈",
+                    icon = R.drawable.baseline_calendar_month_24,
+                    selectedIcon = R.drawable.baseline_calendar_month_24,
+                ),
+                BottomNavigationItemState(
+                    route = "Encyc",
+                    label = "도감",
+                    icon = R.drawable.baseline_calendar_month_24,
+                    selectedIcon = R.drawable.baseline_calendar_month_24,
+                ),
+                BottomNavigationItemState(
+                    route = "ExploreJournal",
+                    label = "탐험일지",
+                    icon = R.drawable.baseline_calendar_month_24,
+                    selectedIcon = R.drawable.baseline_calendar_month_24,
+                ),
             ),
-            BottomNavigationItemState(
-                route = "Encyc",
-                label = "도감",
-                icon = R.drawable.baseline_calendar_month_24,
-                selectedIcon = R.drawable.baseline_calendar_month_24,
-            ),
-            BottomNavigationItemState(
-                route = "ExploreJournal",
-                label = "탐험일지",
-                icon = R.drawable.baseline_calendar_month_24,
-                selectedIcon = R.drawable.baseline_calendar_month_24,
-            ),
-        ),
         onSelected = {},
     )
 }

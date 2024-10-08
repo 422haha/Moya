@@ -8,11 +8,9 @@ import retrofit2.http.GET
 import retrofit2.http.Path
 
 interface SeasonApi {
-    // /season/famous
     @GET("/season/famous")
     suspend fun getSpeciesInSeason(): Response<ResponseListBody<SpeciesInSeason>>
 
-    // /season/famous/{speciesId}
     @GET("/season/famous/{speciesId}")
     suspend fun getParksBySpeciesId(
         @Path("speciesId") speciesId: Long,

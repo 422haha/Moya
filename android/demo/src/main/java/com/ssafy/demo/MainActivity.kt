@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.ui.Modifier
-import androidx.core.view.WindowCompat
 import com.ssafy.ar.ui.ARSceneComposable
 import com.ssafy.demo.ui.theme.MoyaTheme
 import dagger.hilt.android.AndroidEntryPoint
@@ -28,6 +27,7 @@ class MainActivity : ComponentActivity() {
                         onTTSReStart = {},
                         onTTSShutDown = {},
                         onPop = {},
+                        onNavigateToEncyc = {},
                     )
                 }
             }
