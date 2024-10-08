@@ -28,10 +28,10 @@ fun MainNavigation(
 ) {
     MultiplePermissionHandler(
         permissions =
-            listOf(
-                Manifest.permission.ACCESS_COARSE_LOCATION,
-                Manifest.permission.ACCESS_FINE_LOCATION,
-            ),
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
     ) {}
 
     // TODO startDestination 추후에 loin화면으로 수정
@@ -93,7 +93,7 @@ fun MainNavigation(
         composable<Encyc> {
             val route = it.toRoute<Encyc>()
             EncycScreen(
-                isDialog = false,
+                isDialog = route.isDialog,
                 parkId = route.parkId,
                 onNavigateToEncycDetail = { itemId ->
                     navController.navigate(EncycDetail(itemId))
@@ -134,10 +134,10 @@ fun MainNavigation(
                     }
                 },
                 onEnterEncyc = { parkId ->
-                    navController.navigate(Encyc(parkId))
+                    navController.navigate(Encyc(true, parkId))
                 },
                 onEnterAR = { id ->
-                    navController.navigate(ARCamera(explrationId = id))
+                    navController.navigate(ARCamera(explrationId = id, parkId = exploreStart.parkId))
                 },
             )
         }
@@ -145,7 +145,6 @@ fun MainNavigation(
             val route = navBackStackEntry.toRoute<ARCamera>()
             ARSceneComposable(
                 explorationId = route.explrationId,
-                onPermissionDenied = {},
                 onPop = {
                     navController.popBackStack()
                 },
@@ -157,6 +156,9 @@ fun MainNavigation(
                 },
                 onTTSReStart = {
                     ttsHelper.reStart()
+                },
+                onNavigateToEncyc = {
+                    navController.navigate(Encyc(isDialog = true, parkId = route.parkId))
                 }
             )
         }

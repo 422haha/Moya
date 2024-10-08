@@ -8,7 +8,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
 import com.ssafy.ui.R
 
-val jua = FontFamily(Font(R.font.jua_ttf))
+val jua = FontFamily(Font(R.font.pretendard))
 
 // Set of Material typography styles to start with
 val Typography = Typography(

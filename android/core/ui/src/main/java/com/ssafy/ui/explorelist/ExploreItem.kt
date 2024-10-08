@@ -1,12 +1,10 @@
 package com.ssafy.ui.explorelist
 
 import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -106,13 +104,11 @@ fun ExploreDetailItem(
                 modifier =
                 Modifier
                     .padding(8.dp)
-                    .padding(vertical = 12.dp)
-                    .fillMaxHeight()
-                    .weight(0.4f),
+                    .padding(vertical = 12.dp),
                 verticalArrangement = Arrangement.Top,
             ) {
                 Text(
-                    text = "동락공원",
+                    text = state.exploreDetail.parkName,
                     modifier = Modifier.padding(8.dp),
                     style = customTypography.titleMedium,
                 )

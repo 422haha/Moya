@@ -30,12 +30,14 @@ import io.github.sceneview.node.ImageNode
 import io.github.sceneview.node.ModelNode
 import io.github.sceneview.node.Node
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 import java.util.Collections
 import javax.inject.Inject
@@ -86,6 +88,10 @@ class ARViewModel @Inject constructor(
     private val _dialogData = MutableStateFlow(QuestInfo())
     val dialogData: StateFlow<QuestInfo> = _dialogData
     private var dialogCallback: ((Boolean) -> Unit)? = null
+
+    // 등록시 보여 줄 다이얼로그
+    private val _registerDialog = MutableStateFlow(false)
+    val registerDialog = _registerDialog.asStateFlow()
 
     fun getIsPlaceQuest(id: Long): Boolean? {
         return _questInfos.value[id]?.isPlace
@@ -142,16 +148,19 @@ class ARViewModel @Inject constructor(
         }
     }
 
-    fun registerSpecies(explorationId: Long,
-                                body: RegisterSpeciesRequestBody,
-                                onSuccess: (SpeciesMinimumInfo) -> Unit,
-                                onError: (String) -> Unit) {
+    fun registerSpecies(
+        explorationId: Long,
+        body: RegisterSpeciesRequestBody,
+        onSuccess: (SpeciesMinimumInfo) -> Unit,
+        onError: (String) -> Unit
+    ) {
         viewModelScope.launch {
             explorationRepository.registerSpecies(explorationId, body).collect { response ->
-                when(response) {
+                when (response) {
                     is ApiResponse.Success -> {
                         response.body?.let { onSuccess(it) }
                     }
+
                     is ApiResponse.Error -> {
                         onError(response.errorMessage ?: "Unknown error")
                     }
@@ -290,6 +299,17 @@ class ARViewModel @Inject constructor(
         _rating.value = roundedRatingValue
     }
 
+    fun chattingNPC(explorationId: Long, npcPosId: Long, message: String, onSuccess: (String) -> Unit, onError: (String) -> Unit)  {
+        viewModelScope.launch {
+            explorationRepository.chattingNPC(explorationId, npcPosId, message).collect { response ->
+                when(response) {
+                    is ApiResponse.Success -> onSuccess(response.body?.response ?: "잘못된 응답입니다.")
+                    is ApiResponse.Error -> onError(response.errorMessage ?: "")
+                }
+            }
+        }
+    }
+
     fun showQuestDialog(questInfo: QuestInfo, callback: (Boolean) -> Unit) {
         _dialogData.value = questInfo
         _showDialog.value = true
@@ -308,6 +328,18 @@ class ARViewModel @Inject constructor(
         _dialogData.value = QuestInfo()
         dialogCallback?.invoke(false)
         dialogCallback = null
+    }
+
+    fun showRegisterDialog() {
+        _registerDialog.value = true
+        viewModelScope.launch {
+            delay(3000)
+            _registerDialog.value = false
+        }
+    }
+
+    fun onRegisterDialogDismiss() {
+        _registerDialog.value = false
     }
 
     override fun onCleared() {

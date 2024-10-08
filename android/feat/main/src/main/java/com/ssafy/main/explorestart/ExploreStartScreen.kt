@@ -1,19 +1,26 @@
 package com.ssafy.main.explorestart
 
+import android.Manifest
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.location.LocationServices
 import com.ssafy.main.dialog.ChallengeDialog
+import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.ui.component.ExploreDialog
 import com.ssafy.ui.explorestart.ExploreStartDialogState
 import com.ssafy.ui.explorestart.ExploreStartScreenContent
 import com.ssafy.ui.explorestart.ExploreStartScreenState
 import com.ssafy.ui.explorestart.ExploreStartUserIntent
 
+@SuppressLint("MissingPermission")
 @Composable
 fun ExploreStartScreen(
     parkId: Long,
@@ -25,16 +32,36 @@ fun ExploreStartScreen(
     val uiState by viewModel.state.collectAsStateWithLifecycle()
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
+    val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    MultiplePermissionHandler(
+        permissions =
+        listOf(
+            Manifest.permission.ACCESS_COARSE_LOCATION,
+            Manifest.permission.ACCESS_FINE_LOCATION,
+        ),
+    ) { result ->
+        if (result.all { it.value }) {
+            fusedLocationClient
+        }
+    }
+
     LaunchedEffect(parkId) {
-        viewModel.loadInitialData(parkId)
+        viewModel.loadData(parkId)
+        viewModel.startTracking(context)
     }
 
     BackHandler {
-        viewModel.onIntent(ExploreStartUserIntent.OnExitClicked)
+        if (uiState is ExploreStartScreenState.Loaded) {
+            viewModel.onIntent(ExploreStartUserIntent.OnExitClicked)
+        } else {
+            onExitExplore()
+        }
     }
-    
+
     LaunchedEffect(uiState) {
-        if(uiState is ExploreStartScreenState.Exit){
+        if (uiState is ExploreStartScreenState.Exit) {
             onExitExplore()
         }
     }
@@ -59,17 +86,14 @@ fun ExploreStartScreen(
                 Dialog(onDismissRequest = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) }) {
                     ChallengeDialog(
                         explorationId = (uiState as ExploreStartScreenState.Loaded).explorationId,
-                        onConfirm = { id ->
-                            viewModel.onIntent(
-                                ExploreStartUserIntent.OnChallengeSelected(
-                                    id,
-                                ),
-                            )
+                        onConfirm = { _ ->
+                            onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
                         },
                         onDismiss = { viewModel.onIntent(ExploreStartUserIntent.OnDialogDismissed) },
                     )
                 }
             }
+
             else -> Unit
         }
     }
@@ -78,10 +102,11 @@ fun ExploreStartScreen(
         when (intent) {
             is ExploreStartUserIntent.OnEnterEncyc -> onEnterEncyc(parkId)
             is ExploreStartUserIntent.OnCameraClicked -> {
-                if(uiState is ExploreStartScreenState.Loaded){
+                if (uiState is ExploreStartScreenState.Loaded) {
                     onEnterAR((uiState as ExploreStartScreenState.Loaded).explorationId)
                 }
             }
+
             else -> viewModel.onIntent(intent)
         }
     })

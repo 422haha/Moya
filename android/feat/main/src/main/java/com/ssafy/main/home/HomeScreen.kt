@@ -30,6 +30,7 @@ fun HomeScreen(
     MultiplePermissionHandler(
         permissions =
             listOf(
+                Manifest.permission.CAMERA,
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
             ),

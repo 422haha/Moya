@@ -16,7 +16,7 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.itemsIndexed
+import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Clear
@@ -195,9 +195,9 @@ fun FilterChipComponent(
             ),
         border =
             if (isSelected) {
-                BorderStroke(1.dp, DarkGrayColor)
-            } else {
                 null
+            } else {
+                BorderStroke(1.dp, GrayColor)
             },
     )
 }
@@ -241,10 +241,10 @@ fun EncycGrid(
                 .fillMaxHeight()
                 .heightIn(min = 200.dp),
     ) {
-        itemsIndexed(items) { index, item ->
+        items(items) { item ->
             EncycCard(
                 item,
-                onClick = { onItemClicked(index.toLong()) },
+                onClick = { onItemClicked(item.id) },
             )
         }
     }
@@ -255,7 +255,7 @@ fun CollectionProgress(
     progress: Float,
     onIntent: (EncycUserIntent) -> Unit = {},
 ) {
-    Surface(modifier = Modifier.bottomShadow(4.dp)) {
+    Surface(modifier = Modifier.bottomShadow(4.dp), color = SurfaceColor) {
         Column(
             horizontalAlignment = Alignment.Start,
             modifier =

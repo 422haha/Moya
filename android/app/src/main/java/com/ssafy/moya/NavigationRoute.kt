@@ -18,7 +18,7 @@ data class ExploreDetail(val itemId: Long)
 data class ParkDetail(val parkId: Long)
 
 @Serializable
-data class Encyc(val parkId: Long)
+data class Encyc(val isDialog: Boolean, val parkId: Long)
 
 @Serializable
 data class EncycDetail(val encycId: Long)
@@ -27,7 +27,7 @@ data class EncycDetail(val encycId: Long)
 data class ExploreStart(val parkId: Long)
 
 @Serializable
-data class ARCamera(val explrationId: Long)
+data class ARCamera(val explrationId: Long, val parkId: Long)
 
 //TODO 나중에 dataclass로 수정하고 userId 전송하도록
 @Serializable
