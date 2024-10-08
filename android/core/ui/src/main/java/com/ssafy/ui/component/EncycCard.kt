@@ -22,6 +22,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -68,9 +69,9 @@ fun EncycCard(
                     .align(Alignment.BottomCenter),
             color =
                 if (state.isDiscovered) {
-                    SurfaceColor.copy(alpha = 0.5f)
+                    SurfaceColor.copy(alpha = 0.8f)
                 } else {
-                    Color.Black.copy(alpha = 0.5f)
+                    Color.Black.copy(alpha = 0.8f)
                 },
         ) {
             Box(
@@ -81,7 +82,8 @@ fun EncycCard(
                 contentAlignment = Alignment.Center,
             ) {
                 Text(
-                    text = state.name,
+                    text = if(state.isDiscovered) state.name else state.name + " (미발견)",
+                    fontWeight = FontWeight.SemiBold,
                     fontSize = 14.sp,
                     color = if (state.isDiscovered) Color.Black else LightBackgroundColor,
                 )
@@ -101,7 +103,7 @@ fun EncycCircleCard(
         modifier = Modifier.clickable { onClick(state.id) },
     ) {
         AsyncImage(
-            model = state.name,
+            model = state.imageUrl,
             contentDescription = "plant",
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
             contentScale = ContentScale.Crop,

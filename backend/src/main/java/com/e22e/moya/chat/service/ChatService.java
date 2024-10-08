@@ -1,9 +1,14 @@
 package com.e22e.moya.chat.service;
 
-import com.e22e.moya.exploration.dto.chat.ChatRequestDto;
-import com.e22e.moya.exploration.dto.chat.ChatResponseDto;
+
+import com.e22e.moya.chat.dto.ChatRequestDto;
+import com.e22e.moya.chat.dto.ChatResponseDto;
+import com.e22e.moya.common.entity.species.Species;
 
 public interface ChatService {
 
-//    ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long chatId);
+    ChatResponseDto processUserMessage(ChatRequestDto requestDto, Long npcPosId,
+        Long userId, Long parkId);
+
+    void updateSpeciesCache(Long parkId, Species newSpecies);
 }

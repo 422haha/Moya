@@ -35,11 +35,13 @@ import java.util.Date
 @Immutable
 data class ExploreDetail(
     val id: Long,
-    val distance: Float,
-    val runningTime: Long,
-    val stepCount: Long,
-    val registerCount: Long,
+    val distance: Double,
+    val runningTime: Int,
+    val questCompletedCount: Int,
+    val registerCount: Int,
+    val imageUrl: String,
     val date: Date,
+    val parkName: String,
 )
 
 @Composable
@@ -136,7 +138,7 @@ fun ExploreInfo(state: ExploreDetailScreenState.Loaded) {
                     tint = SecondaryColor,
                 )
                 Text(
-                    text = formatDate(state.exploreDetail.date),
+                    text = state.exploreDetail.date.formatDate(),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = SecondaryColor,
@@ -165,7 +167,7 @@ fun ExploreInfo(state: ExploreDetailScreenState.Loaded) {
                 TextBox(
                     modifier = Modifier.weight(1f),
                     "걸음 수",
-                    "${state.exploreDetail.stepCount}걸음",
+                    "${state.exploreDetail.questCompletedCount}개",
                 )
                 TextBox(
                     modifier = Modifier.weight(1f),
@@ -211,11 +213,13 @@ fun ExploreScreenPreview() {
                 exploreDetail =
                     ExploreDetail(
                         id = 1,
-                        distance = 3.0f,
+                        distance = 3.0,
                         runningTime = 20,
-                        stepCount = 100,
+                        questCompletedCount = 100,
                         registerCount = 8,
                         date = Date(),
+                        parkName = "동락공원",
+                        imageUrl = ""
                     ),
 //                items =
 //                    List(8) { index ->

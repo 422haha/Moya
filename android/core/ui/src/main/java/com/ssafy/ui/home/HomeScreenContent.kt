@@ -17,12 +17,14 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -34,12 +36,14 @@ import com.ssafy.ui.R
 import com.ssafy.ui.component.EncycCardState
 import com.ssafy.ui.component.EncycCircleCard
 import com.ssafy.ui.component.ErrorScreen
+import com.ssafy.ui.component.GradientBox
 import com.ssafy.ui.component.ImageCardWithTitleDescription
 import com.ssafy.ui.component.ImageCardWithTitleDescriptionState
 import com.ssafy.ui.component.ImageCardWithValue
 import com.ssafy.ui.component.ImageCardWithValueState
 import com.ssafy.ui.component.LoadingScreen
-import com.ssafy.ui.theme.OnPrimaryColor
+import com.ssafy.ui.theme.GrayColor
+import com.ssafy.ui.theme.LightBackgroundColor
 import com.ssafy.ui.theme.SecondaryColor
 
 @Composable
@@ -84,7 +88,7 @@ fun HomeScreenLoaded(
     ) {
         item {
             HomeTopImage(
-                image = "https://cdn.autotribune.co.kr/news/photo/202404/16048_73647_5214.png",
+                image = R.drawable.banner,
                 desctiption = "Moya와 함께 공원을 탐험해보아요",
             )
         }
@@ -93,23 +97,39 @@ fun HomeScreenLoaded(
                 onIntent(HomeUserIntent.OnSelectPopularPark(id))
             })
         }
+        item { ItemDivider() }
         item {
             VerticalImageCardLayout(state = state.closeParks, onSelected = { id ->
                 onIntent(HomeUserIntent.OnSelectClosePark(id))
+            }, onMore = {
+                onIntent(HomeUserIntent.OnNavigateToParkList)
             })
         }
+        item { ItemDivider() }
         item {
-            HorizontalCircleCardLayout(state = state.plantInSeason, onSelected = { id ->
-                onIntent(HomeUserIntent.OnSelectEncyc(id))
-            })
+            HorizontalCircleCardLayout(
+                modifier = Modifier.padding(bottom = 32.dp),
+                state = state.plantInSeason,
+                onSelected = { id ->
+                    onIntent(HomeUserIntent.OnSelectEncyc(id))
+                },
+            )
         }
     }
 }
 
 @Composable
+fun ItemDivider() {
+    HorizontalDivider(
+        thickness = 8.dp,
+        color = GrayColor,
+    )
+}
+
+@Composable
 fun HomeTopImage(
     modifier: Modifier = Modifier,
-    image: String?,
+    image: Int?,
     desctiption: String,
 ) {
     Box(
@@ -125,14 +145,18 @@ fun HomeTopImage(
             modifier = Modifier.fillMaxSize(),
             placeholder = painterResource(id = R.drawable.ic_launcher_background),
         )
+        GradientBox(
+            modifier = Modifier.fillMaxWidth().height(80.dp).align(Alignment.BottomCenter),
+            color = LightBackgroundColor,
+        )
         Text(
-            text = desctiption,
+            text = "",
             fontSize = 24.sp,
             fontWeight = FontWeight.SemiBold,
-            color = OnPrimaryColor,
+            color = Color.Black,
             modifier =
                 Modifier
-                    .align(Alignment.TopStart)
+                    .align(Alignment.BottomStart)
                     .padding(16.dp),
         )
     }
@@ -169,7 +193,12 @@ fun VerticalImageCardLayout(
     onSelected: (id: Long) -> Unit = {},
     onMore: () -> Unit = {},
 ) {
-    Column(modifier = modifier.padding(horizontal = 16.dp).padding(top = 12.dp)) {
+    Column(
+        modifier =
+            modifier
+                .padding(horizontal = 16.dp)
+                .padding(top = 12.dp),
+    ) {
         Row(
             modifier.padding(bottom = 12.dp),
             verticalAlignment = Alignment.CenterVertically,

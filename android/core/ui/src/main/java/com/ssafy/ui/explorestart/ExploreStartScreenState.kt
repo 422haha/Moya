@@ -9,17 +9,19 @@ sealed interface ExploreStartScreenState {
 
     @Immutable
     data class Loaded(
+        val explorationId: Long,
         val npcPositions: List<LatLng> = listOf(),
-        val discoveredPositions: List<LatLng> = listOf(),
+        val discoveredPositions: List<ExploreMarkerState> = listOf(),
         val speciesPositions: List<LatLng> = listOf(),
-        val showExitDialog: Boolean = false,
-        val showChallengeDialog: Boolean = false,
     ) : ExploreStartScreenState
 
     @Immutable
     data class Error(
         val message: String,
     ) : ExploreStartScreenState
+
+    @Immutable
+    data object Exit : ExploreStartScreenState
 }
 
 @Immutable
