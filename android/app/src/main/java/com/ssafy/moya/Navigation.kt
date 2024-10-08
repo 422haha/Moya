@@ -25,14 +25,13 @@ import com.ssafy.ui.screen.UserProfileEditScreen
 fun MainNavigation(
     navController: NavHostController = rememberNavController(),
     ttsHelper: TTSHelper,
-    sttHelper: STTHelper,
 ) {
     MultiplePermissionHandler(
         permissions =
-        listOf(
-            Manifest.permission.ACCESS_COARSE_LOCATION,
-            Manifest.permission.ACCESS_FINE_LOCATION,
-        ),
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
     ) {}
 
     // TODO startDestination 추후에 loin화면으로 수정
@@ -104,7 +103,7 @@ fun MainNavigation(
                 },
             )
         }
-        // TODO 추후에 찾으러가기 버튼을 눌렀을 때 해당하는 동식물을 찾으러 가는 네비게이션 추가
+
         composable<EncycDetail> {
             val item = it.toRoute<EncycDetail>()
             EncycDetailScreen(
@@ -120,17 +119,15 @@ fun MainNavigation(
                 },
                 onTTSReStart = {
                     ttsHelper.reStart()
-                }
+                },
             )
         }
         composable<ExploreStart> {
             val exploreStart = it.toRoute<ExploreStart>()
-            // TODO 추후에 카메라 화면으로 이동하는 네비게이션 추가
             ExploreStartScreen(
                 parkId = exploreStart.parkId,
                 onExitExplore = {
                     navController.navigate(Home) {
-                        // TODO 추후에 탐험기록 화면으로 이동하도록 수정
                         popUpTo(Home) { inclusive = true }
                     }
                 },
@@ -138,7 +135,12 @@ fun MainNavigation(
                     navController.navigate(Encyc(true, parkId))
                 },
                 onEnterAR = { id ->
-                    navController.navigate(ARCamera(explrationId = id, parkId = exploreStart.parkId))
+                    navController.navigate(
+                        ARCamera(
+                            explrationId = id,
+                            parkId = exploreStart.parkId,
+                        ),
+                    )
                 },
             )
         }
@@ -160,7 +162,7 @@ fun MainNavigation(
                 },
                 onNavigateToEncyc = {
                     navController.navigate(Encyc(isDialog = true, parkId = route.parkId))
-                }
+                },
             )
         }
         composable<Login> {

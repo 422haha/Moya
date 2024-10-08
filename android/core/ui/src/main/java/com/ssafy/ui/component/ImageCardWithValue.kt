@@ -68,7 +68,10 @@ fun ImageCardWithValue(
                     ),
                 color = Color.Black.copy(alpha = 0.5f),
             ) {}
-            Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = state.title,
                     fontSize = 24.sp,

@@ -15,16 +15,11 @@ import retrofit2.Retrofit
 @Module
 @InstallIn(SingletonComponent::class)
 object ApiModule {
+    @Provides
+    fun provideEncyclopediaApi(retrofit: Retrofit): EncyclopediaApi = retrofit.create(EncyclopediaApi::class.java)
 
     @Provides
-    fun provideEncyclopediaApi(retrofit: Retrofit): EncyclopediaApi {
-        return retrofit.create(EncyclopediaApi::class.java)
-    }
-
-    @Provides
-    fun provideExplorationApi(retrofit: Retrofit): ExplorationApi {
-        return retrofit.create(ExplorationApi::class.java)
-    }
+    fun provideExplorationApi(retrofit: Retrofit): ExplorationApi = retrofit.create(ExplorationApi::class.java)
 
     @Provides
     fun provideParkApi(retrofit: Retrofit): ParkApi = retrofit.create(ParkApi::class.java)

@@ -1,5 +1,6 @@
 package com.ssafy.ui.explorelist
 
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
@@ -28,6 +29,7 @@ import kotlinx.coroutines.launch
 import java.util.Date
 import kotlin.math.abs
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun ExplorePager(
     exploreDetails: List<ExploreDetail>,
@@ -55,7 +57,6 @@ fun ExplorePager(
                     state = ExploreDetailScreenState.Loaded(exploreDetail),
                     isSelected = isSelected,
                     offset = filteredOffset,
-                    onClick = { onIntent(ExploreListUserIntent.OnItemSelect(exploreDetail.id)) },
                 )
             }
             if (pagerState.currentPage > 0) {

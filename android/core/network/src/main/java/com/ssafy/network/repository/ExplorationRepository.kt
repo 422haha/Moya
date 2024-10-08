@@ -40,6 +40,6 @@ interface ExplorationRepository {
     suspend fun chattingNPC(
         explorationId: Long,
         npcPosId: Long,
-        body: String
+        body: String,
     ): Flow<ApiResponse<Chatting>>
 }

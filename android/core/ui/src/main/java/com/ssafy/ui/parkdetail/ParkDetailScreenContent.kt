@@ -103,13 +103,12 @@ fun ParkDetailScreenLoaded(
                         Modifier
                             .fillMaxWidth(),
                 ) {
-//                    state.parkImage?.let { ImageSection(imageUrl = it) }
                     Text(
                         text = state.parkName,
                         modifier =
-                        Modifier
-                            .padding(horizontal = 16.dp)
-                            .padding(top = 8.dp),
+                            Modifier
+                                .padding(horizontal = 16.dp)
+                                .padding(top = 8.dp),
                         style = customTypography.titleLarge,
                     )
                     TitleAndDividerSection("공원 소개")
@@ -137,18 +136,20 @@ fun ParkDetailScreenLoaded(
 @Composable
 fun ParkDetailScreenPreview() {
     ParkDetailScreenContent(
-        parkDetailScreenState = ParkDetailScreenState.Loaded(
-            parkName = "동락공원",
-            description = "동락공원이예요",
-            items = List(20) { index ->
-                EncycCardState(
-                    id = index.toLong(),
-                    name = "식물 $index",
-                    imageUrl = null,
-                    isDiscovered = index % 2 == 0
-                )
-            }
-        ),
-        onIntent = {}
+        parkDetailScreenState =
+            ParkDetailScreenState.Loaded(
+                parkName = "동락공원",
+                description = "동락공원이예요",
+                items =
+                    List(20) { index ->
+                        EncycCardState(
+                            id = index.toLong(),
+                            name = "식물 $index",
+                            imageUrl = null,
+                            isDiscovered = index % 2 == 0,
+                        )
+                    },
+            ),
+        onIntent = {},
     )
 }

@@ -32,30 +32,31 @@ fun UserProfileEditScreen() {
 
     UserProfileEditContent(
         name = name,
-        onNameChange = { newName -> name = newName }
+        onNameChange = { newName -> name = newName },
     )
 }
 
 @Composable
 fun UserProfileEditContent(
     name: String,
-    onNameChange: (String) -> Unit
+    onNameChange: (String) -> Unit,
 ) {
     Scaffold { paddingValues ->
         Column(
-            modifier = Modifier
-                .padding(paddingValues)
-                .fillMaxSize(),
+            modifier =
+                Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize(),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            //TODO 추후에 이미지 변경 가능하도록 수정
             Image(
                 painter = painterResource(id = R.drawable.ic_launcher_foreground),
                 contentDescription = "profile",
-                modifier = Modifier
-                    .clip(CircleShape)
-                    .background(DarkGrayColor)
+                modifier =
+                    Modifier
+                        .clip(CircleShape)
+                        .background(DarkGrayColor),
             )
 
             Spacer(modifier = Modifier.height(28.dp))
@@ -63,7 +64,7 @@ fun UserProfileEditContent(
             OutlinedTextField(
                 value = name,
                 onValueChange = onNameChange,
-                label = { Text("이름") }
+                label = { Text("이름") },
             )
         }
     }

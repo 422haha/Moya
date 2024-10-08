@@ -1,7 +1,6 @@
 package com.ssafy.ui.explorelist
 
 import androidx.compose.runtime.Immutable
-import com.ssafy.ui.component.BoxWithImageState
 import com.ssafy.ui.component.UserIntent
 import com.ssafy.ui.exploredetail.ExploreDetail
 
@@ -20,8 +19,3 @@ sealed interface ExploreListScreenState : UserIntent {
         val message: String,
     ) : ExploreListScreenState
 }
-
-data class BoxWithImageStateWithData(
-    val id: Long,
-    val state: BoxWithImageState,
-)

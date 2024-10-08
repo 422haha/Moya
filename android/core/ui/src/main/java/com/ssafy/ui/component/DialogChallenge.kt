@@ -116,7 +116,6 @@ fun ChallengeItem(
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
                 Icon(
-                    // TODO 이거 성공했으면 star가 보이도록
                     painter =
                         if (isSuccess) {
                             painterResource(id = R.drawable.baseline_star_24)

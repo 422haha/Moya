@@ -3,10 +3,8 @@ EXTENSION IF NOT EXISTS postgis;
 -- 기본 사용자 추가
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
 VALUES ('seojang0510@naver.com', '테스트사용자1', 'oauth_provider', 'oauth_id1', 'profile_image_url');
-
 INSERT INTO users (email, name, oauth_provider, oauth_id, profile_image_url)
 VALUES ('wyscat@naver.com', '테스트사용자2', 'oauth_provider', 'oauth_id2', 'profile_image_url');
-
 -- Parksp
 INSERT INTO park (name, description, image_url)
 VALUES ('싸피 뒷뜰', '싸피 구미 캠퍼스 기숙사에 위치한 공원으로 봄이 되면 예쁜 꽃들이 핀답니다. 가을이 되면 감도 딸 수 있어요',
@@ -101,7 +99,10 @@ VALUES ('강아지풀', 'Setaria viridis', '강아지 꼬리처럼 복슬복슬 
        ('야모란과', 'Melastoma malabathricum', '보라색 꽃을 피우는 관목', 'melastoma-malabathricum.jpg'),
        ('버터플라이피', 'Clitoria ternatea', '파란색 꽃을 피우는 덩굴식물', 'clitoria-ternatea.jpg'),
        ('히메노칼리스', 'Hymenocallis littoralis', '거미 모양의 꽃을 피우는 식물', 'hymenocallis-littoralis.jpg'),
-       ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'sunflowers.jpg');
+       ('해바라기', 'Helianthus annuus', '커다란 노란 꽃을 피우는 식물', 'sunflowers.jpg'),
+       ('나비', 'butterfly', '다양한 색과 모양을 가진 아름다운 날개를 펼치며 꽃가루를 모으는 곤충', 'butterfly.jpg'),
+       ('잠자리', 'dragonfly', '빠른 비행과 날렵한 체형을 가진 곤충으로 주로 습지나 물가에서 볼 수 있음', 'dragonfly.jpg'),
+       ('사슴벌레', 'stag beetle', '커다란 뿔과 강력한 턱을 가진 곤충으로, 주로 숲 속에서 서식', 'stag-beetle.jpg');
 
 -- 동식물의 볼 수 있는 계절 정보 삽입
 INSERT INTO species_seasons (species_id, season)
@@ -142,11 +143,9 @@ VALUES (1, 'SPRING'),  -- 강아지풀: 봄, 여름
        (15, 'AUTUMN'),
        (16, 'SUMMER'), -- 해바라기: 여름, 가을
        (16, 'AUTUMN');
-
 -- park_species 테이블에 유일 제약 조건 추가
 -- ALTER TABLE park_species
 --     ADD CONSTRAINT unique_park_species UNIQUE (park_id, species_id);
-
 -- Park Species
 INSERT INTO park_species (park_id, species_id)
 VALUES (1, 1),  -- 1 싸피 뒷뜰 - 강아지풀
@@ -163,9 +162,8 @@ VALUES (1, 1),  -- 1 싸피 뒷뜰 - 강아지풀
        (3, 8),  -- 12 환경 연수원 - 장미
        (3, 16)  -- 13 환경 연수원 - 해바라기
 ON CONFLICT
-    (park_id, species_id)
+(park_id, species_id)
 DO NOTHING;
-
 -- Species Position
 INSERT INTO species_pos (pos, park_species_id)
 VALUES
@@ -204,7 +202,6 @@ VALUES
     (ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326), 12),
     -- 환경 연수원 - 해바라기
     (ST_SetSRID(ST_MakePoint(128.312100, 36.120100), 4326), 13);
-
 -- ==============================================test
 -- 1. 멀찍히 떨어진 개별 점 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
@@ -216,7 +213,6 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.410000, 36.107000), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.415000, 36.107000), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.412000, 36.109000), 4326), 2);
-
 -- 2. 반경 20m 안에 3점이 존재하는 경우 (강아지풀)
 INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 1),
@@ -227,7 +223,6 @@ INSERT INTO species_pos (pos, park_species_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.413000, 36.108000), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413010, 36.108010), 4326), 3),
        (ST_SetSRID(ST_MakePoint(128.413020, 36.108020), 4326), 3);
-
 -- 3. 반경 100m 안에 2번 조건을 만족하는 점이 무수히 많은 경우 (솔방울)
 INSERT INTO species_pos (pos, park_species_id)
 SELECT ST_SetSRID(ST_MakePoint(
@@ -237,13 +232,11 @@ SELECT ST_SetSRID(ST_MakePoint(
        3
 FROM generate_series(1, 50);
 -- ==============================================test
-
 -- Quest
 INSERT INTO quest (type)
 VALUES (1),
        (2),
        (3);
-
 -- -- Discovery 데이터 삽입
 -- INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 -- SELECT 1, s.species_id, sp.id, NOW(), 'https://example.com/discovered_squirrel.jpg'
@@ -252,7 +245,6 @@ VALUES (1),
 --          JOIN species_pos sp ON ps.id = sp.park_species_id
 -- WHERE s.name = '단풍잎'
 --   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
-
 -- Exploration Data Insertion (탐험 데이터 삽입)
 INSERT INTO exploration (user_id, park_id, start_time, end_time, distance, steps, startdate,
                          image_url, route, completed)
@@ -271,7 +263,6 @@ VALUES (1, 1, '2024-09-23 10:00:00', '2024-09-23 12:00:00', 2500, 5000, '2024-09
         ST_GeomFromText(
                 'LINESTRING(128.311500 36.119000, 128.311600 36.119100, 128.312000 36.120000)',
                 4326), true);
-
 -- Discovery Data Insertion (발견 데이터 삽입)
 -- 강아지풀 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
@@ -285,7 +276,6 @@ FROM species_pos sp
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
   AND ps.species_id = 1 -- 강아지풀
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416200, 36.107200), 4326));
-
 -- 단풍잎 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자1)
@@ -298,7 +288,6 @@ FROM species_pos sp
 WHERE ps.park_id = 1    -- '싸피 뒷뜰'
   AND ps.species_id = 2 -- 단풍잎
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.416000, 36.107000), 4326));
-
 -- 솔방울 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자2)
@@ -311,7 +300,6 @@ FROM species_pos sp
 WHERE ps.park_id = 2    -- 동락공원
   AND ps.species_id = 3 -- 솔방울
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326));
-
 -- 장미 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자2)
@@ -324,7 +312,6 @@ FROM species_pos sp
 WHERE ps.park_id = 2    -- 동락공원
   AND ps.species_id = 8 -- 장미
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.403000, 36.090000), 4326));
-
 -- 해바라기 발견 데이터
 INSERT INTO discovery (user_id, species_id, species_pos_id, discovery_time, image_url)
 SELECT 1,                     -- user_id (테스트사용자1)
@@ -337,9 +324,6 @@ FROM species_pos sp
 WHERE ps.park_id = 3     -- 환경 연수원
   AND ps.species_id = 16 -- 해바라기
   AND ST_Equals(sp.pos, ST_SetSRID(ST_MakePoint(128.312000, 36.120000), 4326));
-
-
-
 -- ========================================================공원 더미 데이터
 -- 테스트용 공원 20개 추가
 INSERT INTO park (name, description, image_url)
