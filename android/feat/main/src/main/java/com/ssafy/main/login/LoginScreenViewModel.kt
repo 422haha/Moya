@@ -9,11 +9,12 @@ import kotlinx.coroutines.flow.StateFlow
 import javax.inject.Inject
 
 @HiltViewModel
-class LoginScreenViewModel @Inject constructor() : ViewModel() {
-    private val _state = MutableStateFlow<LoginScreenState>(LoginScreenState.Loading)
-    val state: StateFlow<LoginScreenState> = _state
+class LoginScreenViewModel
+    @Inject
+    constructor() : ViewModel() {
+        private val _state = MutableStateFlow<LoginScreenState>(LoginScreenState.Loading)
+        val state: StateFlow<LoginScreenState> = _state
 
-    fun onIntent(intent: LoginUserIntent) {
-
+        fun onIntent(intent: LoginUserIntent) {
+        }
     }
-}

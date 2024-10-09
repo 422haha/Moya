@@ -35,7 +35,6 @@ fun MultiplePermissionHandler(
         if (permissionsToRequest.isNotEmpty()) {
             multiplePermissionResultLauncher.launch(permissionsToRequest.toTypedArray())
         } else {
-            // All permissions are already granted
             onPermissionsResult(permissions.associateWith { true })
         }
     }

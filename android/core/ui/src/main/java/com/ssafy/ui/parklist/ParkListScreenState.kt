@@ -6,8 +6,14 @@ import com.ssafy.ui.component.ImageCardWithValueState
 sealed interface ParkListScreenState {
     @Immutable
     data object Loading : ParkListScreenState
+
     @Immutable
-    data class Loaded(val list: List<ImageCardWithValueState>) : ParkListScreenState
+    data class Loaded(
+        val list: List<ImageCardWithValueState>,
+    ) : ParkListScreenState
+
     @Immutable
-    data class Error(val message: String) : ParkListScreenState
+    data class Error(
+        val message: String,
+    ) : ParkListScreenState
 }

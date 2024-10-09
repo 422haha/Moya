@@ -143,7 +143,7 @@ fun HomeTopImage(
             contentScale = ContentScale.Crop,
             contentDescription = "홈 상단 이미지",
             modifier = Modifier.fillMaxSize(),
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+            placeholder = painterResource(id = R.drawable.park_placeholder),
         )
         GradientBox(
             modifier = Modifier.fillMaxWidth().height(80.dp).align(Alignment.BottomCenter),

@@ -69,6 +69,7 @@ dependencies {
     implementation("io.github.sceneview:arsceneview:2.2.1")
     implementation("com.google.android.gms:play-services-location:21.0.1")
 
+    implementation(project(":feat:login"))
     implementation(project(":feat:main"))
     implementation(project(":core:ui"))
 }

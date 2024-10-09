@@ -2,21 +2,27 @@ package com.ssafy.main.explorestart
 
 import android.content.Context
 import android.hardware.SensorManager
+import android.Manifest
+import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.window.Dialog
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import com.google.android.gms.location.LocationServices
 import com.ssafy.main.dialog.ChallengeDialog
+import com.ssafy.main.util.MultiplePermissionHandler
 import com.ssafy.ui.component.ExploreDialog
 import com.ssafy.ui.explorestart.ExploreStartDialogState
 import com.ssafy.ui.explorestart.ExploreStartScreenContent
 import com.ssafy.ui.explorestart.ExploreStartScreenState
 import com.ssafy.ui.explorestart.ExploreStartUserIntent
 
+@SuppressLint("MissingPermission")
 @Composable
 fun ExploreStartScreen(
     parkId: Long,
@@ -29,9 +35,23 @@ fun ExploreStartScreen(
     val dialogState by viewModel.dialogState.collectAsStateWithLifecycle()
 
     val context = LocalContext.current
+    val fusedLocationClient = remember { LocationServices.getFusedLocationProviderClient(context) }
+
+    MultiplePermissionHandler(
+        permissions =
+            listOf(
+                Manifest.permission.ACCESS_COARSE_LOCATION,
+                Manifest.permission.ACCESS_FINE_LOCATION,
+            ),
+    ) { result ->
+        if (result.all { it.value }) {
+            fusedLocationClient
+        }
+    }
 
     LaunchedEffect(parkId) {
         viewModel.loadData(parkId)
+        viewModel.startTracking(context)
         viewModel.initializeStepSensor(sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager)
     }
 

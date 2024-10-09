@@ -43,7 +43,7 @@ fun ImageCardWithTitleDescription(
             contentScale = ContentScale.Crop,
             model = state.imageUrl,
             contentDescription = "공원 이미지",
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+            placeholder = painterResource(id = R.drawable.park_placeholder),
         )
         Spacer(modifier = Modifier.height(8.dp))
         Text(
@@ -57,7 +57,7 @@ fun ImageCardWithTitleDescription(
             fontWeight = FontWeight.Normal,
             fontSize = 12.sp,
             maxLines = 2,
-            overflow = TextOverflow.Ellipsis
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }

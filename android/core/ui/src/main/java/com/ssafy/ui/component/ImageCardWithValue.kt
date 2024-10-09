@@ -55,7 +55,7 @@ fun ImageCardWithValue(
             contentScale = ContentScale.Crop,
             model = state.imageUrl,
             contentDescription = "공원 이미지",
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+            placeholder = painterResource(id = R.drawable.park_placeholder),
         )
         Box(
             modifier = Modifier.fillMaxWidth().height(40.dp).align(Alignment.BottomCenter),
@@ -68,7 +68,10 @@ fun ImageCardWithValue(
                     ),
                 color = Color.Black.copy(alpha = 0.5f),
             ) {}
-            Row(modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp), verticalAlignment = Alignment.CenterVertically) {
+            Row(
+                modifier = Modifier.fillMaxSize().padding(horizontal = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
                 Text(
                     text = state.title,
                     fontSize = 24.sp,

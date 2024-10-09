@@ -33,18 +33,19 @@ fun ExploreDialog(
     onConfirm: () -> Unit = {},
     onDismiss: () -> Unit = {},
     image: Painter? = null,
-    hint: String? = null
+    hint: String? = null,
 ) {
     Surface(
-        modifier = Modifier
-            .wrapContentHeight()
-            .padding(16.dp),
+        modifier =
+            Modifier
+                .wrapContentHeight()
+                .padding(16.dp),
         shape = RoundedCornerShape(12.dp),
         color = SurfaceColor,
     ) {
         Column(
             modifier = Modifier.padding(24.dp),
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
         ) {
             Text(text = title, color = PrimaryColor, style = customTypography.displayLarge)
             Spacer(modifier = Modifier.height(40.dp))
@@ -53,12 +54,13 @@ fun ExploreDialog(
                 Image(
                     painter = it,
                     contentDescription = "",
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(200.dp)
-                        .padding(horizontal = 16.dp)
-                        .clip(RoundedCornerShape(16.dp)),
-                    contentScale = ContentScale.Crop
+                    modifier =
+                        Modifier
+                            .fillMaxWidth()
+                            .height(200.dp)
+                            .padding(horizontal = 16.dp)
+                            .clip(RoundedCornerShape(16.dp)),
+                    contentScale = ContentScale.Crop,
                 )
                 Spacer(modifier = Modifier.height(16.dp))
             }
@@ -69,18 +71,18 @@ fun ExploreDialog(
             }
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
             ) {
                 CustomOutlinedButton(
                     text = "아니오",
                     onClick = onDismiss,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
                 Spacer(modifier = Modifier.width(16.dp))
                 CustomFilledButton(
                     text = "네",
                     onClick = onConfirm,
-                    modifier = Modifier.weight(1f)
+                    modifier = Modifier.weight(1f),
                 )
             }
         }
@@ -99,6 +101,6 @@ fun ExploreDialogWithImagePreview() {
     ExploreDialog(
         "찾으러 가볼까요?",
         image = painterResource(id = R.drawable.ic_launcher_background),
-        hint = "나는 빨간색 꽃에 가시를 갖고 있어요"
+        hint = "나는 빨간색 꽃에 가시를 갖고 있어요",
     )
 }

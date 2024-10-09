@@ -105,7 +105,7 @@ fun EncycCircleCard(
         AsyncImage(
             model = state.imageUrl,
             contentDescription = "plant",
-            placeholder = painterResource(id = R.drawable.ic_launcher_background),
+            placeholder = painterResource(id = R.drawable.encyc_placeholder),
             contentScale = ContentScale.Crop,
             modifier =
                 Modifier

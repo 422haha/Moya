@@ -17,5 +17,6 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(project(":core:ui"))
     implementation(project(":core:network"))
+    implementation(project(":core:location"))
     implementation(project(":core:model"))
 }

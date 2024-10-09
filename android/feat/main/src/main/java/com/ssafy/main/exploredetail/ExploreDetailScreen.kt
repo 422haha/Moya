@@ -11,7 +11,7 @@ import com.ssafy.ui.exploredetail.ExploreDetailUserIntent
 fun ExploreDetailScreen(
     viewModel: ExploreDetailScreenViewModel = hiltViewModel(),
     onEncycItemClicked: (Long) -> Unit,
-    onPop: () -> Unit
+    onPop: () -> Unit,
 ) {
     val uiState by viewModel.state.collectAsStateWithLifecycle()
 

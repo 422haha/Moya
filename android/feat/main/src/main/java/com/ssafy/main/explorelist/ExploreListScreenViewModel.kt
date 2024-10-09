@@ -1,9 +1,11 @@
 package com.ssafy.main.explorelist
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExploreDiaryRepository
+import com.ssafy.network.repository.UserRepository
 import com.ssafy.ui.exploredetail.ExploreDetail
 import com.ssafy.ui.explorelist.ExploreListScreenState
 import com.ssafy.ui.explorelist.ExploreListUserIntent
@@ -21,6 +23,7 @@ class ExploreListScreenViewModel
     @Inject
     constructor(
         private val exploreDiaryRepository: ExploreDiaryRepository,
+        private val userRepository: UserRepository,
     ) : ViewModel() {
         private val _state = MutableStateFlow<ExploreListScreenState>(ExploreListScreenState.Loading)
         val state: StateFlow<ExploreListScreenState> = _state
@@ -30,13 +33,16 @@ class ExploreListScreenViewModel
             size: Int,
         ) {
             viewModelScope.launch {
+                val userInfo = userRepository.getName()
+                Log.d("TAG", "loadInitialData: $userInfo")
                 exploreDiaryRepository.getExploreDiaryList(page, size).collect { response ->
                     _state.value =
                         when (response) {
                             is ApiResponse.Success -> {
                                 response.body?.let { body ->
                                     ExploreListScreenState.Loaded(
-                                        body.data.map {
+                                        userName = if (userInfo is ApiResponse.Success) userInfo.body?.name ?: "" else "",
+                                        list = body.data.map {
                                             val DF = SimpleDateFormat("yyyy-MM-dd", Locale.KOREAN)
 
                                             val result = DF.parse(it.startTime)

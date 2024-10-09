@@ -95,9 +95,9 @@ public class OAuthLoginServiceImpl implements OAuthLoginService {
         // 제공자별 사용자 정보 엔드포인트
         String userInfoEndpoint;
         if ("kakao".equals(provider)) {
-            userInfoEndpoint = oAuthPropertiesConfig.getKakao().getUserInfoUri();
+            userInfoEndpoint = "https://kapi.kakao.com/v2/user/me";
         } else if ("naver".equals(provider)) {
-            userInfoEndpoint = oAuthPropertiesConfig.getNaver().getUserInfoUri();
+            userInfoEndpoint = "https://openapi.naver.com/v1/nid/me";
         } else {
             throw new IllegalArgumentException("지원하지 않는 oauth 제공자: " + provider);
         }
