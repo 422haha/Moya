@@ -204,6 +204,7 @@ fun ARSceneComposable(
     var registeredSpecies by remember { mutableStateOf(setOf<Int>()) }
     var filePath by remember { mutableStateOf("") }
     var dialogFilePath by remember { mutableStateOf<String?>(null) }
+    var speciesName by remember { mutableStateOf("") }
 
     val showRegisterDialog by viewModel.registerDialog.collectAsState()
     val mutex = Mutex()
@@ -225,6 +226,7 @@ fun ARSceneComposable(
                         onSuccess = { result ->
                             registeredSpecies = registeredSpecies + (result.speciesId - 1).toInt()
                             dialogFilePath = it.imageUrl
+                            speciesName = result.speciesName
                             viewModel.showRegisterDialog()
                         },
                         onError = {
@@ -683,6 +685,7 @@ fun ARSceneComposable(
                 },
                 image = dialogFilePath!!,
                 onConfirm = onNavigateToEncyc,
+                name = speciesName,
             )
         }
     }
