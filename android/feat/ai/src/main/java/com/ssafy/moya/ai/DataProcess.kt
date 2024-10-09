@@ -30,7 +30,7 @@ class DataProcess
             const val BATCH_SIZE = 1
             const val INPUT_SIZE = 640
             const val PIXEL_SIZE = 3
-            const val FILE_NAME = "train129.onnx"
+            const val FILE_NAME = "train139.onnx"
             const val LABEL_NAME = "labels.txt"
         }
 
