@@ -1,7 +1,5 @@
 package com.ssafy.main.explorestart
 
-import android.content.Context
-import android.hardware.SensorManager
 import android.Manifest
 import android.annotation.SuppressLint
 import androidx.activity.compose.BackHandler
@@ -42,6 +40,7 @@ fun ExploreStartScreen(
             listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACTIVITY_RECOGNITION,
             ),
     ) { result ->
         if (result.all { it.value }) {
@@ -51,8 +50,7 @@ fun ExploreStartScreen(
 
     LaunchedEffect(parkId) {
         viewModel.loadData(parkId)
-        viewModel.startTracking(context)
-        viewModel.initializeStepSensor(sensorManager = context.getSystemService(Context.SENSOR_SERVICE) as SensorManager)
+        viewModel.enableSensor(context)
     }
 
     BackHandler {
