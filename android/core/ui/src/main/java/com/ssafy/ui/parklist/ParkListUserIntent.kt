@@ -6,4 +6,6 @@ sealed interface ParkListUserIntent {
     data class OnItemSelect(
         val id: Long,
     ) : ParkListUserIntent
+
+    data object OnLoadPage : ParkListUserIntent
 }

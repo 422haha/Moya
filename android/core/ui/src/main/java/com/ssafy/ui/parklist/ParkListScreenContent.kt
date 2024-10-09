@@ -3,8 +3,8 @@ package com.ssafy.ui.parklist
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material3.Scaffold
@@ -12,10 +12,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import com.ssafy.model.LatLng
 import com.ssafy.ui.component.ErrorScreen
 import com.ssafy.ui.component.ImageCardWithValue
 import com.ssafy.ui.component.ImageCardWithValueState
 import com.ssafy.ui.component.LoadingScreen
+import com.ssafy.ui.component.PaginatedLazyColumn
 import com.ssafy.ui.component.TopBar
 
 @Composable
@@ -60,13 +62,17 @@ fun ParkListScreenLoaded(
     state: ParkListScreenState.Loaded,
     onIntent: (ParkListUserIntent) -> Unit = {},
 ) {
+    val listState = rememberLazyListState()
+
     Column(
         modifier =
             modifier
                 .fillMaxWidth(),
     ) {
-        LazyColumn(
+        PaginatedLazyColumn(
             modifier = Modifier.fillMaxWidth(),
+            state = listState,
+            loadMoreItems = { onIntent(ParkListUserIntent.OnLoadPage) },
         ) {
             items(state.list) { item ->
                 ImageCardWithValue(
@@ -86,6 +92,8 @@ fun HomeDetailScreenPreview() {
     ParkListScreenContent(
         state =
             ParkListScreenState.Loaded(
+                location = LatLng(128.0, 34.0),
+                page = 1,
                 list =
                     List(5) {
                         ImageCardWithValueState(
