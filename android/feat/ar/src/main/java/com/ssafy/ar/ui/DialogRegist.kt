@@ -34,6 +34,7 @@ fun DialogRegist(
     onDismiss: () -> Unit,
     onConfirm: () -> Unit,
     image: String,
+    name: String = ""
 ) {
     Surface(
         modifier =
@@ -77,9 +78,9 @@ fun DialogRegist(
                     verticalAlignment = Alignment.Bottom,
                 ) {
                     Text(
-                        text = "도감에서 확인하기",
+                        text = "${name}이 등록되었습니다.",
                         color = Color(0xFF32A287),
-                        fontSize = 24.sp,
+                        fontSize = 16.sp,
                         modifier =
                             Modifier
                                 .clickable { onConfirm() }
@@ -104,5 +105,5 @@ fun DialogRegist(
 @Preview(showBackground = true)
 @Composable
 fun DialogRegistPreview() {
-    DialogRegist(onDismiss = {}, onConfirm = {}, image = R.drawable.maple.toString())
+    DialogRegist(onDismiss = {}, onConfirm = {}, image = R.drawable.maple.toString(), name = "테스트")
 }
