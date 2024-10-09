@@ -5,6 +5,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.naver.maps.geometry.LatLng
 import com.skele.moya.background.di.LocationManager
+import com.skele.moya.background.di.StepManager
 import com.ssafy.network.ApiResponse
 import com.ssafy.network.repository.ExplorationRepository
 import com.ssafy.network.request.ExplorationEndRequestBody
@@ -25,6 +26,7 @@ class ExploreStartScreenViewModel
     constructor(
         private val explorationRepository: ExplorationRepository,
         private val locationManager: LocationManager,
+        private val stepManager: StepManager,
     ) : ViewModel() {
         private val _state = MutableStateFlow<ExploreStartScreenState>(ExploreStartScreenState.Loading)
         val state: StateFlow<ExploreStartScreenState> = _state
@@ -66,10 +68,18 @@ class ExploreStartScreenViewModel
             }
         }
 
-        fun startTracking(context: Context) {
+        fun enableSensor(context: Context) {
             if (state.value is ExploreStartScreenState.Loaded) return
             locationManager.initialize(context)
             locationManager.startTracking(context)
+
+            stepManager.initializeStepSensor(context)
+            stepManager.startCounting()
+        }
+
+        private fun disableSensor() {
+            locationManager.stopTracking()
+            stepManager.disposeStepSensor()
         }
 
         private fun loadInitialData(parkId: Long) {
@@ -146,7 +156,9 @@ class ExploreStartScreenViewModel
                                 }
 
                                 is ApiResponse.Error -> {
-                                    ExploreStartScreenState.Error(response.errorMessage ?: "Unknown error")
+                                    ExploreStartScreenState.Error(
+                                        response.errorMessage ?: "Unknown error",
+                                    )
                                 }
                             }
                     }
@@ -164,12 +176,12 @@ class ExploreStartScreenViewModel
                             body =
                                 ExplorationEndRequestBody(
                                     route = locationManager.getLocationList(), // TODO : 이동경로 저장
-                                    steps = 0,
+                                    steps = stepManager.stepCount,
                                 ),
                         ).collectLatest { response ->
                             when (response) {
                                 is ApiResponse.Success -> {
-                                    locationManager.stopTracking()
+                                    disableSensor()
                                     _state.value = ExploreStartScreenState.Exit
                                 }
 
