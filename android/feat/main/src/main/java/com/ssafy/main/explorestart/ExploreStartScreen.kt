@@ -40,6 +40,7 @@ fun ExploreStartScreen(
             listOf(
                 Manifest.permission.ACCESS_COARSE_LOCATION,
                 Manifest.permission.ACCESS_FINE_LOCATION,
+                Manifest.permission.ACTIVITY_RECOGNITION,
             ),
     ) { result ->
         if (result.all { it.value }) {
@@ -49,7 +50,7 @@ fun ExploreStartScreen(
 
     LaunchedEffect(parkId) {
         viewModel.loadData(parkId)
-        viewModel.startTracking(context)
+        viewModel.enableSensor(context)
     }
 
     BackHandler {
