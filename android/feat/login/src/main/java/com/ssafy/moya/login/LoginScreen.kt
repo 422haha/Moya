@@ -81,9 +81,7 @@ fun LoginScreen(
         onIntent = { intent ->
             when (intent) {
                 is LoginUserIntent.OnLogin -> {
-                    //TODO : 로그인 문제 해결 필요
-                    //login()
-                    onLoginSuccess()
+                    login()
                 }
             }
         },
