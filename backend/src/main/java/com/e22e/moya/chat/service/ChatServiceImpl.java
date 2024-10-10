@@ -293,7 +293,7 @@ public class ChatServiceImpl implements ChatService {
         // 줄바꿈 및 추가 공백 정리
         response = response.replaceAll("\\s+", " ").trim();
 
-        // 글자수 100자로 제한
+        // 글자수 300자로 제한
         if (response.length() > 100) {
             response = response.substring(0, 97) + "...";
         }
