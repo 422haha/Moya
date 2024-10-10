@@ -48,7 +48,7 @@ VALUES ('수달'), ('검사 수달'), ('기도하는 수달'), ('너구리'), ('
 
 -- Park NPCs
 INSERT INTO park_npc (park_id, npc_id)
-VALUES (1, 1), (1, 2), (1, 3), (1, 7),
+VALUES (1, 9), (1, 3), (1, 11),
        (2, 3), (2, 4), (2, 8), (2, 11),
        (3, 5), (3, 6), (3, 9), (3, 12);
 
@@ -57,7 +57,6 @@ INSERT INTO npc_pos (pos, park_npc_id)
 VALUES (ST_SetSRID(ST_MakePoint(128.41666183811466, 36.10694581886462), 4326), 1),
        (ST_SetSRID(ST_MakePoint(128.41629035007824, 36.10680367153273), 4326), 2),
        (ST_SetSRID(ST_MakePoint(128.41606821959087, 36.10658568817424), 4326), 3),
-       (ST_SetSRID(ST_MakePoint(128.41574448383923, 36.10698207345547), 4326), 4),
        (ST_SetSRID(ST_MakePoint(128.402000, 36.100000), 4326), 5),
        (ST_SetSRID(ST_MakePoint(128.402500, 36.095000), 4326), 6),
        (ST_SetSRID(ST_MakePoint(128.311500, 36.119000), 4326), 9);

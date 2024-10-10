@@ -23,10 +23,8 @@ import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
-import java.util.Set;
 import org.geolatte.geom.G2D;
 import org.geolatte.geom.Point;
 import org.slf4j.Logger;
@@ -73,8 +71,17 @@ public class QuestServiceImpl implements QuestService {
         int questSize = Math.min(parkNpcs.size(), 3);
         List<ParkNpcs> selectedNpcs = selectRandomNpcs(parkNpcs, questSize);
 
-        for (ParkNpcs npc : selectedNpcs) {
-            createQuest(parkSpecies, npc, exploration);
+        List<ParkSpecies> selectedSpecies = new ArrayList<>();
+        if (parkId != 1) {
+            selectedSpecies = selectRandomSpecies(parkSpecies, questSize);
+        } else {
+            selectedSpecies.add(parkSpecies.get(2));
+            selectedSpecies.add(parkSpecies.get(2));
+            selectedSpecies.add(parkSpecies.get(2));
+        }
+
+        for (int i = 0; i < questSize; i++) {
+            createQuest(selectedSpecies.get(i), selectedNpcs.get(i), exploration);
         }
     }
 
@@ -91,15 +98,39 @@ public class QuestServiceImpl implements QuestService {
     }
 
     /**
+     * 공원 내의 species 섞어서 뽑아오기
+     *
+     * @param parkSpecies 공원 내의 동식물들
+     * @param count       반환할 개수
+     */
+    private List<ParkSpecies> selectRandomSpecies(List<ParkSpecies> parkSpecies, int count) {
+        List<ParkSpecies> selectedSpecies = new ArrayList<>();
+        int speciesSize = parkSpecies.size();
+
+        if (speciesSize == 0) { // species 없으면 빈 리스트 반환
+            return selectedSpecies;
+        }
+
+        List<ParkSpecies> shuffledSpecies = new ArrayList<>(parkSpecies);
+        Collections.shuffle(shuffledSpecies);
+
+        for (int i = 0; i < count; i++) {
+            selectedSpecies.add(shuffledSpecies.get(i % speciesSize));
+        }
+
+        return selectedSpecies;
+    }
+
+    /**
      * 퀘스트 생성 2
      *
      * @param species     공원에 있는 동식물들
      * @param exploration 탐험
      */
-    private void createQuest(List<ParkSpecies> species, ParkNpcs parkNpc, Exploration exploration) {
+    private void createQuest(ParkSpecies parkSpecies, ParkNpcs parkNpc, Exploration exploration) {
         int questType = 1;
-        ParkSpecies randomParkSpecies = species.get(random.nextInt(Math.min(3, species.size())));
-        Species randomSpecies = randomParkSpecies.getSpecies();
+
+        Species species = parkSpecies.getSpecies();
 
         List<NpcPos> npcPositions = parkNpc.getPositions();
         NpcPos randomNpcPos = npcPositions.get(random.nextInt(npcPositions.size()));
@@ -111,13 +142,13 @@ public class QuestServiceImpl implements QuestService {
         QuestCompleted questCompleted = new QuestCompleted();
         questCompleted.setQuest(quest);
         questCompleted.setExploration(exploration);
-        questCompleted.setSpeciesId(randomSpecies.getId());
+        questCompleted.setSpeciesId(species.getId());
         questCompleted.setNpcPos(randomNpcPos);
         questCompleted.setStatus(WAIT);
         questCompletedRepository.save(questCompleted);
 
         log.info("퀘스트 생성: 퀘스트 타입: {}, 동식물 이름: {}, NPC 이름: {}, NPC 위치: {}",
-            quest.getType(), randomSpecies.getName(), parkNpc.getNpc().getName(),
+            quest.getType(), species.getName(), parkNpc.getNpc().getName(),
             randomNpcPos.toString());
     }
 
@@ -130,9 +161,6 @@ public class QuestServiceImpl implements QuestService {
     @Override
     @Transactional(readOnly = true)
     public QuestListResponseDto getQuestList(long userId, Long explorationId) {
-
-        Exploration exploration = explorationRepository.findById(explorationId).orElseThrow(() ->
-            new EntityNotFoundException("도전과제를 찾을 수 없습니다."));
 
         List<QuestCompleted> explorationQuestList = questCompletedRepository.findByExplorationId(
             explorationId);
