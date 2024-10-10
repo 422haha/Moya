@@ -2,7 +2,7 @@
 
 <img src="./logo.jpeg" alt="Logo" width="400" height="400"/>
 
-- **배포 URL**: [여기를 클릭!](https://j11d202.p.ssafy.io/)
+- **배포 URL**: [여기를 클릭!](https://drive.google.com/file/d/1k9GySrYQOmmSf7QQYjYC5yBoUvQVIuZT/view?usp=sharing)
 - **Test 사용자 ID**: 네이버 로그인
 - **Test 사용자 PW**: 네이버 로그인
 
