@@ -14,7 +14,6 @@ import lombok.ToString.Exclude;
 @Entity
 @Table(name = "species")
 @ToString
-@JsonTypeInfo(use = JsonTypeInfo.Id.CLASS, include = JsonTypeInfo.As.PROPERTY, property = "@class")
 public class Species {
 
     @Id
