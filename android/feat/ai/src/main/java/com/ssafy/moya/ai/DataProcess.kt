@@ -94,7 +94,7 @@ class DataProcess
         }
 
         private fun outputsToNPMSPredictions(outputs: Array<*>): ArrayList<Result> {
-            val confidenceThreshold = 0.75f
+            val confidenceThreshold = 0.7f
             val results = ArrayList<Result>()
             val rows: Int
             val cols: Int
@@ -242,6 +242,7 @@ class DataProcess
                     val resultTensor = session.run(Collections.singletonMap(inputName, inputTensor))
                     val outputs = resultTensor[0].value as Array<*>
                     val currentResults = outputsToNPMSPredictions(outputs)
+
                     return@withContext currentResults
                 } catch (e: Exception) {
                     emptyList()
