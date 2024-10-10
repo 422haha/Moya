@@ -19,13 +19,7 @@ import com.e22e.moya.chat.repository.ChatRepositoryChat;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import dev.langchain4j.model.openai.OpenAiChatModel;
-import dev.langchain4j.rag.content.retriever.ContentRetriever;
-import dev.langchain4j.rag.content.retriever.EmbeddingStoreContentRetriever;
 import dev.langchain4j.service.AiServices;
-import dev.langchain4j.store.embedding.EmbeddingStoreIngestor;
-import dev.langchain4j.store.embedding.inmemory.InMemoryEmbeddingStore;
-import dev.langchain4j.data.segment.TextSegment;
-import dev.langchain4j.data.document.Document;
 import jakarta.persistence.EntityNotFoundException;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -41,9 +35,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.time.LocalDateTime;
 import java.util.List;
 
-import static com.e22e.moya.common.util.ChatUtils.glob;
-import static com.e22e.moya.common.util.ChatUtils.toPath;
-import static dev.langchain4j.data.document.loader.FileSystemDocumentLoader.loadDocuments;
 
 @Slf4j
 @Service
@@ -71,19 +62,12 @@ public class ChatServiceImpl implements ChatService {
         this.objectMapper = objectMapper;
         this.explorationRepository = explorationRepository;
 
-        // data.sql 로드 및 ContentRetriever 생성
-        List<Document> documents = loadDocuments(toPath("./"), glob("*.sql"));
-        InMemoryEmbeddingStore<TextSegment> embeddingStore = new InMemoryEmbeddingStore<>();
-        EmbeddingStoreIngestor.ingest(documents, embeddingStore);
-        ContentRetriever contentRetriever = EmbeddingStoreContentRetriever.from(embeddingStore);
-
         // Assistant 설정에 ContentRetriever 추가
         this.assistant = AiServices.builder(ChatAssistant.class)
             .chatLanguageModel(OpenAiChatModel.builder()
                 .apiKey(ChatUtils.OPENAI_API_KEY)
                 .temperature(0.7)  // 응답 민감도 조절
                 .build())
-            .contentRetriever(contentRetriever)  // 문서 기반 정보 검색 가능하도록 설정
             .build();
     }
 
@@ -138,7 +122,11 @@ public class ChatServiceImpl implements ChatService {
 
         response = postProcessAIResponse(response);
 
+        // 임시 답변
+        response = "싸피 뒷뜰에 오신 것을 환영해요. 이 공원에서는 강아지풀, 단풍잎, 솔방울을 볼 수 있어요.";
+
         Message aiMessage = createAiMessage(response);
+
         chat.getMessages().add(aiMessage);
 
         this.chatRepository.save(chat);
@@ -256,57 +244,41 @@ public class ChatServiceImpl implements ChatService {
     private String buildPrompt(String context, Message userMessage, Park park, Npc npc,
         List<Species> parkSpecies, String sayHi) {
         StringBuilder prompt = new StringBuilder();
-        prompt.append("당신은 공원 안내 AI 도우미에요. 당신의 이름은 ").append(npc.getName()).append("입니다.\n");
-        prompt.append("당신의 성격은 친절하고 순수한 어린아이 같습니다.\n\n");
+        prompt.append("당신은 ").append(npc.getName()).append("이라는 이름의 공원 안내 AI 도우미입니다. ")
+            .append("현재 ").append(park.getName()).append(" 공원에 있습니다.\n\n");
 
-        prompt.append("다음 지침을 따라 응답해 주세요:\n");
-        prompt.append("1. 자연스러운 대화: 사용자의 질문에 직접적이고 자연스럽게 대답하세요. 불필요한 정보는 제공하지 마세요.\n");
-        prompt.append("Answer users' questions directly and naturally. Don't provide unnecessary information.\n");
-        prompt.append("2. 맥락 유지: 이전 대화 내용을 고려하여 응답하세요. 사용자가 언급하지 않은 정보를 갑자기 제시하지 마세요.\n");
-        prompt.append("Respond with consideration to previous conversations. Don't suddenly offer information that the user hasn't mentioned.\n");
-        prompt.append("3. 정보의 정확성: 제공된 공원과 동식물 정보를 기반으로 정확한 답변을 제공하세요.\n");
-        prompt.append("Please provide an accurate answer based on the park and flora information provided.\n");
-        prompt.append("4. 개인화: 사용자의 현재 위치(공원)에 맞는 정보만 제공하세요. 다른 공원의 정보는 언급하지 마세요.\n");
-        prompt.append("Provide only information relevant to the user's current location (park). Do not mention information about other parks.\n");
-        prompt.append("5. 친근한 톤: 어린이를 대하듯 친절하고 순수한 어조를 유지하되, 과도하게 유치하지 않게 주의하세요.\n");
-        prompt.append("Maintain a friendly and innocent tone, as if you were talking to a child, but be careful not to be overly childish.\n");
-        prompt.append("6. 질문 유도: 사용자의 관심을 유도하기 위해 때때로 관련 질문을 해보세요.\n");
-        prompt.append("Ask relevant questions from time to time to keep your users interested.\n");
-        prompt.append("7. 계절 정보: 동식물의 가시 계절 정보를 제공할 때는 현재 계절과 연관지어 설명하세요.\n");
-        prompt.append("When providing seasonal information on plants and animals, explain it in relation to the current season.\n");
-        prompt.append("8. 간결성: 응답은 항상 100자 이내로 유지하세요.\n");
-        prompt.append("Always keep your responses under 100 characters.\n");
-        prompt.append("9. 오류 처리: 모르는 정보에 대해서는 솔직히 모른다고 말하고, 알고 있는 관련 정보를 제공하세요.\n");
-        prompt.append("For information you do not know, be honest and say you do not know, and provide relevant information that you do know.\n");
-        prompt.append("10. 오류 처리: 절대 다른 공원은 추천해주지 마시고 없는 정보를 지어내서 말하지 마세요.\n");
-        prompt.append("Never recommend other parks or make up information that doesn't exist.\n");
-        prompt.append("11. 한국어 사용: 모든 대화는 반드시 한국어로 진행하세요.\n");
-        prompt.append("Always speak in Korean\n");
-        prompt.append("12. 메타 언어 사용 금지: '(사용자가 ...하는 행위)' 같은 설명을 포함하지 마세요.\n");
-        prompt.append("Don't include descriptions like '(what the user does)'.\n");
-        prompt.append("13. 이모지 사용 금지: 이모지를 사용하지 마세요.\n");
-        prompt.append("Don't use emojis");
-        prompt.append("14. 응답 형식: 항상 '").append(npc.getName())
-            .append(": [당신의 응답]' 형식으로 답변하세요.\n\n");
+        prompt.append("역할 및 성격:\n");
+        prompt.append("- 친절하고 순수한 어린아이 같은 성격을 가지고 있습니다.\n");
+        prompt.append("- 공원 방문객들에게 정보를 제공하고 안내하는 역할을 합니다.\n\n");
 
-        prompt.append("현재 공원 정보:\n");
+        prompt.append("응답 지침:\n");
+        prompt.append("1. 항상 \"").append(npc.getName()).append(": [당신의 응답]\" 형식으로 답변하세요.\n");
+        prompt.append("2. 응답은 100자 내외로 유지하세요.\n");
+        prompt.append("3. 사용자의 질문에 직접적이고 자연스럽게 대답하세요.\n");
+        prompt.append("4. 이전 대화 내용을 고려하여 일관성 있게 응답하세요.\n");
+        prompt.append("5. 제공된 공원과 동식물 정보를 정확하게 활용하세요.\n");
+        prompt.append("6. 현재 공원에 관련된 정보만 제공하고, 다른 공원은 언급하지 마세요.\n");
+        prompt.append("7. 친근하고 순수한 어조를 유지하되, 과도하게 유치하지 않게 주의하세요.\n");
+        prompt.append("8. 사용자의 관심을 유도하기 위해 때때로 관련 질문을 해보세요.\n");
+        prompt.append("9. 동식물의 계절 정보는 현재 계절과 연관지어 설명하세요.\n");
+        prompt.append("10. 모르는 정보에 대해서는 솔직히 모른다고 말하고, 알고 있는 관련 정보를 제공하세요.\n");
+        prompt.append("11. 모든 대화는 반드시 한국어로 진행하세요.\n");
+        prompt.append("12. 이모지나 특수 문자는 사용하지 마세요.\n\n");
+
+        prompt.append("공원 정보:\n");
         prompt.append("공원 이름: ").append(park.getName()).append("\n");
         prompt.append("공원 설명: ").append(park.getDescription()).append("\n\n");
 
-        prompt.append("이 공원에서 볼 수 있는 동식물:\n");
+        prompt.append("동식물 정보:\n");
         for (Species species : parkSpecies) {
-            prompt.append("- ").append(species.getName()).append(": ")
-                .append(species.getDescription()).append("\n");
+            prompt.append("- ").append(species.getName()).append("\n");
             prompt.append("  과학적 이름: ").append(species.getScientificName()).append("\n");
             prompt.append("  볼 수 있는 계절: ").append(species.getVisibleSeasons()).append("\n");
-            prompt.append("  설명: ").append(species.getDescription()).append("\n");
+            prompt.append("  설명: ").append(species.getDescription()).append("\n\n");
         }
-        prompt.append("\n");
 
         prompt.append("이전 대화 내용:\n").append(context).append("\n");
         prompt.append("사용자: ").append(userMessage.getContent()).append("\n");
-        prompt.append(npc.getName()).append(": ");
-
         prompt.append(npc.getName()).append(": ").append(sayHi);
 
         return prompt.toString();
