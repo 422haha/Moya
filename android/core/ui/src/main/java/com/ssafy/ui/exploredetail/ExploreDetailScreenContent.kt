@@ -194,7 +194,7 @@ fun TextBox(
                 .padding(horizontal = 8.dp)
                 .padding(vertical = 4.dp),
     ) {
-        Text(text = titleText, fontSize = 24.sp, fontWeight = FontWeight.Bold)
+        Text(text = titleText, fontSize = 20.sp, fontWeight = FontWeight.Bold)
         Text(text = contentText, fontSize = 16.sp, color = Color.Gray)
     }
 }
