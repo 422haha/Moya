@@ -1,62 +1,65 @@
 package com.e22e.moya.common.entity;
 
 import com.e22e.moya.common.entity.species.Species;
+import com.e22e.moya.common.entity.species.SpeciesPos;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 // 사용자가 수집한 동식물
 @Entity
 @Table(name = "discovery")
+@ToString
 public class Discovery {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
-    private double latitude;
+    private Long userId;
 
-    private double longitude;
-
-    private LocalDateTime discoverytTime;
+    private LocalDateTime discoveryTime;
 
     private String imageUrl;
 
+    @JsonBackReference
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "species_id")
+    @Exclude
     private Species species;
+
+    @JsonBackReference
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "species_pos_id")
+    @Exclude
+    private SpeciesPos speciesPos;
 
     // getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Long getUserId() {
+        return userId;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
+    public void setUserId(Long userId) {
+        this.userId = userId;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public LocalDateTime getDiscoveryTime() {
+        return discoveryTime;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public LocalDateTime getDiscoverytTime() {
-        return discoverytTime;
-    }
-
-    public void setDiscoverytTime(LocalDateTime discoverytTime) {
-        this.discoverytTime = discoverytTime;
+    public void setDiscoveryTime(LocalDateTime discoveryTime) {
+        this.discoveryTime = discoveryTime;
     }
 
     public String getImageUrl() {
@@ -74,4 +77,13 @@ public class Discovery {
     public void setSpecies(Species species) {
         this.species = species;
     }
+
+    public SpeciesPos getSpeciesPos() {
+        return speciesPos;
+    }
+
+    public void setSpeciesPos(SpeciesPos speciesPos) {
+        this.speciesPos = speciesPos;
+    }
+
 }

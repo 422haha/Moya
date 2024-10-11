@@ -1,0 +1,194 @@
+package com.ssafy.ar.manager
+
+import androidx.compose.runtime.snapshots.SnapshotStateList
+import com.google.android.filament.Engine
+import com.google.ar.core.Anchor
+import com.google.ar.core.Camera
+import com.google.ar.core.Frame
+import com.google.ar.core.Plane
+import com.google.ar.core.Pose
+import com.ssafy.ar.data.ModelType
+import com.ssafy.ar.data.QuestInfo
+import com.ssafy.ar.data.QuestState
+import com.ssafy.ar.data.getImageUrl
+import io.github.sceneview.ar.arcore.isValid
+import io.github.sceneview.ar.node.AnchorNode
+import io.github.sceneview.loaders.MaterialLoader
+import io.github.sceneview.loaders.ModelLoader
+import io.github.sceneview.math.Position
+import io.github.sceneview.math.Rotation
+import io.github.sceneview.math.Size
+import io.github.sceneview.node.ImageNode
+import io.github.sceneview.node.ModelNode
+import io.github.sceneview.node.Node
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.sync.Mutex
+import kotlinx.coroutines.sync.withLock
+import kotlinx.coroutines.withContext
+
+private const val kMaxModelInstances = 1
+
+class ARNodeManager {
+    private val mutex = Mutex()
+
+    // 평면에 노드 배치
+    suspend fun placeNode(
+        plane: Plane,
+        pose: Pose,
+        questInfo: QuestInfo,
+        engine: Engine,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader,
+        childNodes: SnapshotStateList<Node>,
+        onSuccess: () -> Unit,
+    ) = mutex.withLock {
+        if(childNodes.any { it.name == questInfo.id.toString() }) return@withLock
+
+        withContext(Dispatchers.Main) {
+            val anchorNode = createAnchorNode(
+                questInfo.id,
+                questInfo.isComplete,
+                questInfo.npcId,
+                plane.createAnchor(pose),
+                engine,
+                modelLoader,
+                materialLoader
+            ).apply { name = questInfo.id.toString() }
+
+            childNodes.add(anchorNode)
+
+            onSuccess()
+        }
+    }
+
+    private fun createImageNode(state: QuestState, materialLoader: MaterialLoader): ImageNode {
+        return ImageNode(
+            materialLoader = materialLoader,
+            imageFileLocation = state.getImageUrl(),
+            size = Size(0.35f, 0.35f),
+            center = Position(0f, 0.8f, 0f)
+        )
+    }
+
+    // 앵커노드 생성
+    private fun createAnchorNode(
+        id: Long,
+        questState: QuestState,
+        npcId: Long,
+        anchor: Anchor,
+        engine: Engine,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader
+    ): AnchorNode {
+        val stateNpcId = if(questState != QuestState.WAIT) npcId else 0
+
+        val url = ModelType.fromLong(stateNpcId).modelUrl
+
+        val imageNode = createImageNode(questState, materialLoader)
+
+        val modelInstance = modelLoader.createInstancedModel(
+            url,
+            kMaxModelInstances
+        ).first()
+
+        val modelNode = ModelNode(
+            modelInstance = modelInstance,
+            scaleToUnits = 0.5f
+        ).apply {
+            name = id.toString()
+            isShadowCaster = false
+            isShadowReceiver = false
+            rotation = Rotation(0f, 180f, 0f)
+        }
+
+        val anchorNode = AnchorNode(engine = engine, anchor = anchor).apply {
+            isPositionEditable = false
+            isRotationEditable = false
+            isScaleEditable = false
+        }
+
+        modelNode.addChildNode(imageNode)
+
+        anchorNode.addChildNode(modelNode)
+
+        return anchorNode
+    }
+
+    // 앵커노드 업데이트 (시작전 -> 진행중)
+    fun updateAnchorNode(
+        id: Long,
+        modelUrl: String,
+        childNode: ModelNode,
+        parentNode: AnchorNode,
+        modelLoader: ModelLoader,
+        materialLoader: MaterialLoader
+    ) {
+        parentNode.removeChildNode(childNode).apply {
+            val modelInstance = modelLoader.createInstancedModel(
+                modelUrl,
+                kMaxModelInstances
+            ).first()
+
+            val newModelNode = ModelNode(
+                modelInstance = modelInstance,
+                scaleToUnits = 0.5f
+            ).apply {
+                name = id.toString()
+                isShadowCaster = false
+                isShadowReceiver = false
+                position = childNode.worldPosition
+                rotation = childNode.worldRotation
+            }
+
+            val imageNode = createImageNode(QuestState.PROGRESS, materialLoader)
+
+            newModelNode.addChildNode(imageNode)
+
+            parentNode.addChildNode(newModelNode)
+        }
+    }
+
+    // 모델노드 업데이트 (진행중 -> 완료)
+    fun updateModelNode(
+        childNode: ImageNode,
+        parentNode: ModelNode,
+        materialLoader: MaterialLoader
+    ) {
+        parentNode.removeChildNode(childNode).apply {
+            val imageNode = createImageNode(QuestState.COMPLETE, materialLoader)
+
+            parentNode.addChildNode(imageNode)
+        }
+    }
+
+    fun findPlaneInView(
+        frame: Frame,
+        width: Int,
+        height: Int,
+        camera: Camera,
+    ): Pair<Plane, Pose>? {
+        val center = android.graphics.PointF(width / 2f, height / 2f)
+        val hits = frame.hitTest(center.x, center.y)
+
+        val planeHit =
+            hits.firstOrNull {
+                it.isValid(
+                    depthPoint = true,
+                    point = true,
+                    planePoseInPolygon = true,
+                    instantPlacementPoint = false,
+                    minCameraDistance = Pair(camera, 0.5f),
+                    predicate = { hitResult -> hitResult.distance <= 3.0f && hitResult.trackable is Plane },
+                    planeTypes = setOf(Plane.Type.HORIZONTAL_UPWARD_FACING),
+                )
+            }
+
+        return planeHit?.let { hit ->
+            val plane = hit.trackable as Plane
+            val pose = hit.hitPose
+            Pair(plane, pose)
+        }
+    }
+
+}
+

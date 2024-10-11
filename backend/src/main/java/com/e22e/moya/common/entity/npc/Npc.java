@@ -3,38 +3,32 @@ package com.e22e.moya.common.entity.npc;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "npc")
+@ToString
 public class Npc {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "npc_id", unique = true)
-    private long id;
+    private Long id;
 
     private String name;
 
     @OneToMany(mappedBy = "npc", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<NpcPos> positions = new ArrayList<>();
-
-    public void addPosition(NpcPos position) {
-        positions.add(position);
-        position.setNpc(this);
-    }
-
-    public void removePosition(NpcPos position) {
-        positions.remove(position);
-        position.setNpc(null);
-    }
+    @Exclude
+    private List<ParkNpcs> parkNpcs = new ArrayList<>();
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -46,12 +40,12 @@ public class Npc {
         this.name = name;
     }
 
-    public List<NpcPos> getPositions() {
-        return positions;
+    public List<ParkNpcs> getParkNpcs() {
+        return parkNpcs;
     }
 
-    public void setPositions(List<NpcPos> positions) {
-        this.positions = positions;
+    public void setParkNpcs(List<ParkNpcs> parkNpcs) {
+        this.parkNpcs = parkNpcs;
     }
 
 }

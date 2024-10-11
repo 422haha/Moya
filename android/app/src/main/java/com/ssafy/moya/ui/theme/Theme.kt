@@ -1,6 +1,5 @@
 package com.ssafy.moya.ui.theme
 
-import android.app.Activity
 import android.os.Build
 import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.material3.MaterialTheme
@@ -10,6 +9,13 @@ import androidx.compose.material3.dynamicLightColorScheme
 import androidx.compose.material3.lightColorScheme
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.platform.LocalContext
+import com.ssafy.ui.theme.LightBackgroundColor
+import com.ssafy.ui.theme.OnPrimaryColor
+import com.ssafy.ui.theme.OnSurfaceColor
+import com.ssafy.ui.theme.PrimaryColor
+import com.ssafy.ui.theme.SecondaryColor
+import com.ssafy.ui.theme.SurfaceColor
+import com.ssafy.ui.theme.customTypography
 
 private val DarkColorScheme = darkColorScheme(
     primary = Purple80,
@@ -18,9 +24,13 @@ private val DarkColorScheme = darkColorScheme(
 )
 
 private val LightColorScheme = lightColorScheme(
-    primary = Purple40,
-    secondary = PurpleGrey40,
-    tertiary = Pink40
+    primary = PrimaryColor,
+    secondary = SecondaryColor,
+    surface = SurfaceColor,
+    background = LightBackgroundColor,
+    onPrimary = OnPrimaryColor,
+    onSurface = OnSurfaceColor,
+    onBackground = OnSurfaceColor
 
     /* Other default colors to override
     background = Color(0xFFFFFBFE),
@@ -37,7 +47,7 @@ private val LightColorScheme = lightColorScheme(
 fun MoyaTheme(
     darkTheme: Boolean = isSystemInDarkTheme(),
     // Dynamic color is available on Android 12+
-    dynamicColor: Boolean = true,
+    dynamicColor: Boolean = false,
     content: @Composable () -> Unit
 ) {
     val colorScheme = when {
@@ -46,13 +56,13 @@ fun MoyaTheme(
             if (darkTheme) dynamicDarkColorScheme(context) else dynamicLightColorScheme(context)
         }
 
-        darkTheme -> DarkColorScheme
+        darkTheme -> LightColorScheme
         else -> LightColorScheme
     }
 
     MaterialTheme(
         colorScheme = colorScheme,
-        typography = Typography,
+        typography = customTypography,
         content = content
     )
 }

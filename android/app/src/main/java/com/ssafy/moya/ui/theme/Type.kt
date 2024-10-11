@@ -2,9 +2,14 @@ package com.ssafy.moya.ui.theme
 
 import androidx.compose.material3.Typography
 import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.text.font.Font
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.ssafy.ui.R
+
+// Set of Material typography styles to start with
+private val jua = FontFamily(Font(R.font.jua_ttf))
 
 // Set of Material typography styles to start with
 val Typography = Typography(
@@ -31,4 +36,46 @@ val Typography = Typography(
         letterSpacing = 0.5.sp
     )
     */
+)
+
+val customTypography = Typography(
+    bodyLarge = TextStyle(
+        fontFamily = jua,
+        fontSize = 20.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = jua,
+        fontSize = 16.sp
+    ),
+    bodySmall = TextStyle(
+        fontFamily = jua,
+        fontSize = 12.sp
+    ),
+    titleLarge = TextStyle(
+        fontFamily = jua,
+        fontSize = 36.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    titleMedium = TextStyle(
+        fontFamily = jua,
+        fontSize = 32.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    titleSmall = TextStyle(
+        fontFamily = jua,
+        fontSize = 28.sp,
+        fontWeight = FontWeight.Bold
+    ),
+    displayLarge = TextStyle(
+        fontFamily = jua,
+        fontSize = 28.sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = jua,
+        fontSize = 24.sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = jua,
+        fontSize = 20.sp
+    )
 )

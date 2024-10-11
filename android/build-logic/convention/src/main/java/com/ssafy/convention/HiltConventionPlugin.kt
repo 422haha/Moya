@@ -16,6 +16,9 @@ internal class HiltConventionPlugin : Plugin<Project> {
             dependencies {
                 add("ksp", libs.findLibrary("hilt.compiler").get())
                 add("implementation", libs.findLibrary("hilt.android").get())
+                add("implementation", libs.findLibrary("hilt.android.testing").get())
+                add("implementation", libs.findLibrary("hilt.core").get())
+                add("implementation", libs.findLibrary("hilt.navigation.compose").get())
             }
         }
     }
