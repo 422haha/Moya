@@ -72,13 +72,8 @@ public class QuestServiceImpl implements QuestService {
         List<ParkNpcs> selectedNpcs = selectRandomNpcs(parkNpcs, questSize);
 
         List<ParkSpecies> selectedSpecies = new ArrayList<>();
-        if (parkId != 1) {
-            selectedSpecies = selectRandomSpecies(parkSpecies, questSize);
-        } else {
-            selectedSpecies.add(parkSpecies.get(2));
-            selectedSpecies.add(parkSpecies.get(2));
-            selectedSpecies.add(parkSpecies.get(2));
-        }
+
+        selectedSpecies = selectRandomSpecies(parkSpecies, questSize);
 
         for (int i = 0; i < questSize; i++) {
             createQuest(selectedSpecies.get(i), selectedNpcs.get(i), exploration);
