@@ -122,9 +122,6 @@ public class ChatServiceImpl implements ChatService {
 
         response = postProcessAIResponse(response);
 
-        // 임시 답변
-        response = "싸피 뒷뜰에 오신 것을 환영해요. 이 공원에서는 강아지풀, 단풍잎, 솔방울을 볼 수 있어요.";
-
         Message aiMessage = createAiMessage(response);
 
         chat.getMessages().add(aiMessage);
