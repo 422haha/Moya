@@ -4,17 +4,20 @@ import com.e22e.moya.common.entity.chatting.Chat;
 import jakarta.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 
 @Entity
 @Table(name = "users")
+@ToString
 public class Users {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "user_id", unique = true)
-    private long id;
+    private Long id;
 
-    @Column(unique = true, nullable = false)
+    @Column(nullable = false)
     private String email;
 
     @Column(nullable = false)
@@ -26,26 +29,27 @@ public class Users {
     @Column(length = 512)
     private String profileImageUrl;
 
-    private String locale;
-
     @OneToMany
     @JoinColumn(name = "user_id")
+    @Exclude
     private List<Exploration> explorations = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Chat> chats = new ArrayList<>();
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
     //getter, setter
 
-    public void setId(long id) {
-        this.id = id;
+    public Long getId() {
+        return id;
     }
 
-    public long getId() {
-        return id;
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getEmail() {
@@ -88,14 +92,6 @@ public class Users {
         this.oauthId = oauthId;
     }
 
-    public String getLocale() {
-        return locale;
-    }
-
-    public void setLocale(String locale) {
-        this.locale = locale;
-    }
-
     public List<Exploration> getExplorations() {
         return explorations;
     }
@@ -119,4 +115,5 @@ public class Users {
     public void setDiscoveries(List<Discovery> discoveries) {
         this.discoveries = discoveries;
     }
+
 }

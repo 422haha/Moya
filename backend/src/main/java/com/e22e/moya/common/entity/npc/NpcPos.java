@@ -1,30 +1,33 @@
 package com.e22e.moya.common.entity.npc;
 
 import com.e22e.moya.common.entity.chatting.Chat;
-import com.e22e.moya.common.entity.quest.Quest;
 import jakarta.persistence.*;
+import lombok.ToString;
+import lombok.ToString.Exclude;
 import java.util.ArrayList;
 import java.util.List;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.Point;
 
 @Entity
 @Table(name = "npc_pos")
+@ToString
 public class NpcPos {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id; // 사실상 npc id
 
-    @Column(nullable = false)
-    private double latitude;
-
-    @Column(nullable = false)
-    private double longitude;
+    @Column(nullable = false, columnDefinition = "geometry(Point, 4326)")
+    private Point<G2D> pos;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "npc_id")
-    private Npc npc;
+    @JoinColumn(name = "park_npc_id")
+    @Exclude
+    private ParkNpcs parkNpc;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Chat> chats = new ArrayList<>();
 
     @ElementCollection
@@ -34,36 +37,28 @@ public class NpcPos {
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public double getLatitude() {
-        return latitude;
+    public Point<G2D> getPos() {
+        return pos;
     }
 
-    public void setLatitude(double latitude) {
-        this.latitude = latitude;
+    public void setPos(Point<G2D> pos) {
+        this.pos = pos;
     }
 
-    public double getLongitude() {
-        return longitude;
+    public ParkNpcs getParkNpc() {
+        return parkNpc;
     }
 
-    public void setLongitude(double longitude) {
-        this.longitude = longitude;
-    }
-
-    public Npc getNpc() {
-        return npc;
-    }
-
-    public void setNpc(Npc npc) {
-        this.npc = npc;
+    public void setParkNpc(ParkNpcs parkNpc) {
+        this.parkNpc = parkNpc;
     }
 
     public List<Chat> getChats() {
@@ -73,4 +68,13 @@ public class NpcPos {
     public void setChats(List<Chat> chats) {
         this.chats = chats;
     }
+
+    public List<Long> getQuestIds() {
+        return questIds;
+    }
+
+    public void setQuestIds(List<Long> questIds) {
+        this.questIds = questIds;
+    }
+
 }

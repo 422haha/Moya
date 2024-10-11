@@ -7,22 +7,28 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import org.locationtech.jts.geom.LineString;
+import lombok.ToString;
+import lombok.ToString.Exclude;
+import org.geolatte.geom.G2D;
+import org.geolatte.geom.LineString;
+
 
 @Entity
 @Table(name = "exploration")
+@ToString
 public class Exploration {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "exploration_id", unique = true)
-    private long id;
+    private Long id;
 
     @Column(name = "user_id")
-    private long userId;
+    private Long userId;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "park_id")
+    @Exclude
     private Park park;
 
     @Column(name = "start_time", nullable = false)
@@ -31,8 +37,7 @@ public class Exploration {
     @Column(name = "end_time")
     private LocalDateTime endTime;
 
-    @Column(precision = 10, scale = 2)
-    private int distance;
+    private double distance;
 
     private Integer steps;
 
@@ -42,30 +47,35 @@ public class Exploration {
     @Column(name = "image_url", length = 512)
     private String imageUrl;
 
-    @Column(columnDefinition = "geography(LineString,4326)")
-    private LineString route;
+    @Column(columnDefinition = "geometry(LineString,4326)")
+    private LineString<G2D> route;
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<Discovery> discoveries = new ArrayList<>();
 
     @OneToMany(mappedBy = "exploration", cascade = CascadeType.ALL, orphanRemoval = true)
+    @Exclude
     private List<QuestCompleted> questCompleted = new ArrayList<>();
+
+    @Column(name = "completed", nullable = false)
+    private boolean completed = false;
 
     //getter, setter
 
-    public long getId() {
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
-    public long getUserId() {
+    public Long getUserId() {
         return userId;
     }
 
-    public void setUserId(long userId) {
+    public void setUserId(Long userId) {
         this.userId = userId;
     }
 
@@ -85,11 +95,11 @@ public class Exploration {
         this.endTime = endTime;
     }
 
-    public int getDistance() {
+    public double getDistance() {
         return distance;
     }
 
-    public void setDistance(int distance) {
+    public void setDistance(double distance) {
         this.distance = distance;
     }
 
@@ -117,11 +127,11 @@ public class Exploration {
         this.imageUrl = imageUrl;
     }
 
-    public LineString getRoute() {
+    public LineString<G2D> getRoute() {
         return route;
     }
 
-    public void setRoute(LineString route) {
+    public void setRoute(LineString<G2D> route) {
         this.route = route;
     }
 
@@ -148,5 +158,13 @@ public class Exploration {
     public void setQuestCompleted(
         List<QuestCompleted> questCompleted) {
         this.questCompleted = questCompleted;
+    }
+
+    public boolean isCompleted() {
+        return completed;
+    }
+
+    public void setCompleted(boolean completed) {
+        this.completed = completed;
     }
 }

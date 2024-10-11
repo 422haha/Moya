@@ -9,22 +9,24 @@ public class Message {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private long id;
+    private Long id;
 
     @Column(nullable = false)
     private LocalDateTime messageTime;
 
-    @Column(nullable = false)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String content;
 
     @Column(nullable = false)
-    private boolean isUserMessage;
+    private boolean userMessage;
 
-    public long getId() {
+    //getter, setter
+
+    public Long getId() {
         return id;
     }
 
-    public void setId(long id) {
+    public void setId(Long id) {
         this.id = id;
     }
 
@@ -45,10 +47,10 @@ public class Message {
     }
 
     public boolean isUserMessage() {
-        return isUserMessage;
+        return userMessage;
     }
 
     public void setUserMessage(boolean userMessage) {
-        isUserMessage = userMessage;
+        this.userMessage = userMessage;
     }
 }

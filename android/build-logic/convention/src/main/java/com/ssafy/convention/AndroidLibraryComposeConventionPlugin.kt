@@ -18,7 +18,7 @@ internal class AndroidLibraryComposeConventionPlugin : Plugin<Project> {
             }
 
             extensions.configure<LibraryExtension> {
-                defaultConfig.minSdk = 21
+                defaultConfig.minSdk = 26
                 defaultConfig.targetSdk = 34
                 compileSdk = 34
 
