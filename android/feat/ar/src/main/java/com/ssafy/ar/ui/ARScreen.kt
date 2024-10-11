@@ -642,7 +642,7 @@ fun ARSceneComposable(
                         result?.let {
                             viewModel.chattingNPC(
                                 explorationId,
-                                nearestQuestInfo.npc?.npcPosId ?: 0,
+                                nearestQuestInfo.npc?.npcPosId ?: 1,
                                 it,
                                 onSuccess = { msg ->
                                     onTTSClicked(msg)
